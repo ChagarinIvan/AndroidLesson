@@ -17,7 +17,7 @@ public class TransactionAdapter extends ArrayAdapter<Transaction> {
     private List<Transaction> transactions;
 
     public TransactionAdapter(Context context, List<Transaction> resource) {
-        super(context,0, resource);
+        super(context, 0, resource);
         this.transactions = resource;
     }
 
@@ -25,14 +25,14 @@ public class TransactionAdapter extends ArrayAdapter<Transaction> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Transaction transaction = getItem(position);
-        if (convertView == null){
+        if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
         RelativeLayout listItem = (RelativeLayout) convertView.findViewById(R.id.listItem);
         TextView title = (TextView) convertView.findViewById(R.id.title);
         TextView price = (TextView) convertView.findViewById(R.id.price);
         TextView date = (TextView) convertView.findViewById(R.id.date);
-        if (position % 2 == 0){
+        if (position % 2 == 0) {
             listItem.setBackgroundColor(Color.RED);
         } else {
             listItem.setBackgroundColor(Color.GREEN);
