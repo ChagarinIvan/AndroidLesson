@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/conteiner">
+    style="@style/conteiner"
+    android:id="@+id/listItem">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:text="TITLE"
+        android:layout_marginLeft="10dp"
+        android:textColor="#7f7f7f"
+        android:textSize="16sp"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/title"
-            android:text="TITLE"
-            android:layout_marginLeft="10dp"
-            android:textColor="#7f7f7f"
-            android:textSize="16sp"/>
-    </LinearLayout>
+    <TextView
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/date"
+        android:text="DATE"
+        android:textColor="#7f7f7f"
+        android:textSize="16sp" />
 
 
     <TextView
@@ -25,9 +28,7 @@
         android:layout_height="match_parent"
         android:id="@+id/price"
         android:text="PRICE"
-        android:layout_margin="10dp"
         android:layout_marginRight="10dp"
         android:textColor="#7f7f7f"
-        android:textSize="16sp"
-        />
+        android:textSize="16sp" />
 </RelativeLayout>
