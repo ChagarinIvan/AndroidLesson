@@ -1,16 +1,28 @@
 package by.chagarin.androidlesson;
 
-/**
- * Created by IME on 07.01.2017.
- */
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Transaction {
     private String title;
-    private String price;
+    private int price;
+    private Date date;
 
-    public Transaction(String title, String price) {
+    public String getDate() {
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        String data = df.format(this.date);
+        return data;
+    }
+
+    public Transaction(String title, int price, String date) throws ParseException {
         this.title = title;
         this.price = price;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        this.date = format.parse(date);
     }
 
     public String getTitle() {
@@ -18,6 +30,6 @@ public class Transaction {
     }
 
     public String getPrice() {
-        return price;
+        return String.valueOf(price);
     }
 }
