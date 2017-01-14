@@ -12,7 +12,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransctionsFragment extends Fragment {
+public class TransactionsFragment extends Fragment {
     private ListView listView;
     private TransactionAdapter transactionAdapter;
     private List<Transaction> data = new ArrayList<>();
@@ -20,15 +20,15 @@ public class TransctionsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View inflate = inflater.inflate(R.layout.fragment_transactions, container);
-        List<Transaction> adapterData = getData();
+        final View inflate = inflater.inflate(R.layout.fragment_transactions, container, false);
+        List<Transaction> adapterData = getDataList();
         transactionAdapter = new TransactionAdapter(getActivity(), adapterData);
         listView = (ListView) inflate.findViewById(R.id.listview);
         listView.setAdapter(transactionAdapter);
         return inflate;
     }
 
-    private List<Transaction> getData() {
+    private List<Transaction> getDataList() {
         try {
             data.add(new Transaction("Windows", 50, "2001-07-25"));
             data.add(new Transaction("Phone", 20, "2010-10-23"));
