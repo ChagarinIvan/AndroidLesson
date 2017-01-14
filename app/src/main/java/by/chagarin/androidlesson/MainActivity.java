@@ -1,5 +1,6 @@
 package by.chagarin.androidlesson;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -42,8 +43,7 @@ public class MainActivity extends ActionBarActivity {
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
-
-
+        setFragment(0, R.string.transactions, new TransactionsFragment());
     }
 
     @Override
@@ -57,27 +57,25 @@ public class MainActivity extends ActionBarActivity {
         drawerToggle.syncState();
     }
 
+    public void setFragment(int position, int title, Fragment fragment) {
+        left_drawer.setItemChecked(position, true);
+        drawerLayout.closeDrawer(left_drawer);
+        setTitle(getString(title));
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+    }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             switch (position) {
                 case 0:
-                    left_drawer.setItemChecked(position, true);
-                    drawerLayout.closeDrawer(left_drawer);
-                    setTitle(getString(R.string.transactions));
-                    getFragmentManager().beginTransaction().replace(R.id.content_frame, new TransactionsFragment()).commit();
+                    setFragment(position, R.string.transactions, new TransactionsFragment());
                     break;
                 case 1:
-                    left_drawer.setItemChecked(position, true);
-                    drawerLayout.closeDrawer(left_drawer);
-                    setTitle(getString(R.string.categores));
-                    getFragmentManager().beginTransaction().replace(R.id.content_frame, new CategoresFragment()).commit();
+                    setFragment(position, R.string.categores, new CategoresFragment());
                     break;
                 case 2:
-                    left_drawer.setItemChecked(position, true);
-                    drawerLayout.closeDrawer(left_drawer);
-                    setTitle(getString(R.string.statistics));
-                    getFragmentManager().beginTransaction().replace(R.id.content_frame, new StatisticsFragment()).commit();
+                    setFragment(position, R.string.statistics, new StatisticsFragment());
                     break;
             }
         }
