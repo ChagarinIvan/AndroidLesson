@@ -1,11 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/conteiner.dark">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Container">
 
-    <fragment
-        class="by.chagarin.androidlesson.TransctionsFragment"
+    <include layout="@layout/toolbar" />
+
+    <android.support.v4.widget.DrawerLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/transactions_fragment" />
+        android:layout_height="match_parent"
+        android:id="@+id/drawer_layout"
+        android:background="@android:color/transparent">
 
-</RelativeLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/content_frame"
+            android:background="@color/background" />
+
+        <ListView
+            android:layout_width="@dimen/drawer_list_width"
+            android:layout_height="match_parent"
+            android:id="@+id/left_drawer"
+            android:layout_gravity="start"
+            android:choiceMode="singleChoice"
+            android:background="@color/background"
+            android:divider="@android:color/transparent" />
+
+    </android.support.v4.widget.DrawerLayout>
+</LinearLayout>
