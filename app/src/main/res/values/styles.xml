@@ -14,7 +14,7 @@
     <!-- Base application theme.
          Defining this lets values-v21/styles.xml reuse it with changes. -->
 
-    <style name="AppTheme.Base" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- colorPrimary is used, for instance, for the default ActionBar
              (but not Toolbar) background.
               We specify the same color for the toolbar background in
@@ -46,6 +46,10 @@
     </style>
 
     <style name="Container.Background">
+        <item name="android:background">@drawable/android_app_back_main</item>
+    </style>
+
+    <style name="Container.AddBackground">
         <item name="android:background">@drawable/android_app_back</item>
     </style>
 
@@ -53,7 +57,7 @@
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>
 
-    <style name="ToolbarColors" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="ToolbarColors" parent="Theme.AppCompat.NoActionBar">
         <!-- android:textColorPrimary is the  color of the title text
              in the Toolbar, in the Theme.AppCompat theme:  -->
         <item name="android:textColorPrimary">@color/abc_primary_text_material_dark</item>
