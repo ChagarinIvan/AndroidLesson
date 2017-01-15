@@ -10,4 +10,5 @@
     <string name="warning">тут будет статистика</string>
     <string name="categores">категории</string>
     <string name="statistics">статистика</string>
+    <string name="add_transaction">Добавили трату</string>
 </resources>
