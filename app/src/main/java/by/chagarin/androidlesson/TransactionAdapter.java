@@ -1,46 +1,56 @@
 package by.chagarin.androidlesson;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
 
 
-public class TransactionAdapter extends ArrayAdapter<Transaction> {
-    private List<Transaction> transactions;
+public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.CardViewHolder> {
+    List<Transaction> transactions;
 
-    public TransactionAdapter(Context context, List<Transaction> resource) {
-        super(context, 0, resource);
-        this.transactions = resource;
+    public TransactionAdapter(List<Transaction> transactions) {
+
+        this.transactions = transactions;
     }
 
-    @NonNull
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Transaction transaction = getItem(position);
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
-        }
-        RelativeLayout listItem = (RelativeLayout) convertView.findViewById(R.id.listItem);
-        TextView title = (TextView) convertView.findViewById(R.id.title);
-        TextView price = (TextView) convertView.findViewById(R.id.price);
-        TextView date = (TextView) convertView.findViewById(R.id.date);
-        if (position % 2 == 0) {
-            listItem.setBackgroundColor(Color.RED);
-        } else {
-            listItem.setBackgroundColor(Color.GREEN);
-        }
-        title.setText(transaction.getTitle());
-        price.setText(transaction.getPrice());
-        date.setText(transaction.getDate());
+    //TransactionAdapter
 
-        return convertView;
+    @Override
+    public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+
+        return new CardViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(CardViewHolder holder, int position) {
+        Transaction transaction = transactions.get(position);
+        holder.name.setText(transaction.getTitle());
+        holder.sum.setText(transaction.getPrice());
+        holder.date.setText(transaction.getDate());
+    }
+
+    @Override
+    public int getItemCount() {
+        return transactions.size();
+    }
+
+
+    public static class CardViewHolder extends RecyclerView.ViewHolder {
+
+        protected TextView name;
+        protected TextView sum;
+        protected TextView date;
+
+        public CardViewHolder(View itemView) {
+            super(itemView);
+            name = (TextView) itemView.findViewById(R.id.title);
+            sum = (TextView) itemView.findViewById(R.id.price);
+            date = (TextView) itemView.findViewById(R.id.date);
+        }
     }
 }
