@@ -2,13 +2,12 @@
     <array name="screen_aray">
 
     </array>
-
     <string name="app_name">moneytracker</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="transactions">Траты</string>
-    <string name="categores">Категории</string>
-    <string name="statistics">Статистика</string>
-    <string name="warning">тут будет экран статистики</string>
+    <string name="warning">тут будет статистика</string>
+    <string name="categores">категории</string>
+    <string name="statistics">статистика</string>
 </resources>

@@ -20,11 +20,11 @@ public class CategoresFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View inflate = inflater.inflate(R.layout.fragment_transactions, container, false);
+        final View inflate = inflater.inflate(R.layout.fragment_categores, container, false);
         List<Category> adapterData = getDataList();
         String[] data = convert(adapterData);
         transactionAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, data);
-        listView = (ListView) inflate.findViewById(R.id.listview);
+        listView = (ListView) inflate.findViewById(R.id.categores_list_view);
         listView.setAdapter(transactionAdapter);
         return inflate;
     }
