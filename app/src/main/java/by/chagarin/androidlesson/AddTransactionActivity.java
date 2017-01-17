@@ -1,28 +1,31 @@
 package by.chagarin.androidlesson;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.TextRes;
 
+@EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity {
-    private Toolbar toolbar;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_transaction);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+    @ViewById(R.id.toolbar)
+    Toolbar toolbar;
+
+    @TextRes(R.string.add_transaction)
+    CharSequence title;
+
+    @AfterViews
+    void afterCreate() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-        setTitle(getString(R.string.add_transaction));
-        //добавим стрелку
+        setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     @Override
