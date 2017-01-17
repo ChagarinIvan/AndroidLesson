@@ -2,7 +2,6 @@ package by.chagarin.androidlesson;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,32 +13,20 @@ import com.mikepenz.materialdrawer.icons.MaterialDrawerFont;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
 
+@EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
-    //private DrawerLayout drawerLayout;
+    @ViewById(R.id.toolbar)
+    Toolbar toolbar;
+
     private Drawer drawer;
-    //private ActionBarDrawerToggle drawerToggle;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        //toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-//        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        left_drawer = (ListView) findViewById(R.id.left_drawer);
-//
-        String[] navigationData = new String[]{
-                getString(R.string.transactions),
-                getString(R.string.categores),
-                getString(R.string.statistics)};
-//        ArrayAdapter<String> navigationDrawerAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, navigationData);
-//        left_drawer.setAdapter(navigationDrawerAdapter);
-//        left_drawer.setOnItemClickListener(new DrawerItemClickListener());
-
+    @AfterViews
+    void afterCreate() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -73,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-//        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
-//        drawerLayout.setDrawerListener(drawerToggle);
         setFragment(0, R.string.transactions, new TransactionsFragment());
     }
 
@@ -91,12 +76,6 @@ public class MainActivity extends AppCompatActivity {
     public void setTitle(CharSequence title) {
         super.setTitle(title);
     }
-
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        drawerToggle.syncState();
-//    }
 
     public void setFragment(int position, int title, Fragment fragment) {
         drawer.closeDrawer();
