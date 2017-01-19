@@ -1,78 +1,91 @@
 package by.chagarin.androidlesson;
 
 import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
+import com.activeandroid.query.Select;
 import com.melnykov.fab.FloatingActionButton;
 
-import java.text.ParseException;
-import java.util.ArrayList;
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
+
 import java.util.List;
 
+@EFragment(R.layout.fragment_transactions)
 public class TransactionsFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private TransactionAdapter transactionAdapter;
-    List<Transaction> data = new ArrayList<>();
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View inflate = inflater.inflate(R.layout.fragment_transactions, container, false);
-        List<Transaction> adapterData = getDataList();
-        transactionAdapter = new TransactionAdapter(adapterData);
+    @ViewById(R.id.transactions_list)
+    RecyclerView recyclerView;
 
-        recyclerView = (RecyclerView) inflate.findViewById(R.id.transactions_list);
-        FloatingActionButton fab = (FloatingActionButton) inflate.findViewById(R.id.fab);
+    @ViewById(R.id.fab)
+    FloatingActionButton fab;
 
+    private Transaction lastTransaction;
+
+    @AfterViews
+    void ready() {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
-
-
-        recyclerView.setAdapter(transactionAdapter);
         fab.attachToRecyclerView(recyclerView);
+    }
 
-        fab.setOnClickListener(new View.OnClickListener() {
+
+    @Click
+    void fabClicked() {
+        Intent intent = new Intent(getActivity(), AddTransactionActivity_.class);
+        intent.putExtra(Transaction.class.getCanonicalName(), lastTransaction);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadData();
+    }
+
+    private void loadData() {
+        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddTransactionActivity_.class);
-                getActivity().startActivity(intent);
+            public Loader<List<Transaction>> onCreateLoader(int id, Bundle args) {
+                final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(getActivity()) {
+                    @Override
+                    public List<Transaction> loadInBackground() {
+                        return getDataList();
+                    }
+                };
+                loader.forceLoad();
+                return loader;
+            }
+
+            @Override
+            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+                recyclerView.setAdapter(new TransactionAdapter(data));
+                if (data.size() != 0) {
+                    lastTransaction = data.get(0);
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Transaction>> loader) {
+
             }
         });
-        return inflate;
     }
 
     private List<Transaction> getDataList() {
-        try {
-            data.add(new Transaction("Windows", 50, "2001-07-25"));
-            data.add(new Transaction("Phone", 20, "2010-10-23"));
-            data.add(new Transaction("iOS", 100, "2019-03-24"));
-            data.add(new Transaction("Mac", 120, "2000-02-26"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-            data.add(new Transaction("Linux", 150, "1989-01-27"));
-        } catch (ParseException e) {
-
-        }
-        return data;
+        return new Select()
+                .from(Transaction.class)
+                .orderBy("date DESC")
+                .execute();
     }
 }

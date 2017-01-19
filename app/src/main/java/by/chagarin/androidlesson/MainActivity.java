@@ -20,7 +20,7 @@ import org.androidannotations.annotations.ViewById;
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
 
-    @ViewById(R.id.toolbar)
+    @ViewById
     Toolbar toolbar;
 
     private Drawer drawer;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-        setFragment(0, R.string.transactions, new TransactionsFragment());
+        setFragment(0, R.string.transactions, TransactionsFragment_.builder().build());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             switch (position) {
                 case 1:
-                    setFragment(position, R.string.transactions, new TransactionsFragment());
+                    setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
                     setFragment(position, R.string.categores, new CategoresFragment());
