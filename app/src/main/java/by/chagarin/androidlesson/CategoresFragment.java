@@ -37,7 +37,6 @@ public class CategoresFragment extends Fragment {
     private CategoriesAdapter categoriesAdapter;
     private ActionModeCallback actionModeCallback = new CategoresFragment.ActionModeCallback();
     private ActionMode actionMode;
-    private List<Category> dataList;
 
     @ViewById(R.id.categories_list_view)
     RecyclerView recyclerView;
@@ -105,7 +104,6 @@ public class CategoresFragment extends Fragment {
              */
             @Override
             public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                dataList = data;
                 categoriesAdapter = new CategoriesAdapter(data, new CategoriesAdapter.CardViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(int position) {
