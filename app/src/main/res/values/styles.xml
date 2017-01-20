@@ -19,6 +19,8 @@
              (but not Toolbar) background.
               We specify the same color for the toolbar background in
               toolbar.xml.. -->
+        <!--добавил для того чтоб актив мод не смещал активити, а появлялся на тулбаре-->
+        <item name="windowActionModeOverlay">true</item>
         <item name="colorPrimary">@color/green</item>
 
         <!-- colorPrimaryDark is used for the status bar (with the
@@ -43,6 +45,7 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:orientation">vertical</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="Container.Background">
