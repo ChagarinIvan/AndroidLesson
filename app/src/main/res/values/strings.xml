@@ -16,4 +16,5 @@
     <string name="add_text">ADD</string>
     <string name="add_activity_title_name">Примечание</string>
     <string name="add_activity_sum_name">Сумма</string>
+    <string name="context_bar_delete">Delete</string>
 </resources>

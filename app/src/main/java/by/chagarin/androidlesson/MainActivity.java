@@ -2,7 +2,7 @@ package by.chagarin.androidlesson;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,7 +18,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActionBarActivity {
 
     @ViewById
     Toolbar toolbar;
