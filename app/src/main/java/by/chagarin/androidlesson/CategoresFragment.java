@@ -163,9 +163,10 @@ public class CategoresFragment extends Fragment {
                 Editable text = editText.getText();
                 //проверка текста через Утилитный класс!!!
                 if (!TextUtils.isEmpty(text)) {
-                    dataList.add(new Category(text.toString()));
+                    new Category(text.toString()).save();
                     //прячем диалог
                     dialog.dismiss();
+                    loadData();
                 }
             }
         });

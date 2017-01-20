@@ -7,7 +7,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.activeandroid.query.Select;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.icons.MaterialDrawerFont;
@@ -28,11 +27,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
-        Category category = new Category("Магазин");
-        category.save();
-        Category category1 = new Select()
-                .from(Category.class)
-                .executeSingle();
+        ;
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
