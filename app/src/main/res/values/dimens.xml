@@ -4,4 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="dividerHeight">0.4dp</dimen>
     <dimen name="drawer_list_width">150dp</dimen>
+    <dimen name="dialog_bottom">32dp</dimen>
+    <dimen name="dialog_padding">16dp</dimen>
+    <dimen name="dialog_text_size">20dp</dimen>
+    <dimen name="dialog_button_width">150dp</dimen>
 </resources>

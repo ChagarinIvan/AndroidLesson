@@ -27,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
+        ;
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -91,7 +92,7 @@ public class MainActivity extends ActionBarActivity {
                     setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
-                    setFragment(position, R.string.categores, new CategoresFragment());
+                    setFragment(position, R.string.categores, CategoresFragment_.builder().build());
                     return true;
                 case 3:
                     setFragment(position, R.string.statistics, new StatisticsFragment());

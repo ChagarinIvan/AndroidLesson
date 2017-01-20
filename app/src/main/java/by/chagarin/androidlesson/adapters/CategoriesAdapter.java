@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,30 +10,31 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-//наследуемся от нашего селект адаптера
-class TransactionAdapter extends SelectableAdapter<TransactionAdapter.CardViewHolder> {
+import by.chagarin.androidlesson.Category;
+import by.chagarin.androidlesson.R;
 
-    private List<Transaction> transactions;
+
+public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardViewHolder> {
+
+    private List<Category> categories;
     private CardViewHolder.ClickListener clickListener;
 
-    TransactionAdapter(List<Transaction> transactions, CardViewHolder.ClickListener clickListener) {
-        this.transactions = transactions;
+
+    public CategoriesAdapter(List<Category> categories, CardViewHolder.ClickListener clickListener) {
+        this.categories = categories;
         this.clickListener = clickListener;
     }
 
     @Override
-    public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-
-        return new CardViewHolder(itemView, clickListener);
+    public CategoriesAdapter.CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_list_item, parent, false);
+        return new CategoriesAdapter.CardViewHolder(itemView, clickListener);
     }
 
     @Override
-    public void onBindViewHolder(CardViewHolder holder, int position) {
-        Transaction transaction = transactions.get(position);
-        holder.name.setText(transaction.getTitle());
-        holder.sum.setText(transaction.getPrice());
-        holder.date.setText(transaction.getDate());
+    public void onBindViewHolder(CategoriesAdapter.CardViewHolder holder, int position) {
+        Category category = categories.get(position);
+        holder.title.setText(category.getName());
         holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
     }
 
@@ -63,35 +64,33 @@ class TransactionAdapter extends SelectableAdapter<TransactionAdapter.CardViewHo
     }
 
     private void removeExpenses(int position) {
-        if (transactions.get(position) != null) {
-            transactions.get(position).delete();
-            transactions.remove(position);
+        if (categories.get(position) != null) {
+            //удаляет запись из БД
+            categories.get(position).delete();
+            categories.remove(position);
         }
     }
 
     @Override
     public int getItemCount() {
-        return transactions.size();
+        return categories.size();
     }
 
+    public static class CardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-    static class CardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-
-        protected TextView name;
-        private TextView sum;
-        private TextView date;
-        private ClickListener clickListener;
+        TextView title;
+        ClickListener clickListener;
         View selectedOverlay;
 
         public CardViewHolder(View itemView, ClickListener clickListener) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.title);
-            sum = (TextView) itemView.findViewById(R.id.price);
-            date = (TextView) itemView.findViewById(R.id.date);
+            title = (TextView) itemView.findViewById(R.id.title);
             this.clickListener = clickListener;
+
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             selectedOverlay = itemView.findViewById(R.id.selected_overlay);
+
         }
 
         @Override
