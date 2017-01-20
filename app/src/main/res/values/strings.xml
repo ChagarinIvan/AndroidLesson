@@ -17,4 +17,9 @@
     <string name="add_activity_title_name">Примечание</string>
     <string name="add_activity_sum_name">Сумма</string>
     <string name="context_bar_delete">Delete</string>
+    <string name="dialog_edit1_hint">Одежда</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">CANCEL</string>
+    <string name="hint_price_example">300</string>
+    <string name="hint_title_example">ВОЙНА И МИР</string>
 </resources>

@@ -80,7 +80,7 @@ public class Transaction extends Model implements Parcelable {
 
     /**
      * для передачи объекта между активностями
-     *
+     * имплементим парселабле
      * @param parcel
      * @param i
      */

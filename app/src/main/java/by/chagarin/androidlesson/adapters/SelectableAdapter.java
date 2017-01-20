@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;

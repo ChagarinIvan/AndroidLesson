@@ -23,6 +23,8 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
+import by.chagarin.androidlesson.adapters.TransactionAdapter;
+
 @EFragment(R.layout.fragment_transactions)
 public class TransactionsFragment extends Fragment {
 
@@ -120,6 +122,8 @@ public class TransactionsFragment extends Fragment {
                 recyclerView.setAdapter(transactionAdapter);
                 if (data.size() != 0) {
                     lastTransaction = data.get(0);
+                } else {
+                    lastTransaction = new Transaction(getString(R.string.hint_title_example), getString(R.string.hint_price_example));
                 }
             }
 
