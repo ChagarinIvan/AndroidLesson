@@ -123,7 +123,10 @@ public class TransactionsFragment extends Fragment {
                 if (data.size() != 0) {
                     lastTransaction = data.get(0);
                 } else {
-                    lastTransaction = new Transaction(getString(R.string.hint_title_example), getString(R.string.hint_price_example));
+                    lastTransaction = new Transaction(
+                            getString(R.string.hint_title_example),
+                            getString(R.string.hint_price_example),
+                            new Category(getString(R.string.hint_category_exemple)));
                 }
             }
 

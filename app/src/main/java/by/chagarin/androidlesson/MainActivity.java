@@ -12,10 +12,16 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.icons.MaterialDrawerFont;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.taskadapter.redmineapi.RedmineException;
+import com.taskadapter.redmineapi.RedmineManager;
+import com.taskadapter.redmineapi.RedmineManagerFactory;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+
+import by.chagarin.androidlesson.auth.SessionManager;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity {
@@ -25,11 +31,19 @@ public class MainActivity extends ActionBarActivity {
 
     private Drawer drawer;
 
+    @Bean
+    SessionManager sessionManager;
+
     @AfterViews
     void afterCreate() {
-        ;
         if (toolbar != null) {
             setSupportActionBar(toolbar);
+        }
+        RedmineManager mgr = RedmineManagerFactory.createWithUserAuth("http://demo.redmine.org", "maneyTracker", "5172670");
+        try {
+            String Token = mgr.getUserManager().getCurrentUser().getApiKey();
+        } catch (RedmineException e) {
+            e.printStackTrace();
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer = new DrawerBuilder()
@@ -39,9 +53,9 @@ public class MainActivity extends ActionBarActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .withHeader(R.layout.drawer_header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down),
+                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(MaterialDrawerFont.Icon.mdf_person),
                         new PrimaryDrawerItem().withName(R.string.categores).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down),
-                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down)
+                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(MaterialDrawerFont.Icon.mdf_expand_more)
                 )
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
@@ -89,12 +103,15 @@ public class MainActivity extends ActionBarActivity {
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             switch (position) {
                 case 1:
+                    drawer.setSelection(1);
                     setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
+                    drawer.setSelection(2);
                     setFragment(position, R.string.categores, CategoresFragment_.builder().build());
                     return true;
                 case 3:
+                    drawer.setSelection(3);
                     setFragment(position, R.string.statistics, new StatisticsFragment());
                     return true;
             }
