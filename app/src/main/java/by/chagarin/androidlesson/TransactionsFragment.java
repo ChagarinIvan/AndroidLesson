@@ -19,11 +19,13 @@ import android.widget.SearchView;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.api.BackgroundExecutor;
 
 import java.util.List;
 
@@ -35,6 +37,7 @@ import by.chagarin.androidlesson.adapters.TransactionAdapter;
 //android:showAsAction="ifRoom" значит, что элемент если помещается, то будет в тулбаре, иначе поместиться в "три точки"
 public class TransactionsFragment extends Fragment {
 
+    private static final String TIMER_NAME = "query_timer";
     private TransactionAdapter transactionAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
@@ -66,10 +69,16 @@ public class TransactionsFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                loadData(newText);
+                BackgroundExecutor.cancelAll(TIMER_NAME, true);
+                filterDelayed(newText);
                 return false;
             }
         });
+    }
+
+    @Background(delay = 300, id = TIMER_NAME)
+    void filterDelayed(String newText) {
+        loadData(newText);
     }
 
     @AfterViews

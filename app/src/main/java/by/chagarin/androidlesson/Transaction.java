@@ -3,10 +3,12 @@ package by.chagarin.androidlesson;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 
 import java.text.DateFormat;
@@ -101,10 +103,12 @@ public class Transaction extends Model implements Parcelable {
     }
 
     public static List<Transaction> getDataList(String filter) {
-        return new Select()
+        From from = new Select()
                 .from(Transaction.class)
-                .where("title LIKE?", "%" + filter + "%")
-                .orderBy("date DESC")
-                .execute();
+                .orderBy("date DESC");
+        if (!TextUtils.isEmpty(filter)) {
+            from.where("title LIKE?", "%" + filter + "%");
+        }
+        return from.execute();
     }
 }
