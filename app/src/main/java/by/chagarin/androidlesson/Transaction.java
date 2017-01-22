@@ -7,11 +7,13 @@ import android.os.Parcelable;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 @Table(name = "Transactions")
@@ -96,5 +98,13 @@ public class Transaction extends Model implements Parcelable {
         parcel.writeInt(price);
         parcel.writeString(this.getDate());
         parcel.writeString(category.getName());
+    }
+
+    public static List<Transaction> getDataList(String filter) {
+        return new Select()
+                .from(Transaction.class)
+                .where("title LIKE?", "%" + filter + "%")
+                .orderBy("date DESC")
+                .execute();
     }
 }

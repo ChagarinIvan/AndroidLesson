@@ -14,13 +14,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
-import com.activeandroid.query.Select;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
@@ -28,11 +30,17 @@ import java.util.List;
 import by.chagarin.androidlesson.adapters.TransactionAdapter;
 
 @EFragment(R.layout.fragment_transactions)
+@OptionsMenu(R.menu.menu_transactions)
+//создаём файл меню для фрагмента
+//android:showAsAction="ifRoom" значит, что элемент если помещается, то будет в тулбаре, иначе поместиться в "три точки"
 public class TransactionsFragment extends Fragment {
 
     private TransactionAdapter transactionAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
+
+    @OptionsMenuItem
+    MenuItem menuSearch;
 
     @ViewById(R.id.transactions_list)
     RecyclerView recyclerView;
@@ -46,6 +54,24 @@ public class TransactionsFragment extends Fragment {
 
     private Transaction lastTransaction;
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        final SearchView searchView = (SearchView) menuSearch.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                loadData(newText);
+                return false;
+            }
+        });
+    }
+
     @AfterViews
     void ready() {
         recyclerView.setHasFixedSize(true);
@@ -58,7 +84,7 @@ public class TransactionsFragment extends Fragment {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadData();
+                loadData("");
             }
         });
 
@@ -90,7 +116,7 @@ public class TransactionsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadData();
+        loadData("");
     }
 
     private void toggleSelection(int position) {
@@ -106,8 +132,9 @@ public class TransactionsFragment extends Fragment {
 
     /**
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
+     * @param filter
      */
-    private void loadData() {
+    private void loadData(final String filter) {
         getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
 
             /**
@@ -118,7 +145,7 @@ public class TransactionsFragment extends Fragment {
                 final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(getActivity()) {
                     @Override
                     public List<Transaction> loadInBackground() {
-                        return getDataList();
+                        return Transaction.getDataList(filter);
                     }
                 };
                 //важно
@@ -173,12 +200,7 @@ public class TransactionsFragment extends Fragment {
      * берёт данные из БД с сортировкой от большего к меньшему
      * @return
      */
-    private List<Transaction> getDataList() {
-        return new Select()
-                .from(Transaction.class)
-                .orderBy("date DESC")
-                .execute();
-    }
+
 
     /**
      * исспользуеться для создания актив мода
