@@ -1,9 +1,13 @@
 package by.chagarin.androidlesson.adapters;
 
+import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -18,13 +22,24 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
 
     private List<Category> categories;
     private CardViewHolder.ClickListener clickListener;
+    private Context context;
+    private int lastPosition = -1;
 
 
-    public CategoriesAdapter(List<Category> categories, CardViewHolder.ClickListener clickListener) {
+    public CategoriesAdapter(List<Category> categories, Context context, CardViewHolder.ClickListener clickListener) {
         this.categories = categories;
         this.clickListener = clickListener;
+        this.context = context;
     }
 
+    public void setAnimations(View view, int position) {
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_up);
+            view.startAnimation(animation);
+            lastPosition = position;
+        }
+    }
+    
     @Override
     public CategoriesAdapter.CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_list_item, parent, false);
@@ -36,6 +51,7 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
         Category category = categories.get(position);
         holder.title.setText(category.getName());
         holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
+        setAnimations(holder.cardView, position);
     }
 
     public void removeItems(List<Integer> positions) {
@@ -58,7 +74,7 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
         }
     }
 
-    private void removeItem(int position) {
+    public void removeItem(int position) {
         removeExpenses(position);
         notifyItemRemoved(position);
     }
@@ -78,6 +94,7 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
 
     public static class CardViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
+        CardView cardView;
         TextView title;
         ClickListener clickListener;
         View selectedOverlay;
@@ -90,7 +107,7 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             selectedOverlay = itemView.findViewById(R.id.selected_overlay);
-
+            cardView = (CardView) itemView.findViewById(R.id.card_id);
         }
 
         @Override

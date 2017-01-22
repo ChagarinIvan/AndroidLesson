@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -132,6 +133,7 @@ public class AddTransactionActivity extends ActionBarActivity {
 
     @Click
     void addButton() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         try {
             String title = this.title.getText().toString();
             String price = sum.getText().toString();
@@ -148,7 +150,7 @@ public class AddTransactionActivity extends ActionBarActivity {
         } catch (ParseException e) {
             Toast.makeText(this, getString(R.string.warning_no_integer), Toast.LENGTH_LONG).show();
             addButton.setEnabled(false);
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             Toast.makeText(this, getString(R.string.warning_no_categories), Toast.LENGTH_LONG).show();
             addButton.setEnabled(false);
         }

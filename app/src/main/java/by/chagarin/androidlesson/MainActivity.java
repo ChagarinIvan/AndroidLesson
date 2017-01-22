@@ -12,13 +12,11 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.icons.MaterialDrawerFont;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.taskadapter.redmineapi.RedmineException;
-import com.taskadapter.redmineapi.RedmineManager;
-import com.taskadapter.redmineapi.RedmineManagerFactory;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 
 import by.chagarin.androidlesson.auth.SessionManager;
@@ -34,17 +32,30 @@ public class MainActivity extends ActionBarActivity {
     @Bean
     SessionManager sessionManager;
 
+    //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
+    @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
+    void onSessionOpen() {
+
+    }
+
+    //проверяем аккаунт
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sessionManager.login();
+    }
+
     @AfterViews
     void afterCreate() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-        RedmineManager mgr = RedmineManagerFactory.createWithUserAuth("http://demo.redmine.org", "maneyTracker", "5172670");
-        try {
-            String Token = mgr.getUserManager().getCurrentUser().getApiKey();
-        } catch (RedmineException e) {
-            e.printStackTrace();
-        }
+
+        String login = "Chagarin_Ivan";
+        String token = "213asdas32d1as5f4f4g3sg4f6s4ggd";
+        sessionManager.createAccount(login, token);
+
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer = new DrawerBuilder()
                 .withActivity(this)

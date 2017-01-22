@@ -6,10 +6,12 @@ import android.content.AsyncTaskLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -38,6 +40,10 @@ public class TransactionsFragment extends Fragment {
     @ViewById(R.id.fab)
     FloatingActionButton fab;
 
+    //резинка от трусов
+    @ViewById
+    SwipeRefreshLayout swipeLayout;
+
     private Transaction lastTransaction;
 
     @AfterViews
@@ -47,6 +53,29 @@ public class TransactionsFragment extends Fragment {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         fab.attachToRecyclerView(recyclerView);
+        //настраиваем цветавую схесу свайпа и устанавливаем слушателя
+        swipeLayout.setColorSchemeColors(R.color.green, R.color.orange, R.color.blue);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+            }
+        });
+
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                transactionAdapter.removeItem(viewHolder.getAdapterPosition());
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
 
@@ -55,6 +84,7 @@ public class TransactionsFragment extends Fragment {
         Intent intent = new Intent(getActivity(), AddTransactionActivity_.class);
         intent.putExtra(Transaction.class.getCanonicalName(), lastTransaction);
         startActivity(intent);
+        getActivity().overridePendingTransition(R.anim.from_midle, R.anim.in_midle);
     }
 
     @Override
@@ -101,7 +131,9 @@ public class TransactionsFragment extends Fragment {
              */
             @Override
             public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
-                transactionAdapter = new TransactionAdapter(data, new TransactionAdapter.CardViewHolder.ClickListener() {
+                //отключаем свайп
+                swipeLayout.setRefreshing(false);
+                transactionAdapter = new TransactionAdapter(data, getActivity(), new TransactionAdapter.CardViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(int position) {
                         if (actionMode != null) {

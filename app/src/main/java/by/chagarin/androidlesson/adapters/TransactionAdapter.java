@@ -1,9 +1,13 @@
 package by.chagarin.androidlesson.adapters;
 
+import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -18,16 +22,18 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
 
     private List<Transaction> transactions;
     private CardViewHolder.ClickListener clickListener;
+    private Context context;
+    private int lastPosition = -1;
 
-    public TransactionAdapter(List<Transaction> transactions, CardViewHolder.ClickListener clickListener) {
+    public TransactionAdapter(List<Transaction> transactions, Context context, CardViewHolder.ClickListener clickListener) {
         this.transactions = transactions;
         this.clickListener = clickListener;
+        this.context = context;
     }
 
     @Override
     public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-
         return new CardViewHolder(itemView, clickListener);
     }
 
@@ -38,6 +44,21 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
         holder.sum.setText(transaction.getPrice());
         holder.date.setText(transaction.getDate());
         holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
+        setAnimations(holder.cardView, position);
+    }
+
+    /**
+     * метод устанавливает анимацию элементу
+     *
+     * @param view
+     * @param position
+     */
+    public void setAnimations(View view, int position) {
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_up);
+            view.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     public void removeItems(List<Integer> positions) {
@@ -60,7 +81,7 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
         }
     }
 
-    private void removeItem(int position) {
+    public void removeItem(int position) {
         removeExpenses(position);
         notifyItemRemoved(position);
     }
@@ -87,6 +108,8 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
         private ClickListener clickListener;
         View selectedOverlay;
 
+        protected CardView cardView;
+
         public CardViewHolder(View itemView, ClickListener clickListener) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.title);
@@ -96,6 +119,7 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             selectedOverlay = itemView.findViewById(R.id.selected_overlay);
+            cardView = (CardView) itemView.findViewById(R.id.card_id);
         }
 
         @Override
