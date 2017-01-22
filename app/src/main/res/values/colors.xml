@@ -11,4 +11,6 @@
     <color name="accent_pressed">#C2185B</color>
     <color name="primary_foreground">#88bebebe</color>
     <color name="button_color">#7E7E7E</color>
+    <color name="orange">#FF4500</color>
+    <color name="blue">#0000FF</color>
 </resources>

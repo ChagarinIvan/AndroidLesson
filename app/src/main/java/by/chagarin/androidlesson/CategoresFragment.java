@@ -6,10 +6,12 @@ import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -44,6 +46,8 @@ public class CategoresFragment extends Fragment {
     @ViewById(R.id.fab)
     FloatingActionButton fab;
 
+    @ViewById
+    SwipeRefreshLayout swipeLayout;
 
     @AfterViews
     void afterView() {
@@ -52,6 +56,27 @@ public class CategoresFragment extends Fragment {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         fab.attachToRecyclerView(recyclerView);
+        swipeLayout.setColorSchemeColors(R.color.green, R.color.orange, R.color.blue);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+            }
+        });
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                categoriesAdapter.removeItem(viewHolder.getAdapterPosition());
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     //по нажатию на ФАБ запускается диалог добавления новой категории
@@ -104,7 +129,8 @@ public class CategoresFragment extends Fragment {
              */
             @Override
             public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                categoriesAdapter = new CategoriesAdapter(data, new CategoriesAdapter.CardViewHolder.ClickListener() {
+                swipeLayout.setRefreshing(false);
+                categoriesAdapter = new CategoriesAdapter(data, getActivity(), new CategoriesAdapter.CardViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(int position) {
                         if (actionMode != null) {

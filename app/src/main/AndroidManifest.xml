@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="by.chagarin.androidlesson">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -19,12 +21,31 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".AddTransactionActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity_" />
         </activity>
+
+        <service
+            android:name='.auth.AuthService'
+            android:exported='false'>
+            <intent-filter>
+                <action android:name='android.accounts.AccountAuthenticator' />
+            </intent-filter>
+            <meta-data
+                android:name='android.accounts.AccountAuthenticator'
+                android:resource='@xml/authenticator' />
+        </service>
     </application>
+
 
 </manifest>

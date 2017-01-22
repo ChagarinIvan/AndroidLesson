@@ -22,4 +22,7 @@
     <string name="cancel_button">CANCEL</string>
     <string name="hint_price_example">300</string>
     <string name="hint_title_example">ВОЙНА И МИР</string>
+    <string name="hint_category_exemple">МАГАЗИН</string>
+    <string name="warning_no_categories">ВНАЧАЛЕ СОЗДАЙТЕ КАТЕГОРИИ</string>
+    <string name="search">search</string>
 </resources>

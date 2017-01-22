@@ -14,8 +14,12 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
+
+import by.chagarin.androidlesson.auth.SessionManager;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity {
@@ -25,12 +29,33 @@ public class MainActivity extends ActionBarActivity {
 
     private Drawer drawer;
 
+    @Bean
+    SessionManager sessionManager;
+
+    //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
+    @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
+    void onSessionOpen() {
+
+    }
+
+    //проверяем аккаунт
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sessionManager.login();
+    }
+
     @AfterViews
     void afterCreate() {
-        ;
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+
+        String login = "Chagarin_Ivan";
+        String token = "213asdas32d1as5f4f4g3sg4f6s4ggd";
+        sessionManager.createAccount(login, token);
+
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer = new DrawerBuilder()
                 .withActivity(this)
@@ -39,9 +64,9 @@ public class MainActivity extends ActionBarActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .withHeader(R.layout.drawer_header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down),
+                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(MaterialDrawerFont.Icon.mdf_person),
                         new PrimaryDrawerItem().withName(R.string.categores).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down),
-                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down)
+                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(MaterialDrawerFont.Icon.mdf_expand_more)
                 )
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
@@ -89,12 +114,15 @@ public class MainActivity extends ActionBarActivity {
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             switch (position) {
                 case 1:
+                    drawer.setSelection(1);
                     setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
+                    drawer.setSelection(2);
                     setFragment(position, R.string.categores, CategoresFragment_.builder().build());
                     return true;
                 case 3:
+                    drawer.setSelection(3);
                     setFragment(position, R.string.statistics, new StatisticsFragment());
                     return true;
             }
