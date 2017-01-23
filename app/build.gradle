@@ -33,6 +33,7 @@ dependencies {
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
     compile('com.mikepenz:materialdrawer:5.3.6@aar') {
         transitive = true
     }
