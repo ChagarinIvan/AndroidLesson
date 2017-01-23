@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.activeandroid.query.Select;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
@@ -92,17 +91,6 @@ public class CategoresFragment extends Fragment {
     }
 
     /**
-     * собственно метод загрузчик из БД
-     *
-     * @return
-     */
-    private List<Category> getDataList() {
-        return new Select()
-                .from(Category.class)
-                .execute();
-    }
-
-    /**
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
      */
     private void loadData() {
@@ -116,7 +104,7 @@ public class CategoresFragment extends Fragment {
                 final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(getActivity()) {
                     @Override
                     public List<Category> loadInBackground() {
-                        return getDataList();
+                        return Category.getDataList();
                     }
                 };
                 //важно

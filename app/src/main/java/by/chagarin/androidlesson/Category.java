@@ -3,6 +3,9 @@ package by.chagarin.androidlesson;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
+
+import java.util.List;
 
 /**
  * делаем класс для БД
@@ -26,5 +29,11 @@ public class Category extends Model {
     }
 
     public Category() {
+    }
+
+    public static List<Category> getDataList() {
+        return new Select()
+                .from(Category.class)
+                .execute();
     }
 }
