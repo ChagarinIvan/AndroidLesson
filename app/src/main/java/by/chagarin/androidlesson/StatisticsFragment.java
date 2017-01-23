@@ -1,21 +1,22 @@
 package by.chagarin.androidlesson;
 
 import android.app.Fragment;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
-/**
- * Created by IME on 14.01.2017.
- */
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
 
+import by.chagarin.androidlesson.views.PieChartView;
+
+@EFragment(R.layout.fragment_statistics)
 public class StatisticsFragment extends Fragment {
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View inflate = inflater.inflate(R.layout.statistics_fragment, container, false);
-        return inflate;
+    private float[] dataPoints = {400, 50, 70, 90, 100};
+
+    @ViewById(R.id.pie_diagramm)
+    PieChartView pieDiagramm;
+
+    @AfterViews
+    void ready() {
+        pieDiagramm.setDataPoints(dataPoints);
     }
 }

@@ -123,7 +123,7 @@ public class MainActivity extends ActionBarActivity {
                     return true;
                 case 3:
                     drawer.setSelection(3);
-                    setFragment(position, R.string.statistics, new StatisticsFragment());
+                    setFragment(position, R.string.statistics, StatisticsFragment_.builder().build());
                     return true;
             }
             return false;
