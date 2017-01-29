@@ -6,15 +6,16 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="transactions">Траты</string>
+    <string name="proceeds">Траты</string>
     <string name="warning_null">Пустые поля</string>
     <string name="warning_no_integer">В поле сумма не числовое значение</string>
     <string name="statistics_text">тут будет статистика</string>
-    <string name="categores">категории</string>
-    <string name="statistics">статистика</string>
-    <string name="add_transaction">Добавили трату</string>
-    <string name="add_text">ADD</string>
-    <string name="add_activity_title_name">Примечание</string>
+    <string name="categores">Категории</string>
+    <string name="statistics">Статистика</string>
+    <string name="transactions">Траты</string>
+    <string name="add_transaction">Траты</string>
+    <string name="add_text">Добавить</string>
+    <string name="add_activity_title_name">Короткое название</string>
     <string name="add_activity_sum_name">Сумма</string>
     <string name="context_bar_delete">Delete</string>
     <string name="dialog_edit1_hint">Одежда</string>
@@ -25,4 +26,7 @@
     <string name="hint_category_exemple">МАГАЗИН</string>
     <string name="warning_no_categories">ВНАЧАЛЕ СОЗДАЙТЕ КАТЕГОРИИ</string>
     <string name="search">search</string>
+    <string name="warning_sql">Нельзя удалить, есть транзакции даннной категории</string>
+    <string name="add">Поступления</string>
+    <string name="comment">Подробное описание</string>
 </resources>

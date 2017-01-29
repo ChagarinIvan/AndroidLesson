@@ -6,13 +6,17 @@ import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
@@ -29,18 +33,6 @@ public class StatisticsFragment extends Fragment {
 
     @ViewById
     PieChart pieChart;
-
-    @AfterViews
-    void ready() {
-        List<PieEntry> entries = new ArrayList<>();
-
-        entries.add(new PieEntry(18.5f, "Green"));
-        entries.add(new PieEntry(26.7f, "Yellow"));
-        entries.add(new PieEntry(24.0f, "Red"));
-        entries.add(new PieEntry(30.8f, "Blue"));
-
-
-    }
 
     @Override
     public void onResume() {
@@ -74,12 +66,28 @@ public class StatisticsFragment extends Fragment {
              * в основном потоке после загрузки
              */
             @Override
-            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+            public void onLoadFinished(Loader<List<Transaction>> loader, final List<Transaction> data) {
                 //тут будем создавать пич чат
-                PieDataSet set = new PieDataSet(sortData(data), "Election Results");
+                final List<PieEntry> pieEntries = sortData(data);
+                final PieDataSet set = new PieDataSet(pieEntries, "Общий расход");
                 set.setColors(getRandomColors(data));
-                PieData pieData = new PieData(set);
+                final PieData pieData = new PieData(set);
                 pieChart.setData(pieData);
+                pieChart.animateXY(2000, 2000, Easing.EasingOption.EaseInCirc, Easing.EasingOption.EaseInCirc);
+                pieChart.setCenterText(calcSumm(data));
+                pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                    @Override
+                    public void onValueSelected(Entry e, Highlight h) {
+                        int entryIndex = set.getEntryIndex(e);
+                        PieEntry pieEntry = pieEntries.get(entryIndex);
+                        Toast.makeText(getActivity(), pieEntry.getLabel(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onNothingSelected() {
+
+                    }
+                });
                 pieChart.invalidate();
             }
 
@@ -88,6 +96,14 @@ public class StatisticsFragment extends Fragment {
 
             }
         });
+    }
+
+    private String calcSumm(List<Transaction> data) {
+        int summ = 0;
+        for (Transaction tr : data) {
+            summ += Integer.parseInt(tr.getPrice());
+        }
+        return "Общий рассход " + summ;
     }
 
     //метод будет возвращать лист рандомных цвето нужного размера
@@ -102,10 +118,10 @@ public class StatisticsFragment extends Fragment {
 
     private List<PieEntry> sortData(List<Transaction> data) {
         //создаем мап где для каждой категории указано сколько товаров куплено
-        HashMap<Category, Integer> categoryList = new HashMap<Category, Integer>();
+        HashMap<Category, Float> categoryList = new HashMap<Category, Float>();
         for (Transaction tr : data) {
             Category category = tr.getCategory();
-            int summ = Integer.parseInt(tr.getPrice());
+            float summ = Float.parseFloat(tr.getPrice());
             if (categoryList.containsKey(category)) {
                 summ += categoryList.get(category);
             }
@@ -113,7 +129,7 @@ public class StatisticsFragment extends Fragment {
         }
         //переводим всё в пие ентри
         List<PieEntry> entries = new ArrayList<>();
-        for (Map.Entry<Category, Integer> mapEntry : categoryList.entrySet()) {
+        for (Map.Entry<Category, Float> mapEntry : categoryList.entrySet()) {
             entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
         }
         return entries;

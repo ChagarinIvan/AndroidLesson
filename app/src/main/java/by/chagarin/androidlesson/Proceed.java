@@ -1,6 +1,5 @@
 package by.chagarin.androidlesson;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -18,8 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-@Table(name = "Transactions")
-public class Transaction extends Model implements Parcelable {
+@Table(name = "Proceeds")
+public class Proceed extends Model implements Parcelable {
 
     @Column(name = "title")
     private String title;
@@ -29,49 +28,54 @@ public class Transaction extends Model implements Parcelable {
     private Date date;
     @Column(name = "Comment")
     private String comment;
-    @Column(name = "category")
-    private Category category;
+    @Column(name = "categoryplace")
+    private Category categoryPlace;
+    @Column(name = "categoryproceed")
+    private Category categoryProcees;
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
     /**
      * need to active android
+     *
      * @param title
      * @param price
      * @param date
-     * @param category
+     * @param categoryPlace
      */
-    public Transaction(String title, String price, Date date, String comment, Category category) {
+    public Proceed(String title, String price, Date date, String comment, Category categoryPlace, Category categoryProceed) {
         this.title = title;
         this.price = Float.parseFloat(price);
-        this.category = category;
+        this.categoryPlace = categoryPlace;
         this.date = date;
         this.comment = comment;
+        this.categoryProcees = categoryProceed;
     }
 
-    protected Transaction(Parcel in) {
+    protected Proceed(Parcel in) {
         try {
             title = in.readString();
             price = in.readFloat();
             date = df.parse(in.readString());
-            category = new Category(in.readString(), in.readString());
+            categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
             comment = in.readString();
+            categoryProcees = new Category(in.readString(), KindOfCategories.getProceed());
         } catch (ParseException ignored) {
         }
     }
 
-    public Transaction() {
+    public Proceed() {
     }
 
-    public static final Creator<Transaction> CREATOR = new Creator<Transaction>() {
+    public static final Creator<by.chagarin.androidlesson.Proceed> CREATOR = new Creator<Proceed>() {
         @Override
-        public Transaction createFromParcel(Parcel in) {
-            return new Transaction(in);
+        public by.chagarin.androidlesson.Proceed createFromParcel(Parcel in) {
+            return new by.chagarin.androidlesson.Proceed(in);
         }
 
         @Override
-        public Transaction[] newArray(int size) {
-            return new Transaction[size];
+        public by.chagarin.androidlesson.Proceed[] newArray(int size) {
+            return new by.chagarin.androidlesson.Proceed[size];
         }
     };
 
@@ -91,8 +95,12 @@ public class Transaction extends Model implements Parcelable {
         return String.valueOf(price);
     }
 
-    public Category getCategory() {
-        return category;
+    public Category getCategoryPlace() {
+        return categoryPlace;
+    }
+
+    public Category getCategoryProcees() {
+        return categoryProcees;
     }
 
     @Override
@@ -103,6 +111,7 @@ public class Transaction extends Model implements Parcelable {
     /**
      * для передачи объекта между активностями
      * имплементим парселабле
+     *
      * @param parcel
      * @param i
      */
@@ -111,14 +120,14 @@ public class Transaction extends Model implements Parcelable {
         parcel.writeString(title);
         parcel.writeFloat(price);
         parcel.writeString(this.getDate());
-        parcel.writeString(category.getName());
-        parcel.writeString(category.getKindOfCategories());
+        parcel.writeString(categoryPlace.getName());
         parcel.writeString(comment);
+        parcel.writeString(categoryProcees.getName());
     }
 
-    public static List<Transaction> getDataList(String filter) {
+    public static List<by.chagarin.androidlesson.Proceed> getDataList(String filter) {
         From from = new Select()
-                .from(Transaction.class)
+                .from(by.chagarin.androidlesson.Proceed.class)
                 .orderBy("date DESC");
         if (!TextUtils.isEmpty(filter)) {
             from.where("title LIKE?", "%" + filter + "%");
@@ -126,3 +135,4 @@ public class Transaction extends Model implements Parcelable {
         return from.execute();
     }
 }
+

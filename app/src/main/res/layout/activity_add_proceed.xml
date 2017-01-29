@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Container_landscape.AddBackground"
-    android:baselineAligned="false"
-    android:orientation="vertical">
+    style="@style/Container.AddBackground"
+    android:baselineAligned="false">
 
     <include layout="@layout/toolbar" />
 
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnCount="4"
-        android:rowCount="2"
+        android:columnCount="2"
+        android:rowCount="4"
         android:background="@color/background">
 
         <TextView
@@ -22,6 +21,7 @@
 
         <EditText
             android:id="@+id/sum"
+            android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
@@ -33,11 +33,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
+            android:paddingRight="10dp"
             android:text="@string/add_activity_title_name"
             android:textSize="20dp" />
 
         <EditText
             android:id="@+id/title"
+            android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
@@ -48,11 +50,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:text="Категория"
+            android:text="Источник"
             android:textSize="20dp" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/spinner_proceed"
+            android:textSize="20dp"
+            android:spinnerMode="dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"></Spinner>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="fill"
+            android:text="Куда поступило"
+            android:textSize="20dp" />
+
+        <Spinner
+            android:id="@+id/spinner_place"
+            android:textSize="20dp"
             android:spinnerMode="dialog"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"></Spinner>
@@ -65,20 +82,29 @@
             android:textSize="20dp" />
 
         <TextView
+            android:id="@+id/date_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:textColor="@color/green"
-            android:text="Сегодня"
             android:textSize="20dp" />
 
-        <Button
+        <EditText
+            android:id="@+id/comment"
+            android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_text"
-            android:onClick="onClick"
-            android:id="@+id/add_button"
-            android:clickable="true"
-            android:enabled="true" />
+            android:gravity="fill"
+            android:layout_columnSpan="2"
+            android:hint="@string/comment" />
+
     </GridLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_text"
+        android:onClick="onClick"
+        android:id="@+id/add_button"
+        android:clickable="true"
+        android:enabled="true" />
 </LinearLayout>

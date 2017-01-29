@@ -37,6 +37,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity_" />
         </activity>
+        <activity android:name=".AddProccedActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity_" />
+        </activity>
 
         <service
             android:name='.auth.AuthService'

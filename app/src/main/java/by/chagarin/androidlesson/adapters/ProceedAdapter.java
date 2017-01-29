@@ -14,36 +14,35 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import by.chagarin.androidlesson.Proceed;
 import by.chagarin.androidlesson.R;
-import by.chagarin.androidlesson.Transaction;
 
-//наследуемся от нашего селект адаптера
-public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.CardViewHolder> {
+public class ProceedAdapter extends SelectableAdapter<by.chagarin.androidlesson.adapters.ProceedAdapter.CardViewHolder> {
 
-    private List<Transaction> transactions;
-    private CardViewHolder.ClickListener clickListener;
+    private List<Proceed> proceeds;
+    private ProceedAdapter.CardViewHolder.ClickListener clickListener;
     private Context context;
     private int lastPosition = -1;
 
-    public TransactionAdapter(List<Transaction> transactions, Context context, CardViewHolder.ClickListener clickListener) {
-        this.transactions = transactions;
+    public ProceedAdapter(List<Proceed> proceeds, Context context, ProceedAdapter.CardViewHolder.ClickListener clickListener) {
+        this.proceeds = proceeds;
         this.clickListener = clickListener;
         this.context = context;
     }
 
     @Override
-    public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ProceedAdapter.CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-        return new CardViewHolder(itemView, clickListener);
+        return new ProceedAdapter.CardViewHolder(itemView, clickListener);
     }
 
     @Override
-    public void onBindViewHolder(CardViewHolder holder, int position) {
-        Transaction transaction = transactions.get(position);
-        holder.name.setText(transaction.getTitle());
-        holder.sum.setText(transaction.getPrice());
-        holder.date.setText(transaction.getDate());
-        holder.comment.setText(transaction.getComment());
+    public void onBindViewHolder(ProceedAdapter.CardViewHolder holder, int position) {
+        Proceed proceed = proceeds.get(position);
+        holder.name.setText(proceed.getTitle());
+        holder.sum.setText(proceed.getPrice());
+        holder.date.setText(proceed.getDate());
+        holder.comment.setText(proceed.getComment());
         holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
         setAnimations(holder.cardView, position);
     }
@@ -88,16 +87,16 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
     }
 
     private void removeExpenses(int position) {
-        if (transactions.get(position) != null) {
+        if (proceeds.get(position) != null) {
             //удаляет запись из БД
-            transactions.get(position).delete();
-            transactions.remove(position);
+            proceeds.get(position).delete();
+            proceeds.remove(position);
         }
     }
 
     @Override
     public int getItemCount() {
-        return transactions.size();
+        return proceeds.size();
     }
 
 
@@ -107,12 +106,12 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
         private TextView sum;
         private TextView date;
         private TextView comment;
-        private ClickListener clickListener;
+        private ProceedAdapter.CardViewHolder.ClickListener clickListener;
         View selectedOverlay;
 
         protected CardView cardView;
 
-        public CardViewHolder(View itemView, ClickListener clickListener) {
+        public CardViewHolder(View itemView, ProceedAdapter.CardViewHolder.ClickListener clickListener) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.title);
             sum = (TextView) itemView.findViewById(R.id.price);
@@ -142,6 +141,7 @@ public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.Car
 
         public interface ClickListener {
             void onItemClick(int position);
+
             boolean onItemLongClick(int position);
         }
     }

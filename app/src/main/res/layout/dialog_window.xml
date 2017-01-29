@@ -26,6 +26,13 @@
         android:id="@+id/edit_text"
         android:hint="@string/dialog_edit1_hint" />
 
+    <Spinner
+        android:id="@+id/spinner"
+        android:textSize="20dp"
+        android:spinnerMode="dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"></Spinner>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
