@@ -1,5 +1,6 @@
 package by.chagarin.androidlesson;
 
+
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.SearchManager;
@@ -32,23 +33,21 @@ import org.androidannotations.api.BackgroundExecutor;
 import java.util.Date;
 import java.util.List;
 
-import by.chagarin.androidlesson.adapters.TransactionAdapter;
+import by.chagarin.androidlesson.adapters.ProceedAdapter;
 
-@EFragment(R.layout.fragment_transactions)
+@EFragment(R.layout.fragment_proceeds)
 @OptionsMenu(R.menu.menu_transactions)
-//создаём файл меню для фрагмента
-//android:showAsAction="ifRoom" значит, что элемент если помещается, то будет в тулбаре, иначе поместиться в "три точки"
-public class TransactionsFragment extends Fragment {
+public class ProceedFragment extends Fragment {
 
     private static final String TIMER_NAME = "query_timer";
-    private TransactionAdapter transactionAdapter;
+    private ProceedAdapter proceedAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
 
     @OptionsMenuItem
     MenuItem menuSearch;
 
-    @ViewById(R.id.transactions_list)
+    @ViewById(R.id.proceeds_list)
     RecyclerView recyclerView;
 
     @ViewById(R.id.fab)
@@ -58,7 +57,7 @@ public class TransactionsFragment extends Fragment {
     @ViewById
     SwipeRefreshLayout swipeLayout;
 
-    private Transaction lastTransaction;
+    private Proceed lastProcced;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -113,7 +112,7 @@ public class TransactionsFragment extends Fragment {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                transactionAdapter.removeItem(viewHolder.getAdapterPosition());
+                proceedAdapter.removeItem(viewHolder.getAdapterPosition());
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
@@ -123,8 +122,8 @@ public class TransactionsFragment extends Fragment {
 
     @Click
     void fabClicked() {
-        Intent intent = new Intent(getActivity(), AddTransactionActivity_.class);
-        intent.putExtra(Transaction.class.getCanonicalName(), lastTransaction);
+        Intent intent = new Intent(getActivity(), AddProccedActivity_.class);
+        intent.putExtra(Proceed.class.getCanonicalName(), lastProcced);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.from_midle, R.anim.in_midle);
     }
@@ -136,8 +135,8 @@ public class TransactionsFragment extends Fragment {
     }
 
     private void toggleSelection(int position) {
-        transactionAdapter.togglePosition(position);
-        int count = transactionAdapter.getSelectedItemsCount();
+        proceedAdapter.togglePosition(position);
+        int count = proceedAdapter.getSelectedItemsCount();
         if (count == 0) {
             actionMode.finish();
         } else {
@@ -148,20 +147,21 @@ public class TransactionsFragment extends Fragment {
 
     /**
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
+     *
      * @param filter
      */
     private void loadData(final String filter) {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
+        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
 
             /**
              * прозодит в бекграуде
              */
             @Override
-            public Loader<List<Transaction>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(getActivity()) {
+            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
+                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(getActivity()) {
                     @Override
-                    public List<Transaction> loadInBackground() {
-                        return Transaction.getDataList(filter);
+                    public List<Proceed> loadInBackground() {
+                        return Proceed.getDataList(filter);
                     }
                 };
                 //важно
@@ -173,10 +173,10 @@ public class TransactionsFragment extends Fragment {
              * в основном потоке после загрузки
              */
             @Override
-            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
                 //отключаем свайп
                 swipeLayout.setRefreshing(false);
-                transactionAdapter = new TransactionAdapter(data, getActivity(), new TransactionAdapter.CardViewHolder.ClickListener() {
+                proceedAdapter = new ProceedAdapter(data, getActivity(), new ProceedAdapter.CardViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(int position) {
                         if (actionMode != null) {
@@ -194,20 +194,21 @@ public class TransactionsFragment extends Fragment {
                         return true;
                     }
                 });
-                recyclerView.setAdapter(transactionAdapter);
+                recyclerView.setAdapter(proceedAdapter);
                 if (data.size() != 0) {
-                    lastTransaction = data.get(0);
+                    lastProcced = data.get(0);
                 } else {
-                    lastTransaction = new Transaction(
+                    lastProcced = new Proceed(
                             getString(R.string.hint_title_example),
                             getString(R.string.hint_price_example),
                             new Date(), "",
-                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()));
+                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace()),
+                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed()));
                 }
             }
 
             @Override
-            public void onLoaderReset(Loader<List<Transaction>> loader) {
+            public void onLoaderReset(Loader<List<Proceed>> loader) {
 
             }
         });
@@ -240,7 +241,7 @@ public class TransactionsFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.menu_remove:
-                    transactionAdapter.removeItems(transactionAdapter.getSelectedItem());
+                    proceedAdapter.removeItems(proceedAdapter.getSelectedItem());
                     mode.finish();
                     return true;
                 default:
@@ -250,8 +251,9 @@ public class TransactionsFragment extends Fragment {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            transactionAdapter.clearSelection();
+            proceedAdapter.clearSelection();
             actionMode = null;
         }
     }
 }
+

@@ -35,8 +35,8 @@ import java.util.List;
 
 import static by.chagarin.androidlesson.Transaction.df;
 
-@EActivity(R.layout.activity_add_transaction)
-public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
+@EActivity(R.layout.activity_add_proceed)
+public class AddProccedActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
 
     @ViewById
     Toolbar toolbar;
@@ -51,13 +51,17 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     TextView dateText;
 
     @ViewById
-    Spinner spinner;
+    Spinner spinnerProceed;
+
+    @ViewById
+    Spinner spinnerPlace;
 
     @TextRes(R.string.add_transaction)
     CharSequence name;
 
-    private Transaction transction;
-    private List<Category> listCategories;
+    private Proceed proceed;
+    private List<Category> listCategoriesPlace;
+    private List<Category> listCategoriesProceed;
     private Date date;
     private DatePickerDialog dpd;
 
@@ -65,7 +69,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     void ready() {
         Calendar now = Calendar.getInstance();
         dpd = DatePickerDialog.newInstance(
-                AddTransactionActivity.this,
+                AddProccedActivity.this,
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
@@ -82,8 +86,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        transction = (Transaction) getIntent().getParcelableExtra(
-                Transaction.class.getCanonicalName());
+        proceed = (Proceed) getIntent().getParcelableExtra(
+                Proceed.class.getCanonicalName());
     }
 
     @AfterViews
@@ -93,8 +97,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             setSupportActionBar(toolbar);
         }
         setTitle(name);
-        sum.setHint(transction.getPrice());
-        title.setHint(transction.getTitle());
+        sum.setHint(proceed.getPrice());
+        title.setHint(proceed.getTitle());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -131,9 +135,12 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
              */
             @Override
             public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                listCategories = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategories));
-                spinner.setAdapter(adapter);
+                listCategoriesPlace = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+                listCategoriesProceed = KindOfCategories.sortData(data, KindOfCategories.getProceed());
+                ArrayAdapter<String> adapterPlace = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlace));
+                ArrayAdapter<String> adapterProceed = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesProceed));
+                spinnerPlace.setAdapter(adapterPlace);
+                spinnerProceed.setAdapter(adapterProceed);
             }
 
             @Override
@@ -155,7 +162,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             String name = title.getText().toString();
             String price = sum.getText().toString();
             String description = comment.getText().toString();
-            Category category = listCategories.get(spinner.getSelectedItemPosition());
+            Category categoryPlace = listCategoriesPlace.get(spinnerPlace.getSelectedItemPosition());
+            Category categoryProceed = listCategoriesProceed.get(spinnerProceed.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
                 addButton.setEnabled(false);
@@ -164,7 +172,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     Float.parseFloat(price);
-                    new Transaction(name, price, date, description, category).save();
+                    new Proceed(name, price, date, description, categoryPlace, categoryProceed).save();
                     finish();
                 }
             }

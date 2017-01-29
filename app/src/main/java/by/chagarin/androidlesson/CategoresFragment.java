@@ -17,8 +17,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.melnykov.fab.FloatingActionButton;
@@ -47,6 +49,8 @@ public class CategoresFragment extends Fragment {
 
     @ViewById
     SwipeRefreshLayout swipeLayout;
+
+    private Spinner spinner;
 
     @AfterViews
     void afterView() {
@@ -164,6 +168,9 @@ public class CategoresFragment extends Fragment {
         final Dialog dialog = new Dialog(getActivity());
         dialog.setContentView(R.layout.dialog_window);
         TextView textView = (TextView) dialog.findViewById(R.id.title);
+        spinner = (Spinner) dialog.findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), R.layout.spinner_item, KindOfCategories.getKinds());
+        spinner.setAdapter(adapter);
         final EditText editText = (EditText) dialog.findViewById(R.id.edit_text);
         Button okButton = (Button) dialog.findViewById(R.id.ok_button);
         Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
@@ -173,9 +180,10 @@ public class CategoresFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Editable text = editText.getText();
+                String kind = (String) spinner.getSelectedItem();
                 //проверка текста через Утилитный класс!!!
                 if (!TextUtils.isEmpty(text)) {
-                    new Category(text.toString()).save();
+                    new Category(text.toString(), kind).save();
                     //прячем диалог
                     dialog.dismiss();
                     loadData();

@@ -1,20 +1,24 @@
 package by.chagarin.androidlesson.adapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import by.chagarin.androidlesson.Category;
+import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 
 
@@ -49,6 +53,12 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
     @Override
     public void onBindViewHolder(CategoriesAdapter.CardViewHolder holder, int position) {
         Category category = categories.get(position);
+        if (TextUtils.equals(category.getKindOfCategories(), KindOfCategories.getProceed())) {
+            holder.selectedProceed.setVisibility(View.VISIBLE);
+        }
+        if (TextUtils.equals(category.getKindOfCategories(), KindOfCategories.getPlace())) {
+            holder.selectedPlace.setVisibility(View.VISIBLE);
+        }
         holder.title.setText(category.getName());
         holder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
         setAnimations(holder.cardView, position);
@@ -80,10 +90,14 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
     }
 
     private void removeExpenses(int position) {
-        if (categories.get(position) != null) {
-            //удаляет запись из БД
-            categories.get(position).delete();
-            categories.remove(position);
+        try {
+            if (categories.get(position) != null) {
+                //удаляет запись из БД
+                categories.get(position).delete();
+                categories.remove(position);
+            }
+        } catch (SQLiteConstraintException e) {
+            Toast.makeText(context, context.getString(R.string.warning_sql), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -98,6 +112,8 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
         TextView title;
         ClickListener clickListener;
         View selectedOverlay;
+        View selectedProceed;
+        View selectedPlace;
 
         public CardViewHolder(View itemView, ClickListener clickListener) {
             super(itemView);
@@ -107,6 +123,8 @@ public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardV
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             selectedOverlay = itemView.findViewById(R.id.selected_overlay);
+            selectedProceed = itemView.findViewById(R.id.proceed_category);
+            selectedPlace = itemView.findViewById(R.id.place_category);
             cardView = (CardView) itemView.findViewById(R.id.card_id);
         }
 

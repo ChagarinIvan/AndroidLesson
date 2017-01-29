@@ -7,9 +7,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.icons.MaterialDrawerFont;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
@@ -64,9 +64,10 @@ public class MainActivity extends ActionBarActivity {
                 .withActionBarDrawerToggleAnimated(true)
                 .withHeader(R.layout.drawer_header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(MaterialDrawerFont.Icon.mdf_person),
-                        new PrimaryDrawerItem().withName(R.string.categores).withIcon(MaterialDrawerFont.Icon.mdf_arrow_drop_down),
-                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(MaterialDrawerFont.Icon.mdf_expand_more)
+                        new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
+                        new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
+                        new PrimaryDrawerItem().withName(R.string.categores).withIcon(FontAwesome.Icon.faw_tags),
+                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart)
                 )
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
@@ -115,14 +116,18 @@ public class MainActivity extends ActionBarActivity {
             switch (position) {
                 case 1:
                     drawer.setSelection(1);
-                    setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
+                    setFragment(position, R.string.add_transaction, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
                     drawer.setSelection(2);
-                    setFragment(position, R.string.categores, CategoresFragment_.builder().build());
+                    setFragment(position, R.string.add, ProceedFragment_.builder().build());
                     return true;
                 case 3:
                     drawer.setSelection(3);
+                    setFragment(position, R.string.categores, CategoresFragment_.builder().build());
+                    return true;
+                case 4:
+                    drawer.setSelection(4);
                     setFragment(position, R.string.statistics, StatisticsFragment_.builder().build());
                     return true;
             }

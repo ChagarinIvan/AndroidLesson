@@ -19,13 +19,20 @@ public class Category extends Model {
 
     @Column(name = "title")
     private String name;
+    @Column(name = "kind")
+    private String kindOfCategories;
 
-    Category(String name) {
+    Category(String name, String kindOfCategories) {
+        this.kindOfCategories = kindOfCategories;
         this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getKindOfCategories() {
+        return kindOfCategories;
     }
 
     public Category() {
