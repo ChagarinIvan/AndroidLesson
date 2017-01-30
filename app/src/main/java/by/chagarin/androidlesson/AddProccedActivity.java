@@ -33,7 +33,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static by.chagarin.androidlesson.Transaction.df;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Proceed;
+
+import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_proceed)
 public class AddProccedActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {

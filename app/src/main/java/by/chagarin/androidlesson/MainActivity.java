@@ -2,10 +2,16 @@ package by.chagarin.androidlesson;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Loader;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
@@ -19,7 +25,15 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.List;
+
 import by.chagarin.androidlesson.auth.SessionManager;
+import by.chagarin.androidlesson.fragments.CategoresFragment_;
+import by.chagarin.androidlesson.fragments.ProceedFragment_;
+import by.chagarin.androidlesson.fragments.StatisticsFragment_;
+import by.chagarin.androidlesson.fragments.TransactionsFragment_;
+import by.chagarin.androidlesson.objects.Proceed;
+import by.chagarin.androidlesson.objects.Transaction;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity {
@@ -31,6 +45,9 @@ public class MainActivity extends ActionBarActivity {
 
     @Bean
     SessionManager sessionManager;
+    private List<Proceed> listProceedes;
+    private List<Transaction> listTransactions;
+    private float cashCount;
 
     //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
     @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
@@ -45,8 +62,108 @@ public class MainActivity extends ActionBarActivity {
         sessionManager.login();
     }
 
+    private void loadData(final String filter) {
+        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
+
+            /**
+             * прозодит в бекграуде
+             */
+            @Override
+            public Loader<List<Transaction>> onCreateLoader(int id, Bundle args) {
+                final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(getApplicationContext()) {
+                    @Override
+                    public List<Transaction> loadInBackground() {
+                        return Transaction.getDataList(filter);
+                    }
+                };
+                //важно
+                loader.forceLoad();
+                return loader;
+            }
+
+            /**
+             * в основном потоке после загрузки
+             */
+            @Override
+            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+                //loadProceedData();
+                listTransactions = data;
+                loadProceedData();
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Transaction>> loader) {
+
+            }
+        });
+    }
+
+    /**
+     * дозагрузка данных поступлений для подсчета кэша
+     */
+    private void loadProceedData() {
+        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
+
+            /**
+             * прозодит в бекграуде
+             */
+            @Override
+            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
+                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(getApplicationContext()) {
+                    @Override
+                    public List<Proceed> loadInBackground() {
+                        return Proceed.getDataList("");
+                    }
+                };
+                //важно
+                loader.forceLoad();
+                return loader;
+            }
+
+            /**
+             * в основном потоке после загрузки
+             */
+            @Override
+            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
+                listProceedes = data;
+                //подсчитываем оставшийся кэш
+                calcCash();
+                TextView cashText = (TextView) toolbar.findViewById(R.id.cash_text);
+                cashText.setText(String.valueOf(cashCount));
+                LinearLayout linearLayout = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
+                linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Proceed>> loader) {
+
+            }
+        });
+    }
+
+    /**
+     * подсчитываем кэш
+     */
+    private void calcCash() {
+        cashCount = 0;
+        for (Proceed proceed : listProceedes) {
+            cashCount += Float.parseFloat(proceed.getPrice());
+        }
+        for (Transaction transaction : listTransactions) {
+            cashCount -= Float.parseFloat(transaction.getPrice());
+        }
+    }
+
+
+
     @AfterViews
     void afterCreate() {
+        loadData("");
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }

@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.fragments;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -13,10 +13,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.melnykov.fab.FloatingActionButton;
 
@@ -32,7 +34,13 @@ import org.androidannotations.api.BackgroundExecutor;
 import java.util.Date;
 import java.util.List;
 
+import by.chagarin.androidlesson.AddTransactionActivity_;
+import by.chagarin.androidlesson.KindOfCategories;
+import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.adapters.TransactionAdapter;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Proceed;
+import by.chagarin.androidlesson.objects.Transaction;
 
 @EFragment(R.layout.fragment_transactions)
 @OptionsMenu(R.menu.menu_transactions)
@@ -44,6 +52,11 @@ public class TransactionsFragment extends Fragment {
     private TransactionAdapter transactionAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
+    private Transaction lastTransaction;
+    private List<Transaction> listTransactions;
+    private List<Proceed> listProceedes;
+    private float cashCount = 0;
+
 
     @OptionsMenuItem
     MenuItem menuSearch;
@@ -58,7 +71,6 @@ public class TransactionsFragment extends Fragment {
     @ViewById
     SwipeRefreshLayout swipeLayout;
 
-    private Transaction lastTransaction;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -104,7 +116,6 @@ public class TransactionsFragment extends Fragment {
             }
         });
 
-
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -133,6 +144,58 @@ public class TransactionsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadData("");
+    }
+
+    private void loadProceedData() {
+        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
+
+            /**
+             * прозодит в бекграуде
+             */
+            @Override
+            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
+                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(getActivity()) {
+                    @Override
+                    public List<Proceed> loadInBackground() {
+                        return Proceed.getDataList("");
+                    }
+                };
+                //важно
+                loader.forceLoad();
+                return loader;
+            }
+
+            /**
+             * в основном потоке после загрузки
+             */
+            @Override
+            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
+                listProceedes = data;
+                //подсчитываем оставшийся кэш
+                calcCash();
+                Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+                TextView cashText = (TextView) toolbar.findViewById(R.id.cash_text);
+                cashText.setText(String.valueOf(cashCount));
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Proceed>> loader) {
+
+            }
+        });
+    }
+
+    /**
+     * подсчитываем кэш
+     */
+    private void calcCash() {
+        cashCount = 0;
+        for (Proceed proceed : listProceedes) {
+            cashCount += Float.parseFloat(proceed.getPrice());
+        }
+        for (Transaction transaction : listTransactions) {
+            cashCount -= Float.parseFloat(transaction.getPrice());
+        }
     }
 
     private void toggleSelection(int position) {
@@ -174,9 +237,11 @@ public class TransactionsFragment extends Fragment {
              */
             @Override
             public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+                loadProceedData();
+                listTransactions = data;
                 //отключаем свайп
                 swipeLayout.setRefreshing(false);
-                transactionAdapter = new TransactionAdapter(data, getActivity(), new TransactionAdapter.CardViewHolder.ClickListener() {
+                transactionAdapter = new TransactionAdapter(listTransactions, getActivity(), new TransactionAdapter.CardViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(int position) {
                         if (actionMode != null) {
@@ -195,14 +260,15 @@ public class TransactionsFragment extends Fragment {
                     }
                 });
                 recyclerView.setAdapter(transactionAdapter);
-                if (data.size() != 0) {
-                    lastTransaction = data.get(0);
+                if (listTransactions.size() != 0) {
+                    lastTransaction = listTransactions.get(0);
                 } else {
                     lastTransaction = new Transaction(
                             getString(R.string.hint_title_example),
                             getString(R.string.hint_price_example),
                             new Date(), "",
-                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()));
+                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()),
+                            new Category(getString(R.string.hint_category_place_exemple), KindOfCategories.getPlace()));
                 }
             }
 
@@ -212,12 +278,6 @@ public class TransactionsFragment extends Fragment {
             }
         });
     }
-
-    /**
-     * берёт данные из БД с сортировкой от большего к меньшему
-     * @return
-     */
-
 
     /**
      * исспользуеться для создания актив мода

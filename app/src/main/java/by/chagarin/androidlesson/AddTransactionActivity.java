@@ -33,7 +33,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static by.chagarin.androidlesson.Transaction.df;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Transaction;
+
+import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -51,13 +54,17 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     TextView dateText;
 
     @ViewById
-    Spinner spinner;
+    Spinner spinnerTransaction;
+
+    @ViewById
+    Spinner spinnerPlace;
 
     @TextRes(R.string.add_transaction)
     CharSequence name;
 
     private Transaction transction;
-    private List<Category> listCategories;
+    private List<Category> listCategoriesTransactions;
+    private List<Category> listCategoriesPlaces;
     private Date date;
     private DatePickerDialog dpd;
 
@@ -131,9 +138,12 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
              */
             @Override
             public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                listCategories = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategories));
-                spinner.setAdapter(adapter);
+                listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
+                listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+                ArrayAdapter<String> adapterTransactions = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+                ArrayAdapter<String> adapterPlaces = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+                spinnerTransaction.setAdapter(adapterTransactions);
+                spinnerPlace.setAdapter(adapterPlaces);
             }
 
             @Override
@@ -155,7 +165,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             String name = title.getText().toString();
             String price = sum.getText().toString();
             String description = comment.getText().toString();
-            Category category = listCategories.get(spinner.getSelectedItemPosition());
+            Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
+            Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
                 addButton.setEnabled(false);
@@ -164,7 +175,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     Float.parseFloat(price);
-                    new Transaction(name, price, date, description, category).save();
+                    new Transaction(name, price, date, description, categoryTransaction, categoryPlace).save();
                     finish();
                 }
             }

@@ -29,4 +29,6 @@
     <string name="warning_sql">Нельзя удалить, есть транзакции даннной категории</string>
     <string name="add">Поступления</string>
     <string name="comment">Подробное описание</string>
+    <string name="hint_category_place_exemple">зарплатная карточка</string>
+    <string name="cash">cash</string>
 </resources>

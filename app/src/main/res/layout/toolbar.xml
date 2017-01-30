@@ -7,4 +7,30 @@
     android:background="@color/green"
     android:minHeight="?attr/actionBarSize"
     android:theme="@style/ToolbarColors"
-    app:popupTheme="@style/Theme.AppCompat.NoActionBar" />
+    app:popupTheme="@style/Theme.AppCompat.NoActionBar"
+    android:gravity="end">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/cash_layout"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/cash_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:background="@drawable/ic_attach_money"
+            android:gravity="end" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1000"
+            android:textSize="20dp"
+            android:textColor="@color/mdtp_white"
+            android:gravity="end"
+            android:id="@+id/cash_text" />
+    </LinearLayout>
+</android.support.v7.widget.Toolbar>

@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.fragments;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import by.chagarin.androidlesson.R;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Transaction;
 
 @EFragment(R.layout.fragment_statistics)
 public class StatisticsFragment extends Fragment {
@@ -120,7 +124,7 @@ public class StatisticsFragment extends Fragment {
         //создаем мап где для каждой категории указано сколько товаров куплено
         HashMap<Category, Float> categoryList = new HashMap<Category, Float>();
         for (Transaction tr : data) {
-            Category category = tr.getCategory();
+            Category category = tr.getCategoryTransaction();
             float summ = Float.parseFloat(tr.getPrice());
             if (categoryList.containsKey(category)) {
                 summ += categoryList.get(category);

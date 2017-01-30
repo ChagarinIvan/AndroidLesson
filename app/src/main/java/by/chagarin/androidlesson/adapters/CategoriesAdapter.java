@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import by.chagarin.androidlesson.Category;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
+import by.chagarin.androidlesson.objects.Category;
 
 
 public class CategoriesAdapter extends SelectableAdapter<CategoriesAdapter.CardViewHolder> {

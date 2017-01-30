@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import by.chagarin.androidlesson.objects.Category;
+
 public class KindOfCategories {
     private static String TRANSACTION = "Категория трат";
     private static String PROCEED = "Категоря поступлений";
