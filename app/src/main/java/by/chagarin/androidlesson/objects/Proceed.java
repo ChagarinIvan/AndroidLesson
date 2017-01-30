@@ -39,11 +39,6 @@ public class Proceed extends Model implements Parcelable {
 
     /**
      * need to active android
-     *
-     * @param title
-     * @param price
-     * @param date
-     * @param categoryPlace
      */
     public Proceed(String title, String price, Date date, String comment, Category categoryPlace, Category categoryProceed) {
         this.title = title;
@@ -113,9 +108,6 @@ public class Proceed extends Model implements Parcelable {
     /**
      * для передачи объекта между активностями
      * имплементим парселабле
-     *
-     * @param parcel
-     * @param i
      */
     @Override
     public void writeToParcel(Parcel parcel, int i) {

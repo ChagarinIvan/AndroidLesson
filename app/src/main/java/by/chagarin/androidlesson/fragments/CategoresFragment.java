@@ -1,11 +1,6 @@
 package by.chagarin.androidlesson.fragments;
 
 import android.app.Dialog;
-import android.app.Fragment;
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -26,23 +21,26 @@ import android.widget.TextView;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.List;
-
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.adapters.CategoriesAdapter;
 import by.chagarin.androidlesson.objects.Category;
 
 @EFragment(R.layout.fragment_categores)
-public class CategoresFragment extends Fragment {
+public class CategoresFragment extends MyFragment {
 
     private CategoriesAdapter categoriesAdapter;
     private ActionModeCallback actionModeCallback = new CategoresFragment.ActionModeCallback();
     private ActionMode actionMode;
+
+    @Bean
+    DataLoader loader;
 
     @ViewById(R.id.categories_list_view)
     RecyclerView recyclerView;
@@ -97,60 +95,32 @@ public class CategoresFragment extends Fragment {
         loadData();
     }
 
-    /**
-     * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
-     */
     private void loadData() {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
+        loader.loadCategores(this);
+    }
 
-            /**
-             * прозодит в бекграуде
-             */
+    @Override
+    public void onTaskFinished() {
+        swipeLayout.setRefreshing(false);
+        categoriesAdapter = new CategoriesAdapter(loader.getCategores(), getActivity(), new CategoriesAdapter.CardViewHolder.ClickListener() {
             @Override
-            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(getActivity()) {
-                    @Override
-                    public List<Category> loadInBackground() {
-                        return Category.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                swipeLayout.setRefreshing(false);
-                categoriesAdapter = new CategoriesAdapter(data, getActivity(), new CategoriesAdapter.CardViewHolder.ClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        if (actionMode != null) {
-                            toggleSelection(position);
-                        }
-                    }
-
-                    @Override
-                    public boolean onItemLongClick(int position) {
-                        if (actionMode == null) {
-                            ActionBarActivity activity = (ActionBarActivity) getActivity();
-                            actionMode = activity.startSupportActionMode(actionModeCallback);
-                        }
-                        toggleSelection(position);
-                        return true;
-                    }
-                });
-                recyclerView.setAdapter(categoriesAdapter);
+            public void onItemClick(int position) {
+                if (actionMode != null) {
+                    toggleSelection(position);
+                }
             }
 
             @Override
-            public void onLoaderReset(Loader<List<Category>> loader) {
-
+            public boolean onItemLongClick(int position) {
+                if (actionMode == null) {
+                    ActionBarActivity activity = (ActionBarActivity) getActivity();
+                    actionMode = activity.startSupportActionMode(actionModeCallback);
+                }
+                toggleSelection(position);
+                return true;
             }
         });
+        recyclerView.setAdapter(categoriesAdapter);
     }
 
     private void toggleSelection(int position) {

@@ -1,28 +1,26 @@
 package by.chagarin.androidlesson.fragments;
 
 
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.app.SearchManager;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
@@ -34,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 import by.chagarin.androidlesson.AddProccedActivity_;
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.adapters.ProceedAdapter;
@@ -42,12 +41,14 @@ import by.chagarin.androidlesson.objects.Proceed;
 
 @EFragment(R.layout.fragment_proceeds)
 @OptionsMenu(R.menu.menu_transactions)
-public class ProceedFragment extends Fragment {
+public class ProceedFragment extends MyFragment {
 
     private static final String TIMER_NAME = "query_timer";
     private ProceedAdapter proceedAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
+    private Proceed lastProcced;
+    private TextView cashText;
 
     @OptionsMenuItem
     MenuItem menuSearch;
@@ -62,7 +63,8 @@ public class ProceedFragment extends Fragment {
     @ViewById
     SwipeRefreshLayout swipeLayout;
 
-    private Proceed lastProcced;
+    @Bean
+    DataLoader loader;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -94,6 +96,8 @@ public class ProceedFragment extends Fragment {
 
     @AfterViews
     void ready() {
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        cashText = (TextView) toolbar.findViewById(R.id.cash_text);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -108,7 +112,6 @@ public class ProceedFragment extends Fragment {
             }
         });
 
-
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -118,12 +121,48 @@ public class ProceedFragment extends Fragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 proceedAdapter.removeItem(viewHolder.getAdapterPosition());
+                loadData("");
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
+    @Override
+    public void onTaskFinished() {
+        List<Proceed> proceedList = loader.getProceedes();
+        swipeLayout.setRefreshing(false);
+        proceedAdapter = new ProceedAdapter(proceedList, getActivity(), new ProceedAdapter.CardViewHolder.ClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                if (actionMode != null) {
+                    toggleSelection(position);
+                }
+            }
+
+            @Override
+            public boolean onItemLongClick(int position) {
+                if (actionMode == null) {
+                    ActionBarActivity activity = (ActionBarActivity) getActivity();
+                    actionMode = activity.startSupportActionMode(actionModeCallback);
+                }
+                toggleSelection(position);
+                return true;
+            }
+        });
+        recyclerView.setAdapter(proceedAdapter);
+        if (proceedList.size() != 0) {
+            lastProcced = proceedList.get(0);
+        } else {
+            lastProcced = new Proceed(
+                    getString(R.string.hint_title_example),
+                    getString(R.string.hint_price_example),
+                    new Date(), "",
+                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace()),
+                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed()));
+        }
+        cashText.setText(String.valueOf(loader.getCashCount()));
+    }
 
     @Click
     void fabClicked() {
@@ -150,73 +189,14 @@ public class ProceedFragment extends Fragment {
         }
     }
 
+
     /**
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
      *
-     * @param filter
+     * @param filter adas
      */
     private void loadData(final String filter) {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
-
-            /**
-             * прозодит в бекграуде
-             */
-            @Override
-            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(getActivity()) {
-                    @Override
-                    public List<Proceed> loadInBackground() {
-                        return Proceed.getDataList(filter);
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
-                //отключаем свайп
-                swipeLayout.setRefreshing(false);
-                proceedAdapter = new ProceedAdapter(data, getActivity(), new ProceedAdapter.CardViewHolder.ClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        if (actionMode != null) {
-                            toggleSelection(position);
-                        }
-                    }
-
-                    @Override
-                    public boolean onItemLongClick(int position) {
-                        if (actionMode == null) {
-                            ActionBarActivity activity = (ActionBarActivity) getActivity();
-                            actionMode = activity.startSupportActionMode(actionModeCallback);
-                        }
-                        toggleSelection(position);
-                        return true;
-                    }
-                });
-                recyclerView.setAdapter(proceedAdapter);
-                if (data.size() != 0) {
-                    lastProcced = data.get(0);
-                } else {
-                    lastProcced = new Proceed(
-                            getString(R.string.hint_title_example),
-                            getString(R.string.hint_price_example),
-                            new Date(), "",
-                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace()),
-                            new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed()));
-                }
-            }
-
-            @Override
-            public void onLoaderReset(Loader<List<Proceed>> loader) {
-
-            }
-        });
+        loader.loadCash(this, filter);
     }
 
     /**
@@ -248,6 +228,7 @@ public class ProceedFragment extends Fragment {
                 case R.id.menu_remove:
                     proceedAdapter.removeItems(proceedAdapter.getSelectedItem());
                     mode.finish();
+                    loadData("");
                     return true;
                 default:
                     return false;
