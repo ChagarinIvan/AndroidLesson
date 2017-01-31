@@ -30,8 +30,6 @@ import by.chagarin.androidlesson.objects.Transaction;
 @EFragment(R.layout.fragment_statistics)
 public class StatisticsFragment extends MyFragment {
 
-    private List<Transaction> listTransactions;
-
     @Bean
     DataLoader loader;
 
@@ -47,7 +45,7 @@ public class StatisticsFragment extends MyFragment {
 
     @Override
     public void onTaskFinished() {
-        listTransactions = loader.getTransactions();
+        List<Transaction> listTransactions = loader.getTransactions();
         final List<PieEntry> pieEntries = sortData(listTransactions);
         final PieDataSet set = new PieDataSet(pieEntries, "Общий расход");
         set.setColors(getRandomColors(listTransactions));
@@ -75,13 +73,13 @@ public class StatisticsFragment extends MyFragment {
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
      */
     private void loadData() {
-        loader.loadTransactions(this, "");
+        loader.loadData(this);
     }
 
     private String calcSumm(List<Transaction> data) {
-        int summ = 0;
+        float summ = 0;
         for (Transaction tr : data) {
-            summ += Integer.parseInt(tr.getPrice());
+            summ += Float.parseFloat(tr.getPrice());
         }
         return "Общий рассход " + summ;
     }

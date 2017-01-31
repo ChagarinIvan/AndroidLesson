@@ -1,8 +1,5 @@
 package by.chagarin.androidlesson;
 
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,6 +19,7 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
@@ -68,6 +66,9 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     private Date date;
     private DatePickerDialog dpd;
 
+    @Bean
+    DataLoader loader;
+
     @AfterViews
     void ready() {
         Calendar now = Calendar.getInstance();
@@ -95,10 +96,20 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
     @AfterViews
     void afterCreate() {
-        loadCategoryData();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        //получаем список категорий из лодера
+        List<Category> data = loader.getCategores();
+        //отделяем только необходимые категории
+        listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
+        listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+        //создаём для каждого спинера свой адаптер и устанавливаем их
+        ArrayAdapter<String> adapterTransactions = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+        ArrayAdapter<String> adapterPlaces = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+        spinnerTransaction.setAdapter(adapterTransactions);
+        spinnerPlace.setAdapter(adapterPlaces);
+        //
         setTitle(name);
         sum.setHint(transction.getPrice());
         title.setHint(transction.getTitle());
@@ -112,45 +123,6 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             list.add(cat.getName());
         }
         return list;
-    }
-
-
-    private void loadCategoryData() {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
-            /**
-             * прозодит в бекграуде
-             */
-            @Override
-            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(getApplicationContext()) {
-                    @Override
-                    public List<Category> loadInBackground() {
-                        return Category.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
-                listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
-                ArrayAdapter<String> adapterTransactions = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
-                ArrayAdapter<String> adapterPlaces = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-                spinnerTransaction.setAdapter(adapterTransactions);
-                spinnerPlace.setAdapter(adapterPlaces);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<List<Category>> loader) {
-
-            }
-        });
     }
 
     @OptionsItem(R.id.home)

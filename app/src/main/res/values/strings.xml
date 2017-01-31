@@ -31,4 +31,5 @@
     <string name="comment">Подробное описание</string>
     <string name="hint_category_place_exemple">зарплатная карточка</string>
     <string name="cash">cash</string>
+    <string name="add_preceed">Поступления</string>
 </resources>

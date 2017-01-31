@@ -26,9 +26,12 @@ public class DataLoader {
     private boolean isCashLoading = false;
     private boolean isProceedesLoading = false;
     private float cashCount;
+    private MyFragment fragment;
 
-    public float getCashCount() {
-        return cashCount;
+    public void loadData(MyFragment fragment) {
+        this.fragment = fragment;
+        mCallbacks = (Callbacks) fragment;
+        loadTransactions();
     }
 
     public interface Callbacks {
@@ -40,13 +43,7 @@ public class DataLoader {
         }
     };
 
-    public void loadCash(final MyFragment fragment, final String filter) {
-        isCashLoading = true;
-        loadTransactions(fragment, filter);
-    }
-
-    public void loadCategores(final MyFragment fragment) {
-        mCallbacks = (Callbacks) fragment;
+    public void loadCategores() {
         fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
 
             /**
@@ -71,7 +68,7 @@ public class DataLoader {
             @Override
             public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
                 categoryList = data;
-                goesToCallBack(fragment);
+                loadProceedes();
             }
 
             @Override
@@ -81,8 +78,7 @@ public class DataLoader {
         });
     }
 
-    public void loadTransactions(final MyFragment fragment, final String filter) {
-        mCallbacks = (Callbacks) fragment;
+    public void loadTransactions() {
         fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
 
             /**
@@ -93,7 +89,7 @@ public class DataLoader {
                 final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(fragment.getActivity()) {
                     @Override
                     public List<Transaction> loadInBackground() {
-                        return Transaction.getDataList(filter);
+                        return Transaction.getDataList();
                     }
                 };
                 //важно
@@ -107,7 +103,7 @@ public class DataLoader {
             @Override
             public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
                 transactionList = data;
-                goesToCallBack(fragment);
+                loadCategores();
             }
 
             @Override
@@ -117,23 +113,11 @@ public class DataLoader {
         });
     }
 
-    private void goesToCallBack(MyFragment fragment) {
-        if (isCashLoading) {
-            if (!isProceedesLoading) {
-                isProceedesLoading = true;
-                loadProceedes(fragment, "");
-            } else {
-                isProceedesLoading = false;
-                isCashLoading = false;
-                calcCash();
-                mCallbacks.onTaskFinished();
-            }
-        } else {
-            mCallbacks.onTaskFinished();
-        }
+    private void goesToCallBack() {
+        mCallbacks.onTaskFinished();
     }
 
-    private void calcCash() {
+    public String calcCash() {
         cashCount = 0;
         for (Proceed proceed : proceedList) {
             cashCount += Float.parseFloat(proceed.getPrice());
@@ -141,10 +125,10 @@ public class DataLoader {
         for (Transaction transaction : transactionList) {
             cashCount -= Float.parseFloat(transaction.getPrice());
         }
+        return cashCount + " BYN";
     }
 
-    public void loadProceedes(final MyFragment fragment, final String filter) {
-        mCallbacks = (Callbacks) fragment;
+    public void loadProceedes() {
         fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
 
             /**
@@ -155,7 +139,7 @@ public class DataLoader {
                 final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(fragment.getActivity()) {
                     @Override
                     public List<Proceed> loadInBackground() {
-                        return Proceed.getDataList(filter);
+                        return Proceed.getDataList();
                     }
                 };
                 //важно
@@ -169,7 +153,7 @@ public class DataLoader {
             @Override
             public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
                 proceedList = data;
-                goesToCallBack(fragment);
+                goesToCallBack();
             }
 
             @Override

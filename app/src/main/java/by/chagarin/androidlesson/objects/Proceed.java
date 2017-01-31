@@ -2,7 +2,6 @@ package by.chagarin.androidlesson.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -119,13 +118,10 @@ public class Proceed extends Model implements Parcelable {
         parcel.writeString(categoryProcees.getName());
     }
 
-    public static List<Proceed> getDataList(String filter) {
+    public static List<Proceed> getDataList() {
         From from = new Select()
                 .from(Proceed.class)
                 .orderBy("date DESC");
-        if (!TextUtils.isEmpty(filter)) {
-            from.where("title LIKE?", "%" + filter + "%");
-        }
         return from.execute();
     }
 }

@@ -63,7 +63,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
-        linear = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
+//        linear = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -112,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
         } else {
-            super.onBackPressed();
+            setFragment(0, R.string.transactions, TransactionsFragment_.builder().build());
         }
     }
 
@@ -132,23 +132,19 @@ public class MainActivity extends ActionBarActivity {
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             switch (position) {
                 case 1:
-                    linear.setVisibility(View.VISIBLE);
                     drawer.setSelection(1);
                     setFragment(position, R.string.add_transaction, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
-                    linear.setVisibility(View.VISIBLE);
                     drawer.setSelection(2);
                     setFragment(position, R.string.add, ProceedFragment_.builder().build());
                     return true;
                 case 3:
                     drawer.setSelection(3);
-                    linear.setVisibility(View.INVISIBLE);
                     setFragment(position, R.string.categores, CategoresFragment_.builder().build());
                     return true;
                 case 4:
                     drawer.setSelection(4);
-                    linear.setVisibility(View.VISIBLE);
                     setFragment(position, R.string.statistics, StatisticsFragment_.builder().build());
                     return true;
             }

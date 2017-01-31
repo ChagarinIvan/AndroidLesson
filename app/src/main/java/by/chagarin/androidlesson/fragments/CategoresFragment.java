@@ -96,7 +96,7 @@ public class CategoresFragment extends MyFragment {
     }
 
     private void loadData() {
-        loader.loadCategores(this);
+        loader.loadData(this);
     }
 
     @Override

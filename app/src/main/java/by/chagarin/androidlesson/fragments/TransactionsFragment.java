@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +53,9 @@ public class TransactionsFragment extends MyFragment {
     @OptionsMenuItem
     MenuItem menuSearch;
 
+    @OptionsMenuItem
+    MenuItem cash;
+
     @ViewById(R.id.transactions_list)
     RecyclerView recyclerView;
 
@@ -92,13 +94,11 @@ public class TransactionsFragment extends MyFragment {
 
     @Background(delay = 300, id = TIMER_NAME)
     void filterDelayed(String newText) {
-        loadData(newText);
+        //loadData(newText);
     }
 
     @AfterViews
     void ready() {
-        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        cashText = (TextView) toolbar.findViewById(R.id.cash_text);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -109,7 +109,7 @@ public class TransactionsFragment extends MyFragment {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadData("");
+                loadData();
             }
         });
 
@@ -122,7 +122,7 @@ public class TransactionsFragment extends MyFragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 transactionAdapter.removeItem(viewHolder.getAdapterPosition());
-                loadData("");
+                loadData();
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
@@ -131,6 +131,7 @@ public class TransactionsFragment extends MyFragment {
 
     @Override
     public void onTaskFinished() {
+
         List<Transaction> listTransactions = loader.getTransactions();
         //отключаем свайп
         swipeLayout.setRefreshing(false);
@@ -163,7 +164,14 @@ public class TransactionsFragment extends MyFragment {
                     new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()),
                     new Category(getString(R.string.hint_category_place_exemple), KindOfCategories.getPlace()));
         }
-        cashText.setText(String.valueOf(loader.getCashCount()));
+        cash.setTitle(loader.calcCash());
+        cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                getFragmentManager().beginTransaction().replace(R.id.content_frame, CashStatisticsFragment_.builder().build()).commit();
+                return true;
+            }
+        });
     }
 
     @Click
@@ -177,7 +185,7 @@ public class TransactionsFragment extends MyFragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadData("");
+        loadData();
     }
 
     private void toggleSelection(int position) {
@@ -193,10 +201,9 @@ public class TransactionsFragment extends MyFragment {
 
     /**
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
-     * @param filter filter
      */
-    private void loadData(final String filter) {
-        loader.loadCash(this, filter);
+    private void loadData() {
+        loader.loadData(this);
     }
 
     /**
@@ -221,7 +228,7 @@ public class TransactionsFragment extends MyFragment {
             switch (item.getItemId()) {
                 case R.id.menu_remove:
                     transactionAdapter.removeItems(transactionAdapter.getSelectedItem());
-                    loadData("");
+                    loadData();
                     mode.finish();
                     return true;
                 default:

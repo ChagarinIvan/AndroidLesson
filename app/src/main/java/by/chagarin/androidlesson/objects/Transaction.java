@@ -3,7 +3,6 @@ package by.chagarin.androidlesson.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -127,13 +126,10 @@ public class Transaction extends Model implements Parcelable {
         parcel.writeString(categoryPlace.getName());
     }
 
-    public static List<Transaction> getDataList(String filter) {
+    public static List<Transaction> getDataList() {
         From from = new Select()
                 .from(Transaction.class)
                 .orderBy("date DESC");
-        if (!TextUtils.isEmpty(filter)) {
-            from.where("title LIKE?", "%" + filter + "%");
-        }
         return from.execute();
     }
 }
