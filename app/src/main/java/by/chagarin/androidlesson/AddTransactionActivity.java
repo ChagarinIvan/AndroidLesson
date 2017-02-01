@@ -1,5 +1,6 @@
 package by.chagarin.androidlesson;
 
+import android.content.Context;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,7 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -90,12 +91,15 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        transction = (Transaction) getIntent().getParcelableExtra(
+        transction = getIntent().getParcelableExtra(
                 Transaction.class.getCanonicalName());
     }
 
     @AfterViews
     void afterCreate() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(addButton.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -105,8 +109,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
         listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
         //создаём для каждого спинера свой адаптер и устанавливаем их
-        ArrayAdapter<String> adapterTransactions = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
-        ArrayAdapter<String> adapterPlaces = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+        ArrayAdapter<String> adapterTransactions = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+        ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
         spinnerTransaction.setAdapter(adapterTransactions);
         spinnerPlace.setAdapter(adapterPlaces);
         //
@@ -118,7 +122,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     }
 
     private List<String> getStringArray(List<Category> listCategories) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (Category cat : listCategories) {
             list.add(cat.getName());
         }
@@ -132,7 +136,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
     @Click
     void addButton() {
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         try {
             String name = title.getText().toString();
             String price = sum.getText().toString();
@@ -146,7 +150,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                 if (date == null) {
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
-                    Float.parseFloat(price);
+                    float v = Float.parseFloat(price);
                     new Transaction(name, price, date, description, categoryTransaction, categoryPlace).save();
                     finish();
                 }

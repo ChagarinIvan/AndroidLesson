@@ -9,8 +9,8 @@ import by.chagarin.androidlesson.objects.Category;
 
 public class KindOfCategories {
     private static String TRANSACTION = "Категория трат";
-    private static String PROCEED = "Категоря поступлений";
-    private static String PLACE = "Категория источника средств";
+    private static String PROCEED = "Категоря источника поступлений средств";
+    private static String PLACE = "Категория места хранения средств";
 
     public static String[] getKinds() {
         return new String[]{TRANSACTION, PROCEED, PLACE};

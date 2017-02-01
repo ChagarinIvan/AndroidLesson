@@ -20,7 +20,7 @@
     <string name="context_bar_delete">Delete</string>
     <string name="dialog_edit1_hint">Одежда</string>
     <string name="ok_button">OK</string>
-    <string name="cancel_button">CANCEL</string>
+    <string name="cancel_button">Cancel</string>
     <string name="hint_price_example">300</string>
     <string name="hint_title_example">ВОЙНА И МИР</string>
     <string name="hint_category_exemple">МАГАЗИН</string>
@@ -32,4 +32,6 @@
     <string name="hint_category_place_exemple">зарплатная карточка</string>
     <string name="cash">cash</string>
     <string name="add_preceed">Поступления</string>
+    <string name="transfer_from">перевести на данный источник</string>
+    <string name="transfer_to">перевести на данный источник</string>
 </resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"
+    android:layout_centerInParent="true"
+    android:layout_centerVertical="true"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:paddingBottom="@dimen/dialog_bottom"
+    android:paddingLeft="@dimen/dialog_padding"
+    android:paddingRight="@dimen/dialog_padding"
+    android:paddingTop="@dimen/dialog_padding">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:textSize="@dimen/dialog_text_size"
+        android:textColor="@color/green" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="@dimen/dialog_button_width"
+            android:layout_height="wrap_content"
+            android:id="@+id/transfer_to"
+            android:text="@string/transfer_to"
+            android:textColor="@color/button_color"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:background="@color/background" />
+
+        <Button
+            android:layout_width="@dimen/dialog_button_width"
+            android:layout_height="wrap_content"
+            android:id="@+id/transfer_from"
+            android:text="@string/transfer_from"
+            android:textColor="@color/button_color"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:background="@color/background" />
+
+    </RelativeLayout>
+</LinearLayout>

@@ -1,15 +1,21 @@
 package by.chagarin.androidlesson.fragments;
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.view.Display;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -36,6 +42,8 @@ import by.chagarin.androidlesson.objects.Transaction;
 @EFragment(R.layout.fragment_statistics)
 public class CashStatisticsFragment extends MyFragment {
 
+    private List<Category> listCategory;
+
     @ViewById
     PieChart pieChart;
 
@@ -46,7 +54,7 @@ public class CashStatisticsFragment extends MyFragment {
     public void ready() {
         getActivity().setTitle("Где же Ваши денежки?");
         //берём необходимые листы данных
-        List<Category> listCategory = loader.getCategores();
+        listCategory = loader.getCategores();
         List<Transaction> listTransactions = loader.getTransactions();
         List<Proceed> listProceedes = loader.getProceedes();
         //получаем значения для отображения
@@ -77,16 +85,39 @@ public class CashStatisticsFragment extends MyFragment {
         pieChart.setCenterText(calcSumm());
         pieChart.setCenterTextColor(Color.BLACK);
         pieChart.setCenterTextSize(24f);
-
-        //диаграмма некликабельна
-        pieChart.setTouchEnabled(false);
         //убираем ценральный круг
         pieChart.setDrawHoleEnabled(false);
-
         pieChart.setHighlightPerTapEnabled(true);
+        //слушатель нажатий
+        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                int entryIndex = set.getEntryIndex(e);
+                PieEntry pieEntry = pieEntries.get(entryIndex);
+                startAlertDialog(pieEntry);
+            }
 
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
         pieChart.setDrawEntryLabels(true);
         pieChart.invalidate();
+    }
+
+    /**
+     * метод запускает диалог перевода денег с одного метса на дрцгое
+     */
+    private void startAlertDialog(PieEntry pieEntry) {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.dialog_window);
+        TextView textView = (TextView) dialog.findViewById(R.id.title);
+        Button okButton = (Button) dialog.findViewById(R.id.transfer_to);
+        Button cancelButton = (Button) dialog.findViewById(R.id.transfer_from);
+        textView.setText(pieEntry.getLabel());
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
     }
 
     private void moveOffScreen() {
