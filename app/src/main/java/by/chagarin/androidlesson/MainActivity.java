@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
@@ -19,7 +20,15 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.List;
+
 import by.chagarin.androidlesson.auth.SessionManager;
+import by.chagarin.androidlesson.fragments.CategoresFragment_;
+import by.chagarin.androidlesson.fragments.ProceedFragment_;
+import by.chagarin.androidlesson.fragments.StatisticsFragment_;
+import by.chagarin.androidlesson.fragments.TransactionsFragment_;
+import by.chagarin.androidlesson.objects.Proceed;
+import by.chagarin.androidlesson.objects.Transaction;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity {
@@ -30,7 +39,14 @@ public class MainActivity extends ActionBarActivity {
     private Drawer drawer;
 
     @Bean
+    DataLoader loader;
+
+    @Bean
     SessionManager sessionManager;
+    private List<Proceed> listProceedes;
+    private List<Transaction> listTransactions;
+    private float cashCount;
+    private LinearLayout linear;
 
     //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
     @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
@@ -47,6 +63,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
+//        linear = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -95,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
         } else {
-            super.onBackPressed();
+            setFragment(0, R.string.transactions, TransactionsFragment_.builder().build());
         }
     }
 

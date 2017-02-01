@@ -14,8 +14,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import by.chagarin.androidlesson.Proceed;
 import by.chagarin.androidlesson.R;
+import by.chagarin.androidlesson.objects.Proceed;
 
 public class ProceedAdapter extends SelectableAdapter<by.chagarin.androidlesson.adapters.ProceedAdapter.CardViewHolder> {
 

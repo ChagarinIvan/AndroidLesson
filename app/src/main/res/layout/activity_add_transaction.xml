@@ -50,16 +50,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:text="Категория"
+            android:text="Категория траты"
             android:textSize="20dp" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/spinner_transaction"
             android:textSize="20dp"
             android:spinnerMode="dialog"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"></Spinner>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="fill"
+            android:text="Источник платежа"
+            android:textSize="20dp" />
+
+        <Spinner
+            android:id="@+id/spinner_place"
+            android:textSize="20dp"
+            android:spinnerMode="dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"></Spinner>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

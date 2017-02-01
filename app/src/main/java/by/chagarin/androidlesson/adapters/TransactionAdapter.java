@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import by.chagarin.androidlesson.R;
-import by.chagarin.androidlesson.Transaction;
+import by.chagarin.androidlesson.objects.Transaction;
 
 //наследуемся от нашего селект адаптера
 public class TransactionAdapter extends SelectableAdapter<TransactionAdapter.CardViewHolder> {

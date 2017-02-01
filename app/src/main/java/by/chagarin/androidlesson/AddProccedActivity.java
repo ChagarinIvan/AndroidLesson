@@ -1,8 +1,5 @@
 package by.chagarin.androidlesson;
 
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,6 +19,7 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
@@ -33,7 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static by.chagarin.androidlesson.Transaction.df;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Proceed;
+
+import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_proceed)
 public class AddProccedActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -43,6 +44,9 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
 
     @ViewById
     Button addButton;
+
+    @Bean
+    DataLoader loader;
 
     @ViewById
     EditText title, sum, comment;
@@ -56,7 +60,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
     @ViewById
     Spinner spinnerPlace;
 
-    @TextRes(R.string.add_transaction)
+    @TextRes(R.string.add_preceed)
     CharSequence name;
 
     private Proceed proceed;
@@ -92,10 +96,18 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
 
     @AfterViews
     void afterCreate() {
-        loadCategoryData();
+        List<Category> data = loader.getCategores();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        //сртируем листы категорий, создаем адаптеры и присваиваеи их
+        listCategoriesPlace = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+        listCategoriesProceed = KindOfCategories.sortData(data, KindOfCategories.getProceed());
+        ArrayAdapter<String> adapterPlace = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlace));
+        ArrayAdapter<String> adapterProceed = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesProceed));
+        spinnerPlace.setAdapter(adapterPlace);
+        spinnerProceed.setAdapter(adapterProceed);
+
         setTitle(name);
         sum.setHint(proceed.getPrice());
         title.setHint(proceed.getTitle());
@@ -109,45 +121,6 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
             list.add(cat.getName());
         }
         return list;
-    }
-
-
-    private void loadCategoryData() {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
-            /**
-             * прозодит в бекграуде
-             */
-            @Override
-            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(getApplicationContext()) {
-                    @Override
-                    public List<Category> loadInBackground() {
-                        return Category.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                listCategoriesPlace = KindOfCategories.sortData(data, KindOfCategories.getPlace());
-                listCategoriesProceed = KindOfCategories.sortData(data, KindOfCategories.getProceed());
-                ArrayAdapter<String> adapterPlace = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlace));
-                ArrayAdapter<String> adapterProceed = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesProceed));
-                spinnerPlace.setAdapter(adapterPlace);
-                spinnerProceed.setAdapter(adapterProceed);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<List<Category>> loader) {
-
-            }
-        });
     }
 
     @OptionsItem(R.id.home)

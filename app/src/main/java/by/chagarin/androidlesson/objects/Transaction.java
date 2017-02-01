@@ -1,9 +1,8 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.objects;
 
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -18,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import by.chagarin.androidlesson.KindOfCategories;
+
 @Table(name = "Transactions")
 public class Transaction extends Model implements Parcelable {
 
@@ -29,8 +30,10 @@ public class Transaction extends Model implements Parcelable {
     private Date date;
     @Column(name = "Comment")
     private String comment;
-    @Column(name = "category")
-    private Category category;
+    @Column(name = "categorytransaction")
+    private Category categoryTransaction;
+    @Column(name = "categoryplace")
+    private Category categoryPlace;
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
@@ -39,12 +42,14 @@ public class Transaction extends Model implements Parcelable {
      * @param title
      * @param price
      * @param date
-     * @param category
+     * @param categoryTransaction
+     * @param categoryPlace
      */
-    public Transaction(String title, String price, Date date, String comment, Category category) {
+    public Transaction(String title, String price, Date date, String comment, Category categoryTransaction, Category categoryPlace) {
         this.title = title;
         this.price = Float.parseFloat(price);
-        this.category = category;
+        this.categoryTransaction = categoryTransaction;
+        this.categoryPlace = categoryPlace;
         this.date = date;
         this.comment = comment;
     }
@@ -54,8 +59,9 @@ public class Transaction extends Model implements Parcelable {
             title = in.readString();
             price = in.readFloat();
             date = df.parse(in.readString());
-            category = new Category(in.readString(), in.readString());
+            categoryTransaction = new Category(in.readString(), KindOfCategories.getTransaction());
             comment = in.readString();
+            categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
         } catch (ParseException ignored) {
         }
     }
@@ -91,8 +97,12 @@ public class Transaction extends Model implements Parcelable {
         return String.valueOf(price);
     }
 
-    public Category getCategory() {
-        return category;
+    public Category getCategoryTransaction() {
+        return categoryTransaction;
+    }
+
+    public Category getCategoryPlace() {
+        return categoryPlace;
     }
 
     @Override
@@ -111,18 +121,15 @@ public class Transaction extends Model implements Parcelable {
         parcel.writeString(title);
         parcel.writeFloat(price);
         parcel.writeString(this.getDate());
-        parcel.writeString(category.getName());
-        parcel.writeString(category.getKindOfCategories());
+        parcel.writeString(categoryTransaction.getName());
         parcel.writeString(comment);
+        parcel.writeString(categoryPlace.getName());
     }
 
-    public static List<Transaction> getDataList(String filter) {
+    public static List<Transaction> getDataList() {
         From from = new Select()
                 .from(Transaction.class)
                 .orderBy("date DESC");
-        if (!TextUtils.isEmpty(filter)) {
-            from.where("title LIKE?", "%" + filter + "%");
-        }
         return from.execute();
     }
 }

@@ -1,8 +1,5 @@
 package by.chagarin.androidlesson;
 
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,6 +19,7 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
@@ -33,7 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static by.chagarin.androidlesson.Transaction.df;
+import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Transaction;
+
+import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -51,15 +52,22 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     TextView dateText;
 
     @ViewById
-    Spinner spinner;
+    Spinner spinnerTransaction;
+
+    @ViewById
+    Spinner spinnerPlace;
 
     @TextRes(R.string.add_transaction)
     CharSequence name;
 
     private Transaction transction;
-    private List<Category> listCategories;
+    private List<Category> listCategoriesTransactions;
+    private List<Category> listCategoriesPlaces;
     private Date date;
     private DatePickerDialog dpd;
+
+    @Bean
+    DataLoader loader;
 
     @AfterViews
     void ready() {
@@ -88,10 +96,20 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
     @AfterViews
     void afterCreate() {
-        loadCategoryData();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        //получаем список категорий из лодера
+        List<Category> data = loader.getCategores();
+        //отделяем только необходимые категории
+        listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
+        listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+        //создаём для каждого спинера свой адаптер и устанавливаем их
+        ArrayAdapter<String> adapterTransactions = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+        ArrayAdapter<String> adapterPlaces = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+        spinnerTransaction.setAdapter(adapterTransactions);
+        spinnerPlace.setAdapter(adapterPlaces);
+        //
         setTitle(name);
         sum.setHint(transction.getPrice());
         title.setHint(transction.getTitle());
@@ -107,42 +125,6 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         return list;
     }
 
-
-    private void loadCategoryData() {
-        getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
-            /**
-             * прозодит в бекграуде
-             */
-            @Override
-            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(getApplicationContext()) {
-                    @Override
-                    public List<Category> loadInBackground() {
-                        return Category.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                listCategories = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategories));
-                spinner.setAdapter(adapter);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<List<Category>> loader) {
-
-            }
-        });
-    }
-
     @OptionsItem(R.id.home)
     void back() {
         onBackPressed();
@@ -155,7 +137,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             String name = title.getText().toString();
             String price = sum.getText().toString();
             String description = comment.getText().toString();
-            Category category = listCategories.get(spinner.getSelectedItemPosition());
+            Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
+            Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
                 addButton.setEnabled(false);
@@ -164,7 +147,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     Float.parseFloat(price);
-                    new Transaction(name, price, date, description, category).save();
+                    new Transaction(name, price, date, description, categoryTransaction, categoryPlace).save();
                     finish();
                 }
             }

@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.objects;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -22,7 +22,7 @@ public class Category extends Model {
     @Column(name = "kind")
     private String kindOfCategories;
 
-    Category(String name, String kindOfCategories) {
+    public Category(String name, String kindOfCategories) {
         this.kindOfCategories = kindOfCategories;
         this.name = name;
     }

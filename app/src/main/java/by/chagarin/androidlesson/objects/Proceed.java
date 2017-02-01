@@ -1,8 +1,7 @@
-package by.chagarin.androidlesson;
+package by.chagarin.androidlesson.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -16,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import by.chagarin.androidlesson.KindOfCategories;
 
 @Table(name = "Proceeds")
 public class Proceed extends Model implements Parcelable {
@@ -37,11 +38,6 @@ public class Proceed extends Model implements Parcelable {
 
     /**
      * need to active android
-     *
-     * @param title
-     * @param price
-     * @param date
-     * @param categoryPlace
      */
     public Proceed(String title, String price, Date date, String comment, Category categoryPlace, Category categoryProceed) {
         this.title = title;
@@ -67,15 +63,15 @@ public class Proceed extends Model implements Parcelable {
     public Proceed() {
     }
 
-    public static final Creator<by.chagarin.androidlesson.Proceed> CREATOR = new Creator<Proceed>() {
+    public static final Creator<Proceed> CREATOR = new Creator<Proceed>() {
         @Override
-        public by.chagarin.androidlesson.Proceed createFromParcel(Parcel in) {
-            return new by.chagarin.androidlesson.Proceed(in);
+        public Proceed createFromParcel(Parcel in) {
+            return new Proceed(in);
         }
 
         @Override
-        public by.chagarin.androidlesson.Proceed[] newArray(int size) {
-            return new by.chagarin.androidlesson.Proceed[size];
+        public Proceed[] newArray(int size) {
+            return new Proceed[size];
         }
     };
 
@@ -111,9 +107,6 @@ public class Proceed extends Model implements Parcelable {
     /**
      * для передачи объекта между активностями
      * имплементим парселабле
-     *
-     * @param parcel
-     * @param i
      */
     @Override
     public void writeToParcel(Parcel parcel, int i) {
@@ -125,13 +118,10 @@ public class Proceed extends Model implements Parcelable {
         parcel.writeString(categoryProcees.getName());
     }
 
-    public static List<by.chagarin.androidlesson.Proceed> getDataList(String filter) {
+    public static List<Proceed> getDataList() {
         From from = new Select()
-                .from(by.chagarin.androidlesson.Proceed.class)
+                .from(Proceed.class)
                 .orderBy("date DESC");
-        if (!TextUtils.isEmpty(filter)) {
-            from.where("title LIKE?", "%" + filter + "%");
-        }
         return from.execute();
     }
 }

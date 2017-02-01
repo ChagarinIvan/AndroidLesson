@@ -7,4 +7,7 @@
     android:background="@color/green"
     android:minHeight="?attr/actionBarSize"
     android:theme="@style/ToolbarColors"
-    app:popupTheme="@style/Theme.AppCompat.NoActionBar" />
+    app:popupTheme="@style/Theme.AppCompat.NoActionBar"
+    android:gravity="end">
+
+</android.support.v7.widget.Toolbar>

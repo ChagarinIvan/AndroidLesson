@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/cash"
+        android:title="cash"
+        app:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_attach_money" />
+    <item
         android:id="@+id/menu_search"
         android:title="@string/search"
         app:showAsAction="ifRoom"
