@@ -2,9 +2,14 @@ package by.chagarin.androidlesson.fragments;
 
 import android.app.Dialog;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.Display;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
@@ -23,6 +28,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +49,7 @@ import by.chagarin.androidlesson.objects.Transaction;
 public class CashStatisticsFragment extends MyFragment {
 
     private List<Category> listCategory;
-
+    private Dialog question_dialog;
     @ViewById
     PieChart pieChart;
 
@@ -52,72 +58,25 @@ public class CashStatisticsFragment extends MyFragment {
 
     @AfterViews
     public void ready() {
-        getActivity().setTitle("Где же Ваши денежки?");
-        //берём необходимые листы данных
-        listCategory = loader.getCategores();
-        List<Transaction> listTransactions = loader.getTransactions();
-        List<Proceed> listProceedes = loader.getProceedes();
-        //получаем значения для отображения
-        final List<PieEntry> pieEntries = sortData(listCategory, listTransactions, listProceedes);
-
-        final PieDataSet set = new PieDataSet(pieEntries, "");
-        //устанавливаем разделители между элементами данных
-        set.setSliceSpace(5f);
-        set.setColors(getRandomColors(pieEntries.size()));
-        final PieData pieData = new PieData(set);
-        pieChart.setData(pieData);
-        //опускаем диаграмму вниз
-        moveOffScreen();
-        pieChart.setHighlightPerTapEnabled(true);
-        pieChart.setDrawSlicesUnderHole(false);
-        pieChart.setTouchEnabled(true);
-        pieChart.setRotationEnabled(false);
-        pieChart.setMaxAngle(180f);
-        pieChart.setRotationAngle(180f);
-        pieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
-        //настройка легенды
-        Legend legend = pieChart.getLegend();
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setTextSize(20f);
-        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
-        //настройка описания
-        pieChart.setCenterText(calcSumm());
-        pieChart.setCenterTextColor(Color.BLACK);
-        pieChart.setCenterTextSize(24f);
-        //убираем ценральный круг
-        pieChart.setDrawHoleEnabled(false);
-        pieChart.setHighlightPerTapEnabled(true);
-        //слушатель нажатий
-        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry e, Highlight h) {
-                int entryIndex = set.getEntryIndex(e);
-                PieEntry pieEntry = pieEntries.get(entryIndex);
-                startAlertDialog(pieEntry);
-            }
-
-            @Override
-            public void onNothingSelected() {
-
-            }
-        });
-        pieChart.setDrawEntryLabels(true);
-        pieChart.invalidate();
+        loadData();
     }
 
     /**
      * метод запускает диалог перевода денег с одного метса на дрцгое
      */
     private void startAlertDialog(PieEntry pieEntry) {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.setContentView(R.layout.dialog_window);
-        TextView textView = (TextView) dialog.findViewById(R.id.title);
-        Button okButton = (Button) dialog.findViewById(R.id.transfer_to);
-        Button cancelButton = (Button) dialog.findViewById(R.id.transfer_from);
+        question_dialog = new Dialog(getActivity());
+        question_dialog.setContentView(R.layout.dialog_transfer_question);
+        TextView textView = (TextView) question_dialog.findViewById(R.id.title);
+        Button toButton = (Button) question_dialog.findViewById(R.id.transfer_to);
+        Button fromButton = (Button) question_dialog.findViewById(R.id.transfer_from);
+        toButton.setOnClickListener(new ButtonClickListener(true, pieEntry));
+        fromButton.setOnClickListener(new ButtonClickListener(false, pieEntry));
+
         textView.setText(pieEntry.getLabel());
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
+        //noinspection ConstantConditions
+        question_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        question_dialog.show();
     }
 
     private void moveOffScreen() {
@@ -180,5 +139,137 @@ public class CashStatisticsFragment extends MyFragment {
             entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
         }
         return entries;
+    }
+
+    private class ButtonClickListener implements View.OnClickListener {
+        private boolean flag;
+        private PieEntry pieEntry;
+        private Category from;
+        private Category to;
+        private List<Category> arrayOfCategory;
+
+
+        public ButtonClickListener(boolean b, PieEntry pieEntry) {
+            this.flag = b;
+            this.pieEntry = pieEntry;
+        }
+
+        @Override
+        public void onClick(View v) {
+            arrayOfCategory = getArrayOfCategory();
+            final Dialog dialog = new Dialog(getActivity());
+            dialog.setContentView(R.layout.dialog_transfer);
+            final EditText et = (EditText) dialog.findViewById(R.id.edit_text);
+            Button ok = (Button) dialog.findViewById(R.id.ok_button);
+            Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
+            TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
+            if (flag) {
+                from = KindOfCategories.findCategory(arrayOfCategory, pieEntry.getLabel());
+                tv.setText(getString(R.string.to));
+            } else {
+                to = KindOfCategories.findCategory(arrayOfCategory, pieEntry.getLabel());
+                tv.setText(getString(R.string.from));
+            }
+            final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, KindOfCategories.getStringArray(arrayOfCategory));
+            spinner.setAdapter(adapter);
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String cost = String.valueOf(et.getText());
+                    if (flag) {
+                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                    } else {
+                        from = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                    }
+                    new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getTransaction()), from).save();
+                    new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getProceed())).save();
+                    dialog.dismiss();
+                    question_dialog.dismiss();
+                    loadData();
+                }
+            });
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    question_dialog.dismiss();
+                }
+            });
+            //noinspection ConstantConditions
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        }
+
+        private List<Category> getArrayOfCategory() {
+            List<Category> list = new ArrayList<>();
+            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
+                if (!TextUtils.equals(category.getName(), pieEntry.getLabel())) {
+                    list.add(category);
+                }
+            }
+            return list;
+        }
+    }
+
+    @Override
+    public void onTaskFinished() {
+        getActivity().setTitle("Где же Ваши денежки?");
+        //берём необходимые листы данных
+        listCategory = loader.getCategores();
+        List<Transaction> listTransactions = loader.getTransactions();
+        List<Proceed> listProceedes = loader.getProceedes();
+        //получаем значения для отображения
+        final List<PieEntry> pieEntries = sortData(listCategory, listTransactions, listProceedes);
+
+        final PieDataSet set = new PieDataSet(pieEntries, "");
+        //устанавливаем разделители между элементами данных
+        set.setSliceSpace(5f);
+        set.setColors(getRandomColors(pieEntries.size()));
+        final PieData pieData = new PieData(set);
+        pieChart.setData(pieData);
+        //опускаем диаграмму вниз
+        moveOffScreen();
+        pieChart.setHighlightPerTapEnabled(true);
+        pieChart.setDrawSlicesUnderHole(false);
+        pieChart.setTouchEnabled(true);
+        pieChart.setRotationEnabled(false);
+        pieChart.setMaxAngle(180f);
+        pieChart.setRotationAngle(180f);
+        pieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
+        //настройка легенды
+        Legend legend = pieChart.getLegend();
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setTextSize(20f);
+        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+        //настройка описания
+        pieChart.setCenterText(calcSumm());
+        pieChart.setCenterTextColor(Color.BLACK);
+        pieChart.setCenterTextSize(24f);
+        //убираем ценральный круг
+        pieChart.setDrawHoleEnabled(false);
+        pieChart.setHighlightPerTapEnabled(true);
+        //слушатель нажатий
+        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                int entryIndex = set.getEntryIndex(e);
+                PieEntry pieEntry = pieEntries.get(entryIndex);
+                startAlertDialog(pieEntry);
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
+        pieChart.setDrawEntryLabels(true);
+        pieChart.invalidate();
+    }
+
+    private void loadData() {
+        loader.loadData(this);
     }
 }

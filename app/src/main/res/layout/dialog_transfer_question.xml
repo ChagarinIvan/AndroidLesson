@@ -18,50 +18,54 @@
         android:layout_height="wrap_content"
         android:id="@+id/title"
         android:textSize="@dimen/dialog_text_size"
+        android:text="@string/dialog_transfer_question"
+        android:paddingBottom="@dimen/dialog_transfer_padding"
+        android:paddingTop="@dimen/dialog_transfer_padding"
         android:textColor="@color/green" />
 
-    <EditText
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/dialog_transfer_delimitr_size"
+        android:background="@color/green" />
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/edit_text"
-        android:hint="@string/dialog_edit1_hint" />
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:textSize="20dp"
-        android:spinnerMode="dialog"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"></Spinner>
+        android:textSize="@dimen/dialog_transfer_question"
+        android:text="@string/dialog_transfer_question"
+        android:paddingBottom="@dimen/dialog_transfer_padding"
+        android:paddingTop="@dimen/dialog_transfer_padding"
+        android:textColor="@color/green" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <Button
-            android:layout_width="@dimen/dialog_button_width"
+            android:layout_width="@dimen/dialog_transfer_button_width"
             android:layout_height="wrap_content"
-            android:id="@+id/ok_button"
-            android:text="@string/ok_button"
+            android:id="@+id/transfer_to"
+            android:text="@string/transfer_to"
             android:textColor="@color/button_color"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/background" />
+            android:background="@color/primary_foreground" />
 
         <Button
-            android:layout_width="@dimen/dialog_button_width"
+            android:layout_width="@dimen/dialog_transfer_button_width"
             android:layout_height="wrap_content"
-            android:id="@+id/cancel_button"
-            android:text="@string/cancel_button"
+            android:id="@+id/transfer_from"
+            android:text="@string/transfer_from"
             android:textColor="@color/button_color"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/background" />
+            android:background="@color/primary_foreground" />
 
     </RelativeLayout>
 </LinearLayout>

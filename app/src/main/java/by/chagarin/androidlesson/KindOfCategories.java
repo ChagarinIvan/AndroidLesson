@@ -41,4 +41,21 @@ public class KindOfCategories {
         }
         return list;
     }
+
+    public static Category findCategory(List<Category> list, String name) {
+        for (Category category : list) {
+            if (TextUtils.equals(category.getName(), name)) {
+                return category;
+            }
+        }
+        return null;
+    }
+
+    public static List<String> getStringArray(List<Category> listCategories) {
+        List<String> list = new ArrayList<String>();
+        for (Category cat : listCategories) {
+            list.add(cat.getName());
+        }
+        return list;
+    }
 }
