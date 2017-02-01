@@ -9,6 +9,7 @@ import android.os.Bundle;
 import org.androidannotations.annotations.EBean;
 
 import java.util.List;
+import java.util.Locale;
 
 import by.chagarin.androidlesson.fragments.MyFragment;
 import by.chagarin.androidlesson.objects.Category;
@@ -30,12 +31,12 @@ public class DataLoader {
 
     public void loadData(MyFragment fragment) {
         this.fragment = fragment;
-        mCallbacks = (Callbacks) fragment;
+        mCallbacks = fragment;
         loadTransactions();
     }
 
     public interface Callbacks {
-        public void onTaskFinished();
+        void onTaskFinished();
     }
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
@@ -120,12 +121,12 @@ public class DataLoader {
     public String calcCash() {
         cashCount = 0;
         for (Proceed proceed : proceedList) {
-            cashCount += Float.parseFloat(proceed.getPrice());
+            cashCount += Float.valueOf(proceed.getPrice());
         }
         for (Transaction transaction : transactionList) {
-            cashCount -= Float.parseFloat(transaction.getPrice());
+            cashCount -= Float.valueOf(transaction.getPrice());
         }
-        return cashCount + " BYN";
+        return String.format(Locale.ENGLISH, "%.2f", cashCount) + " BYN";
     }
 
     public void loadProceedes() {

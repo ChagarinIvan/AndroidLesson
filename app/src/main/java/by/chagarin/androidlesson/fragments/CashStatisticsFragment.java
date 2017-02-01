@@ -1,9 +1,10 @@
 package by.chagarin.androidlesson.fragments;
 
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.Display;
+import android.widget.RelativeLayout;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
@@ -52,25 +53,52 @@ public class CashStatisticsFragment extends MyFragment {
         final List<PieEntry> pieEntries = sortData(listCategory, listTransactions, listProceedes);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
+        //устанавливаем разделители между элементами данных
+        set.setSliceSpace(5f);
         set.setColors(getRandomColors(pieEntries.size()));
         final PieData pieData = new PieData(set);
         pieChart.setData(pieData);
-        pieChart.setDrawSlicesUnderHole(true);
+        //опускаем диаграмму вниз
+        moveOffScreen();
+        pieChart.setHighlightPerTapEnabled(true);
+        pieChart.setDrawSlicesUnderHole(false);
         pieChart.setTouchEnabled(true);
         pieChart.setRotationEnabled(false);
         pieChart.setMaxAngle(180f);
         pieChart.setRotationAngle(180f);
-        pieChart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        pieChart.getLegend().setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        pieChart.getLegend().setTextSize(20f);
-        pieChart.getDescription().setText(calcSumm());
-        pieChart.getDescription().setTextSize(24f);
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        pieChart.getDescription().setPosition(display.getWidth() / 2, display.getHeight() * 9 / 10);
-        pieChart.getDescription().setTextAlign(Paint.Align.CENTER);
+        pieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
+        //настройка легенды
+        Legend legend = pieChart.getLegend();
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setTextSize(20f);
+        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+        //настройка описания
+        pieChart.setCenterText(calcSumm());
+        pieChart.setCenterTextColor(Color.BLACK);
+        pieChart.setCenterTextSize(24f);
+
+        //диаграмма некликабельна
+        pieChart.setTouchEnabled(false);
+        //убираем ценральный круг
+        pieChart.setDrawHoleEnabled(false);
+
+        pieChart.setHighlightPerTapEnabled(true);
 
         pieChart.setDrawEntryLabels(true);
         pieChart.invalidate();
+    }
+
+    private void moveOffScreen() {
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        @SuppressWarnings("deprecation") int height = display.getHeight();  // deprecated
+
+        int offset = (int) (height * 0.75); /* percent to move */
+
+        RelativeLayout.LayoutParams rlParams =
+                (RelativeLayout.LayoutParams) pieChart.getLayoutParams();
+        rlParams.setMargins(0, 0, 0, -offset);
+        pieChart.setLayoutParams(rlParams);
     }
 
     private String calcSumm() {
@@ -79,7 +107,7 @@ public class CashStatisticsFragment extends MyFragment {
 
     //метод будет возвращать лист рандомных цвето нужного размера
     private List<Integer> getRandomColors(int size) {
-        List<Integer> colors = new ArrayList<Integer>();
+        List<Integer> colors = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < size; i++) {
             colors.add(Color.argb(180, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
@@ -90,7 +118,7 @@ public class CashStatisticsFragment extends MyFragment {
 
     private List<PieEntry> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList) {
         //создаем мап где для каждой категории указано сколько товаров куплено
-        HashMap<Category, Float> resultList = new HashMap<Category, Float>();
+        HashMap<Category, Float> resultList = new HashMap<>();
         //определяем для какие есть категории мест хранения денег
         List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace());
         for (Category category : data) {
