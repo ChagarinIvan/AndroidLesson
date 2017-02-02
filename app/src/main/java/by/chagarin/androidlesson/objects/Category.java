@@ -17,6 +17,8 @@ import java.util.List;
 @Table(name = "Categories")
 public class Category extends Model {
 
+    public static final String SYSTEM_CATEGORY = "system_category";
+
     @Column(name = "title")
     private String name;
     @Column(name = "kind")

@@ -20,8 +20,8 @@
     <string name="context_bar_delete">Delete</string>
     <string name="dialog_edit1_hint">Одежда</string>
     <string name="ok_button">OK</string>
-    <string name="cancel_button">CANCEL</string>
-    <string name="hint_price_example">300</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="hint_price_example">300.0</string>
     <string name="hint_title_example">ВОЙНА И МИР</string>
     <string name="hint_category_exemple">МАГАЗИН</string>
     <string name="warning_no_categories">ВНАЧАЛЕ СОЗДАЙТЕ КАТЕГОРИИ</string>
@@ -32,4 +32,11 @@
     <string name="hint_category_place_exemple">зарплатная карточка</string>
     <string name="cash">cash</string>
     <string name="add_preceed">Поступления</string>
+    <string name="transfer_from">Перевести c данного источника</string>
+    <string name="transfer_to">Перевести на данный источник</string>
+    <string name="dialog_transfer_question">Хотите сделать перевод средств между вашими местами хранения?</string>
+    <string name="transfer_title">Переводим</string>
+    <string name="byn">BYN</string>
+    <string name="to">C </string>
+    <string name="from">На </string>
 </resources>

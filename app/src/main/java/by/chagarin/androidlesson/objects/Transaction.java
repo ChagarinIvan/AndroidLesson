@@ -21,6 +21,8 @@ import by.chagarin.androidlesson.KindOfCategories;
 
 @Table(name = "Transactions")
 public class Transaction extends Model implements Parcelable {
+    public static final String SYSTEM_TRANSACTION = "system_transaction";
+
 
     @Column(name = "title")
     private String title;

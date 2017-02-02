@@ -26,7 +26,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.TextRes;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -103,8 +102,8 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
         //сртируем листы категорий, создаем адаптеры и присваиваеи их
         listCategoriesPlace = KindOfCategories.sortData(data, KindOfCategories.getPlace());
         listCategoriesProceed = KindOfCategories.sortData(data, KindOfCategories.getProceed());
-        ArrayAdapter<String> adapterPlace = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlace));
-        ArrayAdapter<String> adapterProceed = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesProceed));
+        ArrayAdapter<String> adapterPlace = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, KindOfCategories.getStringArray(listCategoriesPlace));
+        ArrayAdapter<String> adapterProceed = new ArrayAdapter<String>(getApplication(), R.layout.spinner_item, KindOfCategories.getStringArray(listCategoriesProceed));
         spinnerPlace.setAdapter(adapterPlace);
         spinnerProceed.setAdapter(adapterProceed);
 
@@ -113,14 +112,6 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
         title.setHint(proceed.getTitle());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    private List<String> getStringArray(List<Category> listCategories) {
-        List<String> list = new ArrayList<String>();
-        for (Category cat : listCategories) {
-            list.add(cat.getName());
-        }
-        return list;
     }
 
     @OptionsItem(R.id.home)

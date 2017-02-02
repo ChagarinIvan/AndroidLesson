@@ -16,22 +16,55 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/title"
+        android:text="@string/transfer_title"
         android:textSize="@dimen/dialog_text_size"
         android:textColor="@color/green" />
 
-    <EditText
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/edit_text"
-        android:hint="@string/dialog_edit1_hint" />
+        android:orientation="horizontal">
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:textSize="20dp"
-        android:spinnerMode="dialog"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"></Spinner>
+        <EditText
+            android:layout_width="@dimen/transfer_cash"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_text"
+            android:hint="@string/hint_price_example"
+            android:inputType="numberDecimal"
+            android:textColor="@color/green_dark"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/byn"
+            android:textColor="@color/green_dark"
+            android:textSize="@dimen/dialog_text_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/dialog_transfer_padding"
+        android:paddingBottom="@dimen/dialog_transfer_padding">
+
+        <TextView
+            android:id="@+id/transfer_to_or_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/dialog_text_size"
+            android:textColor="@color/text_color" />
+
+        <Spinner
+            android:id="@+id/transfer_spinner"
+            android:textSize="@dimen/dialog_text_size"
+            android:spinnerMode="dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -42,26 +75,26 @@
             android:layout_height="wrap_content"
             android:id="@+id/ok_button"
             android:text="@string/ok_button"
-            android:textColor="@color/button_color"
+            android:textColor="@color/green_dark"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/background" />
+            android:background="@color/primary_foreground" />
 
         <Button
             android:layout_width="@dimen/dialog_button_width"
             android:layout_height="wrap_content"
             android:id="@+id/cancel_button"
             android:text="@string/cancel_button"
-            android:textColor="@color/button_color"
+            android:textColor="@color/green_dark"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/background" />
+            android:background="@color/primary_foreground" />
 
     </RelativeLayout>
 </LinearLayout>

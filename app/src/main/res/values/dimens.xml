@@ -6,6 +6,13 @@
     <dimen name="drawer_list_width">150dp</dimen>
     <dimen name="dialog_bottom">32dp</dimen>
     <dimen name="dialog_padding">16dp</dimen>
-    <dimen name="dialog_text_size">20dp</dimen>
+    <dimen name="dialog_text_size">23dp</dimen>
     <dimen name="dialog_button_width">150dp</dimen>
+    <dimen name="dialog_transfer_question">16dp</dimen>
+    <dimen name="dialog_transfer_padding">10dp</dimen>
+    <dimen name="dialog_transfer_button_width">200dp</dimen>
+    <dimen name="dialog_transfer_delimitr_size">1dp</dimen>
+    <dimen name="transfer_cash">100dp</dimen>
+    <dimen name="add_transaction_text_size">24dp</dimen>
+    <dimen name="add_transactions_padding">5dp</dimen>
 </resources>

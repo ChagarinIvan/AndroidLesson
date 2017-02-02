@@ -20,6 +20,7 @@ import by.chagarin.androidlesson.KindOfCategories;
 
 @Table(name = "Proceeds")
 public class Proceed extends Model implements Parcelable {
+    public static final String SYSTEM_PROCEED = "system_proceed";
 
     @Column(name = "title")
     private String title;
