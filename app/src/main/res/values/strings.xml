@@ -40,4 +40,7 @@
     <string name="to">C </string>
     <string name="from">На </string>
     <string name="warning_no_cash">недостаточно средств</string>
+    <string name="alarm_message">а ты заполнил бюджет??</string>
+    <string name="notifaction_text">Вы сегодня заполняли свои расходы и дjходы??</string>
+    <string name="notification_title">Напоминание</string>
 </resources>
