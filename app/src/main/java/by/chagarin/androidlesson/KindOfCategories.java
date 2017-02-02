@@ -11,6 +11,11 @@ public class KindOfCategories {
     private static String TRANSACTION = "Категория трат";
     private static String PROCEED = "Категоря источника поступлений средств";
     private static String PLACE = "Категория места хранения средств";
+    private static String SYSTEM = Category.SYSTEM_CATEGORY;
+
+    public static String getSYSTEM() {
+        return SYSTEM;
+    }
 
     public static String[] getKinds() {
         return new String[]{TRANSACTION, PROCEED, PLACE};
@@ -42,6 +47,9 @@ public class KindOfCategories {
         return list;
     }
 
+    /**
+     * метод дает категорию по имени
+     */
     public static Category findCategory(List<Category> list, String name) {
         for (Category category : list) {
             if (TextUtils.equals(category.getName(), name)) {
@@ -55,6 +63,16 @@ public class KindOfCategories {
         List<String> list = new ArrayList<String>();
         for (Category cat : listCategories) {
             list.add(cat.getName());
+        }
+        return list;
+    }
+
+    public static List<Category> sortDataWithout(List<Category> data, String kind) {
+        List<Category> list = new ArrayList<Category>();
+        for (Category cat : data) {
+            if (!TextUtils.equals(cat.getKindOfCategories(), kind)) {
+                list.add(cat);
+            }
         }
         return list;
     }

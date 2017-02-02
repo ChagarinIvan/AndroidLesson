@@ -61,8 +61,15 @@ public class MainActivity extends ActionBarActivity {
         sessionManager.login();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyService_.intent(getApplication()).stop();
+    }
+
     @AfterViews
     void afterCreate() {
+        MyService_.intent(getApplication()).start();
 //        linear = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
         if (toolbar != null) {
             setSupportActionBar(toolbar);

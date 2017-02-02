@@ -130,7 +130,7 @@ public class ProceedFragment extends MyFragment {
 
     @Override
     public void onTaskFinished() {
-        List<Proceed> proceedList = loader.getProceedes();
+        List<Proceed> proceedList = loader.getProceedesWithoutSystem();
         swipeLayout.setRefreshing(false);
         proceedAdapter = new ProceedAdapter(proceedList, getActivity(), new ProceedAdapter.CardViewHolder.ClickListener() {
             @Override

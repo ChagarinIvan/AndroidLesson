@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -50,6 +51,8 @@ public class CashStatisticsFragment extends MyFragment {
 
     private List<Category> listCategory;
     private Dialog question_dialog;
+    private Map<Category, Float> categoryFloatMap;
+
     @ViewById
     PieChart pieChart;
 
@@ -106,9 +109,9 @@ public class CashStatisticsFragment extends MyFragment {
     }
 
 
-    private List<PieEntry> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList) {
+    private Map<Category, Float> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList) {
         //создаем мап где для каждой категории указано сколько товаров куплено
-        HashMap<Category, Float> resultList = new HashMap<>();
+        Map<Category, Float> resultList = new HashMap<>();
         //определяем для какие есть категории мест хранения денег
         List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace());
         for (Category category : data) {
@@ -132,8 +135,10 @@ public class CashStatisticsFragment extends MyFragment {
                 }
             }
         }
+        return resultList;
+    }
 
-        //переводим всё в пие ентри
+    private List<PieEntry> convertToEntry(Map<Category, Float> resultList) {
         List<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
@@ -164,10 +169,10 @@ public class CashStatisticsFragment extends MyFragment {
             Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
             TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
             if (flag) {
-                from = KindOfCategories.findCategory(arrayOfCategory, pieEntry.getLabel());
+                to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
                 tv.setText(getString(R.string.to));
             } else {
-                to = KindOfCategories.findCategory(arrayOfCategory, pieEntry.getLabel());
+                from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
                 tv.setText(getString(R.string.from));
             }
             final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
@@ -179,15 +184,19 @@ public class CashStatisticsFragment extends MyFragment {
                 public void onClick(View v) {
                     String cost = String.valueOf(et.getText());
                     if (flag) {
-                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
-                    } else {
                         from = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                    } else {
+                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
                     }
-                    new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getTransaction()), from).save();
-                    new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getProceed())).save();
-                    dialog.dismiss();
-                    question_dialog.dismiss();
-                    loadData();
+                    if (checkCash(from, cost)) {
+                        new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, loader.getSystemCategories(), from).save();
+                        new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, loader.getSystemCategories()).save();
+                        dialog.dismiss();
+                        question_dialog.dismiss();
+                        loadData();
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             cancel.setOnClickListener(new View.OnClickListener() {
@@ -202,6 +211,11 @@ public class CashStatisticsFragment extends MyFragment {
             dialog.show();
         }
 
+        /**
+         * метод возращает все категории с типом места кроме выбранной
+         *
+         * @return лист категорий
+         */
         private List<Category> getArrayOfCategory() {
             List<Category> list = new ArrayList<>();
             for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
@@ -213,6 +227,18 @@ public class CashStatisticsFragment extends MyFragment {
         }
     }
 
+    //метод проверяет хватает ли на выбранном балансе средств
+    private boolean checkCash(Category from, String cost) {
+        for (Map.Entry<Category, Float> mapEntry : categoryFloatMap.entrySet()) {
+            if (mapEntry.getKey() == from) {
+                if (mapEntry.getValue() > Float.parseFloat(cost)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onTaskFinished() {
         getActivity().setTitle("Где же Ваши денежки?");
@@ -221,7 +247,8 @@ public class CashStatisticsFragment extends MyFragment {
         List<Transaction> listTransactions = loader.getTransactions();
         List<Proceed> listProceedes = loader.getProceedes();
         //получаем значения для отображения
-        final List<PieEntry> pieEntries = sortData(listCategory, listTransactions, listProceedes);
+        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes);
+        final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
         //устанавливаем разделители между элементами данных

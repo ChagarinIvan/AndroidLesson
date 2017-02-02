@@ -39,4 +39,5 @@
     <string name="byn">BYN</string>
     <string name="to">C </string>
     <string name="from">На </string>
+    <string name="warning_no_cash">недостаточно средств</string>
 </resources>

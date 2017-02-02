@@ -5,9 +5,11 @@ import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import org.androidannotations.annotations.EBean;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,6 +23,7 @@ public class DataLoader {
     private static List<Proceed> proceedList;
     private static List<Transaction> transactionList;
     private static List<Category> categoryList;
+    private static Category systemCategory;
 
 
     private Callbacks mCallbacks = sDummyCallbacks;
@@ -33,6 +36,30 @@ public class DataLoader {
         this.fragment = fragment;
         mCallbacks = fragment;
         loadTransactions();
+    }
+
+    public Category getSystemCategories() {
+        return systemCategory;
+    }
+
+    public List<Transaction> getTransactionsWithoutSystem() {
+        List<Transaction> list = new ArrayList<>();
+        for (Transaction tr : transactionList) {
+            if (tr.getCategoryTransaction() != systemCategory) {
+                list.add(tr);
+            }
+        }
+        return list;
+    }
+
+    public List<Proceed> getProceedesWithoutSystem() {
+        List<Proceed> list = new ArrayList<>();
+        for (Proceed tr : proceedList) {
+            if (tr.getCategoryProcees() != systemCategory) {
+                list.add(tr);
+            }
+        }
+        return list;
     }
 
     public interface Callbacks {
@@ -115,7 +142,23 @@ public class DataLoader {
     }
 
     private void goesToCallBack() {
-        mCallbacks.onTaskFinished();
+        //проверяем создана ли системная категория
+        if (findSysCat()) {
+            mCallbacks.onTaskFinished();
+        } else {
+            new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getSYSTEM()).save();
+            loadTransactions();
+        }
+    }
+
+    private boolean findSysCat() {
+        for (Category category : categoryList) {
+            if (TextUtils.equals(category.getName(), Category.SYSTEM_CATEGORY) && (TextUtils.equals(category.getKindOfCategories(), KindOfCategories.getSYSTEM()))) {
+                systemCategory = category;
+                return true;
+            }
+        }
+        return false;
     }
 
     public String calcCash() {
@@ -173,6 +216,7 @@ public class DataLoader {
     }
 
     public List<Category> getCategores() {
-        return categoryList;
+        //отдаёт список категорий без системной категории
+        return KindOfCategories.sortDataWithout(categoryList, KindOfCategories.getSYSTEM());
     }
 }
