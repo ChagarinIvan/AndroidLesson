@@ -26,6 +26,7 @@
         android:orientation="horizontal">
 
         <EditText
+            android:layout_marginBottom="@dimen/dialog_transfer_padding"
             android:layout_width="@dimen/transfer_cash"
             android:layout_height="wrap_content"
             android:id="@+id/edit_text"
@@ -35,6 +36,7 @@
             android:textSize="@dimen/dialog_text_size" />
 
         <TextView
+            android:layout_marginBottom="@dimen/dialog_transfer_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/byn"
@@ -46,11 +48,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/dialog_transfer_padding"
-        android:paddingBottom="@dimen/dialog_transfer_padding">
+        android:orientation="horizontal">
 
         <TextView
+            android:layout_marginBottom="@dimen/dialog_transfer_padding"
             android:id="@+id/transfer_to_or_from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,6 +59,7 @@
             android:textColor="@color/text_color" />
 
         <Spinner
+            android:layout_marginBottom="@dimen/dialog_transfer_padding"
             android:id="@+id/transfer_spinner"
             android:textSize="@dimen/dialog_text_size"
             android:spinnerMode="dialog"

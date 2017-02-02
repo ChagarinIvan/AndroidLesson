@@ -45,16 +45,22 @@
         </activity>
 
         <service
-            android:name='.auth.AuthService'
-            android:exported='false'>
+            android:name=".auth.AuthService"
+            android:exported="false">
             <intent-filter>
-                <action android:name='android.accounts.AccountAuthenticator' />
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
-                android:name='android.accounts.AccountAuthenticator'
-                android:resource='@xml/authenticator' />
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <service
+            android:name=".MyService_"
+            android:enabled="true"
+            android:exported="true">
+
         </service>
     </application>
-
 
 </manifest>

@@ -131,8 +131,7 @@ public class TransactionsFragment extends MyFragment {
 
     @Override
     public void onTaskFinished() {
-
-        List<Transaction> listTransactions = loader.getTransactions();
+        List<Transaction> listTransactions = loader.getTransactionsWithoutSystem();
         //отключаем свайп
         swipeLayout.setRefreshing(false);
         transactionAdapter = new TransactionAdapter(listTransactions, getActivity(), new TransactionAdapter.CardViewHolder.ClickListener() {
