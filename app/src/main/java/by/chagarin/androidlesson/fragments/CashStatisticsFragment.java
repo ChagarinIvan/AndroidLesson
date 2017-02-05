@@ -146,87 +146,6 @@ public class CashStatisticsFragment extends MyFragment {
         return entries;
     }
 
-    private class ButtonClickListener implements View.OnClickListener {
-        private boolean flag;
-        private PieEntry pieEntry;
-        private Category from;
-        private Category to;
-        private List<Category> arrayOfCategory;
-
-
-        public ButtonClickListener(boolean b, PieEntry pieEntry) {
-            this.flag = b;
-            this.pieEntry = pieEntry;
-        }
-
-        @Override
-        public void onClick(View v) {
-            arrayOfCategory = getArrayOfCategory();
-            final Dialog dialog = new Dialog(getActivity());
-            dialog.setContentView(R.layout.dialog_transfer);
-            final EditText et = (EditText) dialog.findViewById(R.id.edit_text);
-            Button ok = (Button) dialog.findViewById(R.id.ok_button);
-            Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
-            TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
-            if (flag) {
-                to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
-                tv.setText(getString(R.string.to));
-            } else {
-                from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
-                tv.setText(getString(R.string.from));
-            }
-            final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, KindOfCategories.getStringArray(arrayOfCategory));
-            spinner.setAdapter(adapter);
-            ok.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String cost = String.valueOf(et.getText());
-                    if (flag) {
-                        from = arrayOfCategory.get(spinner.getSelectedItemPosition());
-                    } else {
-                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
-                    }
-                    if (checkCash(from, cost)) {
-                        new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, loader.getSystemCategories(), from).save();
-                        new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, loader.getSystemCategories()).save();
-                        dialog.dismiss();
-                        question_dialog.dismiss();
-                        loadData();
-                    } else {
-                        Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-            cancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    question_dialog.dismiss();
-                }
-            });
-            //noinspection ConstantConditions
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
-        }
-
-        /**
-         * метод возращает все категории с типом места кроме выбранной
-         *
-         * @return лист категорий
-         */
-        private List<Category> getArrayOfCategory() {
-            List<Category> list = new ArrayList<>();
-            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
-                if (!TextUtils.equals(category.getName(), pieEntry.getLabel())) {
-                    list.add(category);
-                }
-            }
-            return list;
-        }
-    }
-
     //метод проверяет хватает ли на выбранном балансе средств
     private boolean checkCash(Category from, String cost) {
         for (Map.Entry<Category, Float> mapEntry : categoryFloatMap.entrySet()) {
@@ -298,5 +217,86 @@ public class CashStatisticsFragment extends MyFragment {
 
     private void loadData() {
         loader.loadData(this);
+    }
+
+    private class ButtonClickListener implements View.OnClickListener {
+        private boolean flag;
+        private PieEntry pieEntry;
+        private Category from;
+        private Category to;
+        private List<Category> arrayOfCategory;
+
+
+        public ButtonClickListener(boolean b, PieEntry pieEntry) {
+            this.flag = b;
+            this.pieEntry = pieEntry;
+        }
+
+        @Override
+        public void onClick(View v) {
+            arrayOfCategory = getArrayOfCategory();
+            final Dialog dialog = new Dialog(getActivity());
+            dialog.setContentView(R.layout.dialog_transfer);
+            final EditText et = (EditText) dialog.findViewById(R.id.edit_text);
+            Button ok = (Button) dialog.findViewById(R.id.ok_button);
+            Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
+            TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
+            if (flag) {
+                to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
+                tv.setText(getString(R.string.to));
+            } else {
+                from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
+                tv.setText(getString(R.string.from));
+            }
+            final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, KindOfCategories.getStringArray(arrayOfCategory));
+            spinner.setAdapter(adapter);
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String cost = String.valueOf(et.getText());
+                    if (flag) {
+                        from = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                    } else {
+                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                    }
+                    if (checkCash(from, cost)) {
+                        new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, loader.getSystemCategories(), from).save();
+                        new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, loader.getSystemCategories()).save();
+                        dialog.dismiss();
+                        question_dialog.dismiss();
+                        loadData();
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    question_dialog.dismiss();
+                }
+            });
+            //noinspection ConstantConditions
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        }
+
+        /**
+         * метод возращает все категории с типом места кроме выбранной
+         *
+         * @return лист категорий
+         */
+        private List<Category> getArrayOfCategory() {
+            List<Category> list = new ArrayList<>();
+            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
+                if (!TextUtils.equals(category.getName(), pieEntry.getLabel())) {
+                    list.add(category);
+                }
+            }
+            return list;
+        }
     }
 }

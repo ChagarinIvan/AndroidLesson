@@ -153,7 +153,7 @@ public class DataLoader {
 
     private boolean findSysCat() {
         for (Category category : categoryList) {
-            if (TextUtils.equals(category.getName(), Category.SYSTEM_CATEGORY) && (TextUtils.equals(category.getKindOfCategories(), KindOfCategories.getSYSTEM()))) {
+            if (TextUtils.equals(category.getName(), Category.SYSTEM_CATEGORY) && (TextUtils.equals(category.getKind(), KindOfCategories.getSYSTEM()))) {
                 systemCategory = category;
                 return true;
             }

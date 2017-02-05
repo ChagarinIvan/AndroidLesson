@@ -38,9 +38,9 @@ public class KindOfCategories {
      * выбирает из списка категорий только с нужным типом
      */
     public static List<Category> sortData(List<Category> data, String kind) {
-        List<Category> list = new ArrayList<Category>();
+        List<Category> list = new ArrayList<>();
         for (Category cat : data) {
-            if (TextUtils.equals(cat.getKindOfCategories(), kind)) {
+            if (TextUtils.equals(cat.getKind(), kind)) {
                 list.add(cat);
             }
         }
@@ -60,7 +60,7 @@ public class KindOfCategories {
     }
 
     public static List<String> getStringArray(List<Category> listCategories) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (Category cat : listCategories) {
             list.add(cat.getName());
         }
@@ -68,9 +68,9 @@ public class KindOfCategories {
     }
 
     public static List<Category> sortDataWithout(List<Category> data, String kind) {
-        List<Category> list = new ArrayList<Category>();
+        List<Category> list = new ArrayList<>();
         for (Category cat : data) {
-            if (!TextUtils.equals(cat.getKindOfCategories(), kind)) {
+            if (!TextUtils.equals(cat.getKind(), kind)) {
                 list.add(cat);
             }
         }

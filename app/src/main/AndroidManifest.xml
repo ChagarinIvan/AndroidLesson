@@ -38,6 +38,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity_" />
         </activity>
+        <activity android:name=".SignInActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity_" />
+        </activity>
         <activity android:name=".AddProccedActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -56,10 +61,18 @@
                 android:resource="@xml/authenticator" />
         </service>
         <service
-            android:name=".MyService_"
-            android:enabled="true"
-            android:exported="true">
-
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.MyFirebaseInstanceIdService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
         </service>
     </application>
 

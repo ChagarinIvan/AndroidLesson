@@ -1,16 +1,15 @@
 package by.chagarin.androidlesson.fragments;
 
+
 import android.app.Dialog;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +24,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -33,43 +31,33 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
-import by.chagarin.androidlesson.DataLoader;
-import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
-import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.Post;
 import by.chagarin.androidlesson.objects.User;
-import by.chagarin.androidlesson.viewholders.CategoryViewHolder;
+import by.chagarin.androidlesson.viewholders.PostViewHolder;
 
-@EFragment(R.layout.fragment_categores)
-public class CategoresFragment extends MyFragment {
+@EFragment(R.layout.fragment_chat)
+public class Chat extends Fragment {
     private static final String REQUIRED = "Required";
+    private EditText text;
+    private EditText nameText;
+    private Button ok;
 
-    @Bean
-    DataLoader loader;
+    @ViewById
+    FloatingActionButton fab;
+    private DatabaseReference mDatabase;
 
     @ViewById(R.id.categories_list_view)
     RecyclerView mRecycler;
 
-    @ViewById(R.id.fab)
-    FloatingActionButton fab;
-
-    @ViewById
-    SwipeRefreshLayout swipeLayout;
-
-    private Spinner spinner;
-    public static final String CATEGORIES = "categories";
-    private DatabaseReference mDatabase;
     private LinearLayoutManager mManager;
-    private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
-    private Button ok;
+    private FirebaseRecyclerAdapter<Post, PostViewHolder> mAdapter;
 
     @AfterViews
-    void afterView() {
+    void ready() {
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
-
         // Set up Layout Manager, reverse layout
         mManager = new LinearLayoutManager(getActivity());
         mManager.setReverseLayout(true);
@@ -77,10 +65,10 @@ public class CategoresFragment extends MyFragment {
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(mDatabase);
-        mAdapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(Category.class, R.layout.category_list_item,
-                CategoryViewHolder.class, postsQuery) {
+        mAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(Post.class, R.layout.item_post,
+                PostViewHolder.class, postsQuery) {
             @Override
-            protected void populateViewHolder(final CategoryViewHolder viewHolder, final Category model, final int position) {
+            protected void populateViewHolder(final PostViewHolder viewHolder, final Post model, final int position) {
                 final DatabaseReference postRef = getRef(position);
 
                 // Set click listener for the whole post view
@@ -95,48 +83,68 @@ public class CategoresFragment extends MyFragment {
         mRecycler.setAdapter(mAdapter);
     }
 
-    //по нажатию на ФАБ запускается диалог добавления новой категории
-    @Click
-    void fabClicked() {
-        alertDialog();
-    }
-
     public Query getQuery(DatabaseReference databaseReference) {
         // [START recent_posts_query]
         // Last 100 posts, these are automatically the 100 most recent
         // due to sorting by push() keys
         // [END recent_posts_query]
 
-        return databaseReference.child(CATEGORIES)
+        return databaseReference.child("posts")
                 .limitToFirst(100);
     }
 
-    /**
-     * инициируем всплывающий диалог
-     */
+    @Click
+    void fabClicked() {
+        alertDialog();
+    }
+
+    private void setEditingEnabled(boolean enabled) {
+        nameText.setEnabled(enabled);
+        text.setEnabled(enabled);
+        if (enabled) {
+            ok.setVisibility(View.VISIBLE);
+        } else {
+            ok.setVisibility(View.GONE);
+        }
+    }
+
+    public String getUid() {
+        //noinspection ConstantConditions
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
     private void alertDialog() {
         final Dialog dialog = new Dialog(getActivity());
-        dialog.setContentView(R.layout.dialog_window);
-        TextView textView = (TextView) dialog.findViewById(R.id.title);
-        spinner = (Spinner) dialog.findViewById(R.id.spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), R.layout.spinner_item, KindOfCategories.getKinds());
-        spinner.setAdapter(adapter);
-        final EditText editText = (EditText) dialog.findViewById(R.id.edit_text);
+        dialog.setContentView(R.layout.dialog_create_family);
+        TextView title = (TextView) dialog.findViewById(R.id.title);
+        title.setText("добавим сообщение");
+        TextView name = (TextView) dialog.findViewById(R.id.name);
+        name.setText("заголовок");
+        nameText = (EditText) dialog.findViewById(R.id.edit_text_name);
+        TextView passwordText = (TextView) dialog.findViewById(R.id.password_text);
+        passwordText.setText("текст");
+        text = (EditText) dialog.findViewById(R.id.edit_text_password);
+        text.setInputType(InputType.TYPE_CLASS_TEXT);
         ok = (Button) dialog.findViewById(R.id.ok_button);
-        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
-
-        textView.setText(R.string.categores);
+        Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Editable text = editText.getText();
-                final String kind = (String) spinner.getSelectedItem();
+                final String title = nameText.getText().toString();
+                final String body = text.getText().toString();
 
                 // Title is required
-                if (TextUtils.isEmpty(text)) {
-                    editText.setError(REQUIRED);
+                if (TextUtils.isEmpty(title)) {
+                    nameText.setError(REQUIRED);
                     return;
                 }
+
+                // Body is required
+                if (TextUtils.isEmpty(body)) {
+                    text.setError(REQUIRED);
+                    return;
+                }
+
                 // Disable button so there are no multi-posts
                 setEditingEnabled(false);
                 Toast.makeText(getActivity(), "Posting...", Toast.LENGTH_SHORT).show();
@@ -158,7 +166,7 @@ public class CategoresFragment extends MyFragment {
                                             Toast.LENGTH_SHORT).show();
                                 } else {
                                     // Write new post
-                                    writeNewCategory(userId, user.username, text.toString(), kind);
+                                    writeNewPost(userId, user.username, title, body);
                                 }
 
                                 // Finish this Activity, back to the stream
@@ -176,43 +184,29 @@ public class CategoresFragment extends MyFragment {
                 // [END single_value_read]
             }
         });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
-        //собственно настравиваем вид и пакезываем диалог
+
         //noinspection ConstantConditions
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
     }
 
-    private void writeNewCategory(String userId, String username, String title, String kind) {
-        // Create new post at /user-category/$userid/category and at
-        // /category/categoryID simultaneously
-        String key = mDatabase.child(CATEGORIES).push().getKey();
-        Category category = new Category(title, kind, userId, username);
-        Map<String, Object> postValues = category.toMap();
+    private void writeNewPost(String userId, String username, String title, String body) {
+        // Create new post at /user-posts/$userid/$postid and at
+        // /posts/$postid simultaneously
+        String key = mDatabase.child("posts").push().getKey();
+        Post post = new Post(userId, username, title, body);
+        Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + CATEGORIES + "/" + key, postValues);
-        childUpdates.put("/user-" + CATEGORIES + "/" + userId + "/" + key, postValues);
+        childUpdates.put("/posts/" + key, postValues);
+        childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
 
         mDatabase.updateChildren(childUpdates);
-    }
-
-    private void setEditingEnabled(boolean enabled) {
-        if (enabled) {
-            ok.setVisibility(View.VISIBLE);
-        } else {
-            ok.setVisibility(View.GONE);
-        }
-    }
-
-    private String getUid() {
-        //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 }
