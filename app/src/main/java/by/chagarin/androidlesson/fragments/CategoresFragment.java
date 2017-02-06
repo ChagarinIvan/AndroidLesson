@@ -1,6 +1,7 @@
 package by.chagarin.androidlesson.fragments;
 
 import android.app.Dialog;
+import android.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +26,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -33,19 +33,17 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
-import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.CategoryViewHolder;
 
-@EFragment(R.layout.fragment_categores)
-public class CategoresFragment extends MyFragment {
-    private static final String REQUIRED = "Required";
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
 
-    @Bean
-    DataLoader loader;
+@EFragment(R.layout.fragment_categores)
+public class CategoresFragment extends Fragment {
+    private static final String REQUIRED = "Required";
 
     @ViewById(R.id.categories_list_view)
     RecyclerView mRecycler;
@@ -57,7 +55,6 @@ public class CategoresFragment extends MyFragment {
     SwipeRefreshLayout swipeLayout;
 
     private Spinner spinner;
-    public static final String CATEGORIES = "categories";
     private DatabaseReference mDatabase;
     private LinearLayoutManager mManager;
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
@@ -89,7 +86,7 @@ public class CategoresFragment extends MyFragment {
                 // Determine if the current user has liked this post and set UI accordingly
 
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
-                viewHolder.bindToPost(model);
+                viewHolder.bindToCategory(model);
             }
         };
         mRecycler.setAdapter(mAdapter);

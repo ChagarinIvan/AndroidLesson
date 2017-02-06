@@ -1,6 +1,7 @@
 package by.chagarin.androidlesson.fragments;
 
 import android.app.Dialog;
+import android.app.Fragment;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.Display;
@@ -47,7 +48,7 @@ import by.chagarin.androidlesson.objects.Transaction;
  * фрагмент для отображения полу круглой диаграммы с данными о расположеннии денежных средств
  */
 @EFragment(R.layout.fragment_statistics)
-public class CashStatisticsFragment extends MyFragment {
+public class CashStatisticsFragment extends Fragment {
 
     private List<Category> listCategory;
     private Dialog question_dialog;
@@ -95,7 +96,7 @@ public class CashStatisticsFragment extends MyFragment {
     }
 
     private String calcSumm() {
-        return "Общий баланс " + loader.calcCash();
+        return "Общий баланс "; //+ loader.calcCash();
     }
 
     //метод будет возвращать лист рандомных цвето нужного размера
@@ -158,7 +159,6 @@ public class CashStatisticsFragment extends MyFragment {
         return false;
     }
 
-    @Override
     public void onTaskFinished() {
         getActivity().setTitle("Где же Ваши денежки?");
         //берём необходимые листы данных
@@ -216,7 +216,7 @@ public class CashStatisticsFragment extends MyFragment {
     }
 
     private void loadData() {
-        loader.loadData(this);
+        loader.loadData();
     }
 
     private class ButtonClickListener implements View.OnClickListener {

@@ -72,6 +72,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
+        loader.loadData();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {

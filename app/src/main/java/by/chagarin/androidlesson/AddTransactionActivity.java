@@ -16,6 +16,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.androidannotations.annotations.AfterTextChange;
@@ -30,11 +35,15 @@ import org.androidannotations.annotations.res.TextRes;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
+import by.chagarin.androidlesson.objects.User;
 
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
 import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_transaction)
@@ -69,6 +78,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
     @Bean
     DataLoader loader;
+
+    private DatabaseReference mDatabase;
 
     @AfterViews
     void ready() {
@@ -134,9 +145,13 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         onBackPressed();
     }
 
+    private String getUid() {
+        //noinspection ConstantConditions
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
     @Click
     void addButton() {
-
         try {
             String name = title.getText().toString();
             String price = sum.getText().toString();
@@ -152,6 +167,28 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                 } else {
                     float v = Float.parseFloat(price);
                     new Transaction(name, price, date, description, categoryTransaction, categoryPlace).save();
+                    final String userId = getUid();
+                    mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    // Get user value
+                                    User user = dataSnapshot.getValue(User.class);
+
+                                    // [START_EXCLUDE]
+                                    if (user == null) {
+                                        // User is null, error out
+                                        Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        // Write new post
+                                        writeNewTransaction(userId, user.username, transction);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                }
+                            });
                     finish();
                 }
             }
@@ -162,6 +199,20 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             Toast.makeText(this, getString(R.string.warning_no_categories), Toast.LENGTH_LONG).show();
             addButton.setEnabled(false);
         }
+    }
+
+    private void writeNewTransaction(String userId, String username, Transaction transction) {
+        String key = mDatabase.child(CATEGORIES).push().getKey();
+        transction;
+        Map<String, Object> postValues = category.toMap();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + CATEGORIES + "/" + key, postValues);
+        childUpdates.put("/user-" + CATEGORIES + "/" + userId + "/" + key, postValues);
+
+        mDatabase.updateChildren(childUpdates);
+
+
     }
 
     @AfterTextChange({R.id.title, R.id.sum})

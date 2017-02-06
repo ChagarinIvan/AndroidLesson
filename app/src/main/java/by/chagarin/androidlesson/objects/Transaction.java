@@ -36,6 +36,22 @@ public class Transaction extends Model implements Parcelable {
     private Category categoryTransaction;
     @Column(name = "categoryplace")
     private Category categoryPlace;
+    public String uid;
+    public String author;
+
+    public Transaction(String title, String price, String date, String comment, Category categoryTransaction, Category categoryPlace, String uid, String author) {
+        this.title = title;
+        this.price = Float.parseFloat(price);
+        try {
+            this.date = df.parse(date);
+        } catch (ParseException e) {
+        }
+        this.comment = comment;
+        this.categoryTransaction = categoryTransaction;
+        this.categoryPlace = categoryPlace;
+        this.uid = uid;
+        this.author = author;
+    }
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
@@ -49,7 +65,6 @@ public class Transaction extends Model implements Parcelable {
      */
     public Transaction(String title, String price, Date date, String comment, Category categoryTransaction, Category categoryPlace) {
         this.title = title;
-        this.price = Float.parseFloat(price);
         this.categoryTransaction = categoryTransaction;
         this.categoryPlace = categoryPlace;
         this.date = date;

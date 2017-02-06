@@ -1,42 +1,37 @@
 package by.chagarin.androidlesson;
 
 
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
-import android.os.Bundle;
-import android.text.TextUtils;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import org.androidannotations.annotations.EBean;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
-import by.chagarin.androidlesson.fragments.MyFragment;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class DataLoader {
-    private static List<Proceed> proceedList;
-    private static List<Transaction> transactionList;
-    private static List<Category> categoryList;
-    private static Category systemCategory;
+    public static final String CATEGORIES = "categories";
+    public static final String TRANSACTIONS = "transactions";
+    private static List<Proceed> proceedList = new ArrayList<>();
+    private static List<Transaction> transactionList = new ArrayList<>();
+    private static List<Category> categoryList = new ArrayList<>();
+    private static Category systemCategory = new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getSYSTEM());
 
 
-    private Callbacks mCallbacks = sDummyCallbacks;
     private boolean isCashLoading = false;
     private boolean isProceedesLoading = false;
     private float cashCount;
-    private MyFragment fragment;
-
-    public void loadData(MyFragment fragment) {
-        this.fragment = fragment;
-        mCallbacks = fragment;
-        loadTransactions();
-    }
+    private DatabaseReference mDatabase;
 
     public Category getSystemCategories() {
         return systemCategory;
@@ -62,150 +57,235 @@ public class DataLoader {
         return list;
     }
 
-    public interface Callbacks {
-        void onTaskFinished();
-    }
-
-    private static Callbacks sDummyCallbacks = new Callbacks() {
-        public void onTaskFinished() {
-        }
-    };
-
-    public void loadCategores() {
-        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
-
-            /**
-             * прозодит в бекграуде
-             */
+    public void loadData() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        Query queryRef = getQuery(mDatabase, CATEGORIES);
+        queryRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(fragment.getActivity()) {
-                    @Override
-                    public List<Category> loadInBackground() {
-                        return Category.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
-                categoryList = data;
-                loadProceedes();
+            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+                Map<String, String> value = (Map<String, String>) snapshot.getValue();
+                categoryList.add(createCategory(snapshot));
             }
 
             @Override
-            public void onLoaderReset(Loader<List<Category>> loader) {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-    }
-
-    public void loadTransactions() {
-        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
-
-            /**
-             * прозодит в бекграуде
-             */
+        Query transactionQuery = getQuery(mDatabase, TRANSACTIONS);
+        queryRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public Loader<List<Transaction>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(fragment.getActivity()) {
-                    @Override
-                    public List<Transaction> loadInBackground() {
-                        return Transaction.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
-                transactionList = data;
-                loadCategores();
+            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+                Map<String, String> value = (Map<String, String>) snapshot.getValue();
+                transactionList.add(createTransaction(snapshot));
             }
 
             @Override
-            public void onLoaderReset(Loader<List<Transaction>> loader) {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
+
     }
 
-    private void goesToCallBack() {
-        //проверяем создана ли системная категория
-        if (findSysCat()) {
-            mCallbacks.onTaskFinished();
-        } else {
-            new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getSYSTEM()).save();
-            loadTransactions();
-        }
+    private Transaction createTransaction(DataSnapshot snapshot) {
+        String title = (String) snapshot.child("title").getValue();
+        String price = (String) snapshot.child("price").getValue();
+        String categoryTransaction = (String) snapshot.child("categoryTransaction").getValue();
+        String categoryPlace = (String) snapshot.child("categoryPlace").getValue();
+        String date = (String) snapshot.child("date").getValue();
+        String comment = (String) snapshot.child("comment").getValue();
+        //return new Transaction(title,price,categoryTransaction,categoryPlace,date,comment);
+        return null;
     }
 
-    private boolean findSysCat() {
-        for (Category category : categoryList) {
-            if (TextUtils.equals(category.getName(), Category.SYSTEM_CATEGORY) && (TextUtils.equals(category.getKind(), KindOfCategories.getSYSTEM()))) {
-                systemCategory = category;
-                return true;
-            }
-        }
-        return false;
+    private Category createCategory(DataSnapshot snapshot) {
+        String name = (String) snapshot.child("name").getValue();
+        String kind = (String) snapshot.child("kind").getValue();
+        String uid = (String) snapshot.child("uid").getValue();
+        String author = (String) snapshot.child("author").getValue();
+        return new Category(name, kind, uid, author);
     }
 
-    public String calcCash() {
-        cashCount = 0;
-        for (Proceed proceed : proceedList) {
-            cashCount += Float.valueOf(proceed.getPrice());
-        }
-        for (Transaction transaction : transactionList) {
-            cashCount -= Float.valueOf(transaction.getPrice());
-        }
-        return String.format(Locale.ENGLISH, "%.2f", cashCount) + " BYN";
+    private Query getQuery(DatabaseReference mDatabase, String key) {
+        return mDatabase.child(key);
     }
 
-    public void loadProceedes() {
-        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
+//    public interface Callbacks {
+//        void onTaskFinished();
+//    }
+//
+//    private static Callbacks sDummyCallbacks = new Callbacks() {
+//        public void onTaskFinished() {
+//        }
+//    };
 
-            /**
-             * прозодит в бекграуде
-             */
-            @Override
-            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
-                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(fragment.getActivity()) {
-                    @Override
-                    public List<Proceed> loadInBackground() {
-                        return Proceed.getDataList();
-                    }
-                };
-                //важно
-                loader.forceLoad();
-                return loader;
-            }
-
-            /**
-             * в основном потоке после загрузки
-             */
-            @Override
-            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
-                proceedList = data;
-                goesToCallBack();
-            }
-
-            @Override
-            public void onLoaderReset(Loader<List<Proceed>> loader) {
-
-            }
-        });
-    }
+//    public void loadCategores() {
+//        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
+//
+//            /**
+//             * прозодит в бекграуде
+//             */
+//            @Override
+//            public Loader<List<Category>> onCreateLoader(int id, Bundle args) {
+//                final AsyncTaskLoader<List<Category>> loader = new AsyncTaskLoader<List<Category>>(fragment.getActivity()) {
+//                    @Override
+//                    public List<Category> loadInBackground() {
+//                        return Category.getDataList();
+//                    }
+//                };
+//                //важно
+//                loader.forceLoad();
+//                return loader;
+//            }
+//
+//            /**
+//             * в основном потоке после загрузки
+//             */
+//            @Override
+//            public void onLoadFinished(Loader<List<Category>> loader, List<Category> data) {
+//                categoryList = data;
+//                loadProceedes();
+//            }
+//
+//            @Override
+//            public void onLoaderReset(Loader<List<Category>> loader) {
+//
+//            }
+//        });
+//    }
+//
+//    public void loadTransactions() {
+//        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Transaction>>() {
+//
+//            /**
+//             * прозодит в бекграуде
+//             */
+//            @Override
+//            public Loader<List<Transaction>> onCreateLoader(int id, Bundle args) {
+//                final AsyncTaskLoader<List<Transaction>> loader = new AsyncTaskLoader<List<Transaction>>(fragment.getActivity()) {
+//                    @Override
+//                    public List<Transaction> loadInBackground() {
+//                        return Transaction.getDataList();
+//                    }
+//                };
+//                //важно
+//                loader.forceLoad();
+//                return loader;
+//            }
+//
+//            /**
+//             * в основном потоке после загрузки
+//             */
+//            @Override
+//            public void onLoadFinished(Loader<List<Transaction>> loader, List<Transaction> data) {
+//                transactionList = data;
+//                loadCategores();
+//            }
+//
+//            @Override
+//            public void onLoaderReset(Loader<List<Transaction>> loader) {
+//
+//            }
+//        });
+//    }
+//
+//    private void goesToCallBack() {
+//        //проверяем создана ли системная категория
+//        if (findSysCat()) {
+//            mCallbacks.onTaskFinished();
+//        } else {
+//            new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getSYSTEM()).save();
+//            loadTransactions();
+//        }
+//    }
+//
+//    private boolean findSysCat() {
+//        for (Category category : categoryList) {
+//            if (TextUtils.equals(category.getName(), Category.SYSTEM_CATEGORY) && (TextUtils.equals(category.getKind(), KindOfCategories.getSYSTEM()))) {
+//                systemCategory = category;
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    public String calcCash() {
+//        cashCount = 0;
+//        for (Proceed proceed : proceedList) {
+//            cashCount += Float.valueOf(proceed.getPrice());
+//        }
+//        for (Transaction transaction : transactionList) {
+//            cashCount -= Float.valueOf(transaction.getPrice());
+//        }
+//        return String.format(Locale.ENGLISH, "%.2f", cashCount) + " BYN";
+//    }
+//
+//    public void loadProceedes() {
+//        fragment.getLoaderManager().restartLoader(0, null, new LoaderManager.LoaderCallbacks<List<Proceed>>() {
+//
+//            /**
+//             * прозодит в бекграуде
+//             */
+//            @Override
+//            public Loader<List<Proceed>> onCreateLoader(int id, Bundle args) {
+//                final AsyncTaskLoader<List<Proceed>> loader = new AsyncTaskLoader<List<Proceed>>(fragment.getActivity()) {
+//                    @Override
+//                    public List<Proceed> loadInBackground() {
+//                        return Proceed.getDataList();
+//                    }
+//                };
+//                //важно
+//                loader.forceLoad();
+//                return loader;
+//            }
+//
+//            /**
+//             * в основном потоке после загрузки
+//             */
+//            @Override
+//            public void onLoadFinished(Loader<List<Proceed>> loader, List<Proceed> data) {
+//                proceedList = data;
+//                goesToCallBack();
+//            }
+//
+//            @Override
+//            public void onLoaderReset(Loader<List<Proceed>> loader) {
+//
+//            }
+//        });
+//    }
 
     public List<Proceed> getProceedes() {
         return proceedList;

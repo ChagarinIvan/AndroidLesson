@@ -25,7 +25,7 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder {
         cardView = (CardView) itemView.findViewById(R.id.card_id);
     }
 
-    public void bindToPost(Category category) {
+    public void bindToCategory(Category category) {
         if (TextUtils.equals(category.getKind(), KindOfCategories.getProceed())) {
             selectedProceed.setVisibility(View.VISIBLE);
         }

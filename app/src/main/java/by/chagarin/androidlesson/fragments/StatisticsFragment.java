@@ -1,5 +1,6 @@
 package by.chagarin.androidlesson.fragments;
 
+import android.app.Fragment;
 import android.graphics.Color;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
 
 @EFragment(R.layout.fragment_statistics)
-public class StatisticsFragment extends MyFragment {
+public class StatisticsFragment extends Fragment {
 
     @Bean
     DataLoader loader;
@@ -43,7 +44,6 @@ public class StatisticsFragment extends MyFragment {
         loadData();
     }
 
-    @Override
     public void onTaskFinished() {
         List<Transaction> listTransactions = loader.getTransactions();
         final List<PieEntry> pieEntries = sortData(listTransactions);
@@ -73,7 +73,7 @@ public class StatisticsFragment extends MyFragment {
      * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
      */
     private void loadData() {
-        loader.loadData(this);
+        loader.loadData();
     }
 
     private String calcSumm(List<Transaction> data) {

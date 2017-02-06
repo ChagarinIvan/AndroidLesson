@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "44069515698",
+    "firebase_url": "https://budget-counter.firebaseio.com",
+    "project_id": "budget-counter",
+    "storage_bucket": "budget-counter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44069515698:android:4291318436fec13a",
+        "android_client_info": {
+          "package_name": "by.chagarin.androidlesson"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44069515698-6b5m8gna1h6fjdlraffr4tibjvkt1q8s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjUsK0T0bMefpjkcH8i3H794FYbz2Z_fg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44069515698-6b5m8gna1h6fjdlraffr4tibjvkt1q8s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
