@@ -43,4 +43,17 @@
     <string name="alarm_message">а ты заполнил бюджет??</string>
     <string name="notifaction_text">Вы сегодня заполняли свои расходы и дjходы??</string>
     <string name="notification_title">Напоминание</string>
+    <string name="sign_in">Авторизация</string>
+    <string name="sign_radio_1_text">личный бюджет</string>
+    <string name="sign_radio_2_text">семейный бюджет</string>
+    <string name="family_budget">Семейный бюджет</string>
+    <string name="family_question">Создать новый семейный бюджет или присоединиться к существующему (необходимо знать пароль)</string>
+    <string name="family_create_new">СОЗДАТЬ НОВЫЙ</string>
+    <string name="family_add">ПРИСОЕДИНИТЬСЯ</string>
+    <string name="family_create_title">Создание нового семейного бюджета</string>
+    <string name="family_example">Чагарины</string>
+    <string name="famile_name_title">Название Вашей семьи</string>
+    <string name="famile_password_title">Пароль</string>
+    <string name="chat">Чат</string>
+    <string name="icon">icon</string>
 </resources>

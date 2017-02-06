@@ -15,4 +15,5 @@
     <dimen name="transfer_cash">100dp</dimen>
     <dimen name="add_transaction_text_size">24dp</dimen>
     <dimen name="add_transactions_padding">5dp</dimen>
+    <dimen name="sign_top_margin">50dp</dimen>
 </resources>

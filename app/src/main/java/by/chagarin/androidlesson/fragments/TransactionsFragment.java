@@ -1,5 +1,6 @@
 package by.chagarin.androidlesson.fragments;
 
+import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +42,7 @@ import by.chagarin.androidlesson.objects.Transaction;
 @OptionsMenu(R.menu.menu_transactions)
 //создаём файл меню для фрагмента
 //android:showAsAction="ifRoom" значит, что элемент если помещается, то будет в тулбаре, иначе поместиться в "три точки"
-public class TransactionsFragment extends MyFragment {
+public class TransactionsFragment extends Fragment {
 
     private static final String TIMER_NAME = "query_timer";
     private TransactionAdapter transactionAdapter;
@@ -94,7 +95,6 @@ public class TransactionsFragment extends MyFragment {
 
     @Background(delay = 300, id = TIMER_NAME)
     void filterDelayed(String newText) {
-        //loadData(newText);
     }
 
     @AfterViews
@@ -109,7 +109,6 @@ public class TransactionsFragment extends MyFragment {
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadData();
             }
         });
 
@@ -122,14 +121,13 @@ public class TransactionsFragment extends MyFragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 transactionAdapter.removeItem(viewHolder.getAdapterPosition());
-                loadData();
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    @Override
+
     public void onTaskFinished() {
         List<Transaction> listTransactions = loader.getTransactionsWithoutSystem();
         //отключаем свайп
@@ -163,7 +161,7 @@ public class TransactionsFragment extends MyFragment {
                     new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()),
                     new Category(getString(R.string.hint_category_place_exemple), KindOfCategories.getPlace()));
         }
-        cash.setTitle(loader.calcCash());
+        cash.setTitle("{eq"/*loader.calcCash()*/);
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -181,12 +179,6 @@ public class TransactionsFragment extends MyFragment {
         getActivity().overridePendingTransition(R.anim.from_midle, R.anim.in_midle);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadData();
-    }
-
     private void toggleSelection(int position) {
         transactionAdapter.togglePosition(position);
         int count = transactionAdapter.getSelectedItemsCount();
@@ -196,13 +188,6 @@ public class TransactionsFragment extends MyFragment {
             actionMode.setTitle(String.valueOf(count));
             actionMode.invalidate();
         }
-    }
-
-    /**
-     * метод с помощью асинхронного загрузчика в доп потоке загружает данные из БД
-     */
-    private void loadData() {
-        loader.loadData(this);
     }
 
     /**
@@ -227,7 +212,6 @@ public class TransactionsFragment extends MyFragment {
             switch (item.getItemId()) {
                 case R.id.menu_remove:
                     transactionAdapter.removeItems(transactionAdapter.getSelectedItem());
-                    loadData();
                     mode.finish();
                     return true;
                 default:

@@ -2,12 +2,15 @@ package by.chagarin.androidlesson;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
@@ -24,6 +27,7 @@ import java.util.List;
 
 import by.chagarin.androidlesson.auth.SessionManager;
 import by.chagarin.androidlesson.fragments.CategoresFragment_;
+import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
 import by.chagarin.androidlesson.fragments.StatisticsFragment_;
 import by.chagarin.androidlesson.fragments.TransactionsFragment_;
@@ -43,10 +47,15 @@ public class MainActivity extends ActionBarActivity {
 
     @Bean
     SessionManager sessionManager;
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
     private List<Proceed> listProceedes;
     private List<Transaction> listTransactions;
     private float cashCount;
     private LinearLayout linear;
+    private String mUsername;
+    private String mPhotoUrl;
 
     //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
     @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
@@ -61,16 +70,23 @@ public class MainActivity extends ActionBarActivity {
         sessionManager.login();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        MyService_.intent(getApplication()).stop();
-    }
-
     @AfterViews
     void afterCreate() {
-        MyService_.intent(getApplication()).start();
-//        linear = (LinearLayout) toolbar.findViewById(R.id.cash_layout);
+        loader.loadData();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        if (mFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            startActivity(new Intent(this, SignInActivity_.class));
+            finish();
+            return;
+        } else {
+            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            }
+        }
+
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -80,6 +96,7 @@ public class MainActivity extends ActionBarActivity {
         sessionManager.createAccount(login, token);
 
 
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer = new DrawerBuilder()
                 .withActivity(this)
@@ -91,13 +108,15 @@ public class MainActivity extends ActionBarActivity {
                         new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
                         new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
                         new PrimaryDrawerItem().withName(R.string.categores).withIcon(FontAwesome.Icon.faw_tags),
-                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart)
+                        new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart),
+                        new PrimaryDrawerItem().withName(R.string.chat).withIcon(FontAwesome.Icon.faw_chain_broken)
                 )
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
                     public void onDrawerOpened(View drawerView) {
                         InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        //noinspection ConstantConditions
                         inputMethodManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), 0);
                     }
 
@@ -153,6 +172,10 @@ public class MainActivity extends ActionBarActivity {
                 case 4:
                     drawer.setSelection(4);
                     setFragment(position, R.string.statistics, StatisticsFragment_.builder().build());
+                    return true;
+                case 5:
+                    drawer.setSelection(4);
+                    setFragment(position, R.string.chat, Chat_.builder().build());
                     return true;
             }
             return false;

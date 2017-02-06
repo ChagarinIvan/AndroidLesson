@@ -1,6 +1,7 @@
 package by.chagarin.androidlesson.fragments;
 
 
+import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
-import android.widget.TextView;
 
 import com.melnykov.fab.FloatingActionButton;
 
@@ -40,14 +40,13 @@ import by.chagarin.androidlesson.objects.Proceed;
 
 @EFragment(R.layout.fragment_proceeds)
 @OptionsMenu(R.menu.menu_transactions)
-public class ProceedFragment extends MyFragment {
+public class ProceedFragment extends Fragment {
 
     private static final String TIMER_NAME = "query_timer";
     private ProceedAdapter proceedAdapter;
     private ActionModeCallback actionModeCallback = new ActionModeCallback();
     private ActionMode actionMode;
     private Proceed lastProcced;
-    private TextView cashText;
 
     @OptionsMenuItem
     MenuItem menuSearch;
@@ -128,7 +127,6 @@ public class ProceedFragment extends MyFragment {
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    @Override
     public void onTaskFinished() {
         List<Proceed> proceedList = loader.getProceedesWithoutSystem();
         swipeLayout.setRefreshing(false);
@@ -161,7 +159,7 @@ public class ProceedFragment extends MyFragment {
                     new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace()),
                     new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed()));
         }
-        cash.setTitle(loader.calcCash());
+        cash.setTitle("Хуй"/*loader.calcCash()*/);
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -202,7 +200,7 @@ public class ProceedFragment extends MyFragment {
      *
      */
     private void loadData() {
-        loader.loadData(this);
+        loader.loadData();
     }
 
     /**

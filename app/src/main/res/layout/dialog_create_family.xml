@@ -14,59 +14,80 @@
     android:paddingTop="@dimen/dialog_padding">
 
     <TextView
+        android:id="@+id/title"
+        android:layout_marginBottom="@dimen/dialog_transfer_padding"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/title"
         android:textSize="@dimen/dialog_text_size"
-        android:text="@string/dialog_transfer_question"
-        android:paddingBottom="@dimen/dialog_transfer_padding"
-        android:paddingTop="@dimen/dialog_transfer_padding"
-        android:textColor="@color/green" />
+        android:textColor="@color/green"
+        android:text="@string/family_create_title" />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="@dimen/dialog_transfer_delimitr_size"
-        android:background="@color/green" />
+        android:background="@color/green"
+        android:layout_marginBottom="@dimen/dialog_transfer_padding" />
 
     <TextView
-        android:id="@+id/question"
+        android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/green"
         android:textSize="@dimen/dialog_transfer_question"
-        android:text="@string/dialog_transfer_question"
-        android:paddingBottom="@dimen/dialog_transfer_padding"
-        android:paddingTop="@dimen/dialog_transfer_padding"
-        android:textColor="@color/green" />
+        android:text="@string/famile_name_title" />
+
+    <EditText
+        android:layout_marginBottom="@dimen/dialog_transfer_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_name"
+        android:hint="@string/family_example" />
+
+    <TextView
+        android:id="@+id/password_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/green"
+        android:textSize="@dimen/dialog_transfer_question"
+        android:text="@string/famile_password_title" />
+
+    <EditText
+        android:layout_marginBottom="@dimen/dialog_transfer_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_password"
+        android:inputType="textPassword" />
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <Button
-            android:layout_width="@dimen/dialog_transfer_button_width"
+            android:layout_width="@dimen/dialog_button_width"
             android:layout_height="wrap_content"
-            android:id="@+id/transfer_to"
-            android:text="@string/transfer_to"
+            android:id="@+id/ok_button"
+            android:text="@string/ok_button"
             android:textColor="@color/button_color"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/primary_foreground" />
+            android:background="@color/background" />
 
         <Button
-            android:layout_width="@dimen/dialog_transfer_button_width"
+            android:layout_width="@dimen/dialog_button_width"
             android:layout_height="wrap_content"
-            android:id="@+id/transfer_from"
-            android:text="@string/transfer_from"
+            android:id="@+id/cancel_button"
+            android:text="@string/cancel_button"
             android:textColor="@color/button_color"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:gravity="center"
             android:enabled="true"
-            android:background="@color/primary_foreground" />
+            android:background="@color/background" />
 
     </RelativeLayout>
 </LinearLayout>
