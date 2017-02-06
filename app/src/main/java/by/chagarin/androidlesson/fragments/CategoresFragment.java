@@ -108,6 +108,11 @@ public class CategoresFragment extends Fragment {
                 .limitToFirst(100);
     }
 
+    public String getUid() {
+        //noinspection ConstantConditions
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
     /**
      * инициируем всплывающий диалог
      */
@@ -208,8 +213,5 @@ public class CategoresFragment extends Fragment {
         }
     }
 
-    private String getUid() {
-        //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
-    }
+
 }

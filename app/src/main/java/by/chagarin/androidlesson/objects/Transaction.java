@@ -14,8 +14,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import by.chagarin.androidlesson.KindOfCategories;
 
@@ -69,6 +71,7 @@ public class Transaction extends Model implements Parcelable {
         this.categoryPlace = categoryPlace;
         this.date = date;
         this.comment = comment;
+        this.price = Float.parseFloat(price);
     }
 
     protected Transaction(Parcel in) {
@@ -148,5 +151,23 @@ public class Transaction extends Model implements Parcelable {
                 .from(Transaction.class)
                 .orderBy("date DESC");
         return from.execute();
+    }
+
+    public Map<String,Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("uid", uid);
+        result.put("author", author);
+        result.put("title", title);
+        result.put("comment", comment);
+        result.put("price", String.valueOf(price));
+        result.put("date", df.format(date));
+        result.put("categoryTransaction", categoryTransaction);
+        result.put("categoryPlace", categoryPlace);
+        return result;
+    }
+
+    public void setAuthor(String userId, String author) {
+        this.uid = userId;
+        this.author = author;
     }
 }

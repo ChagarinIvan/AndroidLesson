@@ -26,12 +26,12 @@ public class DataLoader {
     private static List<Transaction> transactionList = new ArrayList<>();
     private static List<Category> categoryList = new ArrayList<>();
     private static Category systemCategory = new Category(Category.SYSTEM_CATEGORY, KindOfCategories.getSYSTEM());
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
     private boolean isCashLoading = false;
     private boolean isProceedesLoading = false;
     private float cashCount;
-    private DatabaseReference mDatabase;
 
     public Category getSystemCategories() {
         return systemCategory;
@@ -58,7 +58,6 @@ public class DataLoader {
     }
 
     public void loadData() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         Query queryRef = getQuery(mDatabase, CATEGORIES);
         queryRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -88,7 +87,7 @@ public class DataLoader {
             }
         });
         Query transactionQuery = getQuery(mDatabase, TRANSACTIONS);
-        queryRef.addChildEventListener(new ChildEventListener() {
+        transactionQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot snapshot, String previousChild) {
                 Map<String, String> value = (Map<String, String>) snapshot.getValue();
@@ -115,19 +114,19 @@ public class DataLoader {
 
             }
         });
-
-
     }
 
     private Transaction createTransaction(DataSnapshot snapshot) {
         String title = (String) snapshot.child("title").getValue();
-        String price = (String) snapshot.child("price").getValue();
-        String categoryTransaction = (String) snapshot.child("categoryTransaction").getValue();
-        String categoryPlace = (String) snapshot.child("categoryPlace").getValue();
+        String price = String.valueOf(snapshot.child("price").getValue());
+        Category categoryTransaction = createCategory(snapshot.child("categoryTransaction"));
+        Category categoryPlace = createCategory(snapshot.child("categoryPlace"));
         String date = (String) snapshot.child("date").getValue();
         String comment = (String) snapshot.child("comment").getValue();
+        String uid = (String) snapshot.child("uid").getValue();
+        String author = (String) snapshot.child("author").getValue();
         //return new Transaction(title,price,categoryTransaction,categoryPlace,date,comment);
-        return null;
+        return new Transaction(title,price,date,comment, categoryTransaction, categoryPlace, uid, author);
     }
 
     private Category createCategory(DataSnapshot snapshot) {

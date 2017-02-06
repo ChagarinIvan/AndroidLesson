@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
@@ -43,7 +44,7 @@ import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 
-import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
+import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
 import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_transaction)
@@ -71,6 +72,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     CharSequence name;
 
     private Transaction transction;
+    private Transaction createTransction;
     private List<Category> listCategoriesTransactions;
     private List<Category> listCategoriesPlaces;
     private Date date;
@@ -108,6 +110,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
     @AfterViews
     void afterCreate() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(addButton.getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
@@ -166,7 +169,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     float v = Float.parseFloat(price);
-                    new Transaction(name, price, date, description, categoryTransaction, categoryPlace).save();
+                    createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace);
+                    createTransction.save();
                     final String userId = getUid();
                     mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                             new ValueEventListener() {
@@ -181,7 +185,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        writeNewTransaction(userId, user.username, transction);
+                                        writeNewTransaction(userId, user.username, createTransction);
                                     }
                                 }
 
@@ -202,13 +206,12 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     }
 
     private void writeNewTransaction(String userId, String username, Transaction transction) {
-        String key = mDatabase.child(CATEGORIES).push().getKey();
-        transction;
-        Map<String, Object> postValues = category.toMap();
-
+        transction.setAuthor(userId, username);
+        String key = mDatabase.child(TRANSACTIONS).push().getKey();
+        Map<String, Object> postValues = transction.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + CATEGORIES + "/" + key, postValues);
-        childUpdates.put("/user-" + CATEGORIES + "/" + userId + "/" + key, postValues);
+        childUpdates.put("/" + TRANSACTIONS + "/" + key, postValues);
+        childUpdates.put("/user-" + TRANSACTIONS + "/" + userId + "/" + key, postValues);
 
         mDatabase.updateChildren(childUpdates);
 

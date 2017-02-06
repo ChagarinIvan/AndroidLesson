@@ -33,6 +33,14 @@ public class Category extends Model {
         this.name = name;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     public Category(String name, String kind, String uid, String author) {
         this.name = name;
         this.kind = kind;

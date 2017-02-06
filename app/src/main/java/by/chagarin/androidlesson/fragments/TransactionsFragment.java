@@ -125,10 +125,6 @@ public class TransactionsFragment extends Fragment {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-    }
-
-
-    public void onTaskFinished() {
         List<Transaction> listTransactions = loader.getTransactionsWithoutSystem();
         //отключаем свайп
         swipeLayout.setRefreshing(false);
@@ -161,14 +157,14 @@ public class TransactionsFragment extends Fragment {
                     new Category(getString(R.string.hint_category_exemple), KindOfCategories.getTransaction()),
                     new Category(getString(R.string.hint_category_place_exemple), KindOfCategories.getPlace()));
         }
-        cash.setTitle("{eq"/*loader.calcCash()*/);
-        cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                getFragmentManager().beginTransaction().replace(R.id.content_frame, CashStatisticsFragment_.builder().build()).commit();
-                return true;
-            }
-        });
+//        cash.setTitle("{eq"/*loader.calcCash()*/);
+//        cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                getFragmentManager().beginTransaction().replace(R.id.content_frame, CashStatisticsFragment_.builder().build()).commit();
+//                return true;
+//            }
+//        });
     }
 
     @Click
