@@ -11,7 +11,6 @@ import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,9 +28,9 @@ public class Transaction extends Model implements Parcelable {
     @Column(name = "title")
     private String title;
     @Column(name = "price")
-    private float price;
+    private String price;
     @Column(name = "date")
-    private Date date;
+    private String date;
     @Column(name = "Comment")
     private String comment;
     @Column(name = "categorytransaction")
@@ -43,11 +42,8 @@ public class Transaction extends Model implements Parcelable {
 
     public Transaction(String title, String price, String date, String comment, Category categoryTransaction, Category categoryPlace, String uid, String author) {
         this.title = title;
-        this.price = Float.parseFloat(price);
-        try {
-            this.date = df.parse(date);
-        } catch (ParseException e) {
-        }
+        this.price = price;
+        this.date = date;
         this.comment = comment;
         this.categoryTransaction = categoryTransaction;
         this.categoryPlace = categoryPlace;
@@ -69,21 +65,18 @@ public class Transaction extends Model implements Parcelable {
         this.title = title;
         this.categoryTransaction = categoryTransaction;
         this.categoryPlace = categoryPlace;
-        this.date = date;
+        this.date = df.format(date);
         this.comment = comment;
-        this.price = Float.parseFloat(price);
+        this.price = price;
     }
 
     protected Transaction(Parcel in) {
-        try {
-            title = in.readString();
-            price = in.readFloat();
-            date = df.parse(in.readString());
-            categoryTransaction = new Category(in.readString(), KindOfCategories.getTransaction());
-            comment = in.readString();
-            categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
-        } catch (ParseException ignored) {
-        }
+        title = in.readString();
+        price = in.readString();
+        date = in.readString();
+        categoryTransaction = new Category(in.readString(), KindOfCategories.getTransaction());
+        comment = in.readString();
+        categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
     }
 
     public Transaction() {
@@ -102,7 +95,7 @@ public class Transaction extends Model implements Parcelable {
     };
 
     public String getDate() {
-        return df.format(this.date);
+        return date;
     }
 
     public String getComment() {
@@ -139,7 +132,7 @@ public class Transaction extends Model implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
-        parcel.writeFloat(price);
+        parcel.writeString(price);
         parcel.writeString(this.getDate());
         parcel.writeString(categoryTransaction.getName());
         parcel.writeString(comment);
@@ -159,8 +152,8 @@ public class Transaction extends Model implements Parcelable {
         result.put("author", author);
         result.put("title", title);
         result.put("comment", comment);
-        result.put("price", String.valueOf(price));
-        result.put("date", df.format(date));
+        result.put("price", price);
+        result.put("date", date);
         result.put("categoryTransaction", categoryTransaction);
         result.put("categoryPlace", categoryPlace);
         return result;

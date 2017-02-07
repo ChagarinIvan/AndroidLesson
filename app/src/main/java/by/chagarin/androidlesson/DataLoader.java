@@ -137,7 +137,7 @@ public class DataLoader {
         return new Category(name, kind, uid, author);
     }
 
-    private Query getQuery(DatabaseReference mDatabase, String key) {
+    public Query getQuery(DatabaseReference mDatabase, String key) {
         return mDatabase.child(key);
     }
 
