@@ -212,10 +212,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + TRANSACTIONS + "/" + key, postValues);
         childUpdates.put("/user-" + TRANSACTIONS + "/" + userId + "/" + key, postValues);
-
         mDatabase.updateChildren(childUpdates);
-
-
     }
 
     @AfterTextChange({R.id.title, R.id.sum})
