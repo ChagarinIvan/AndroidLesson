@@ -35,7 +35,6 @@ import org.androidannotations.annotations.res.TextRes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
-import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -75,7 +73,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     private Transaction createTransction;
     private List<Category> listCategoriesTransactions;
     private List<Category> listCategoriesPlaces;
-    private Date date;
+    private String date;
     private DatePickerDialog dpd;
 
     @Bean
@@ -156,11 +154,11 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     @Click
     void addButton() {
         try {
-            String name = title.getText().toString();
-            String price = sum.getText().toString();
-            String description = comment.getText().toString();
-            Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
-            Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
+            final String name = title.getText().toString();
+            final String price = sum.getText().toString();
+            final String description = comment.getText().toString();
+            final Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
+            final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
                 addButton.setEnabled(false);
@@ -169,9 +167,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     float v = Float.parseFloat(price);
-                    createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace);
-                    createTransction.save();
-                    final String userId = getUid();
+
+                    final String userId = loader.getUid();
                     mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                             new ValueEventListener() {
                                 @Override
@@ -185,7 +182,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        writeNewTransaction(userId, user.username, createTransction);
+                                        createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
+                                        writeNewTransaction(createTransction);
                                     }
                                 }
 
@@ -205,13 +203,11 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         }
     }
 
-    private void writeNewTransaction(String userId, String username, Transaction transction) {
-        transction.setAuthor(userId, username);
+    private void writeNewTransaction(Transaction transction) {
         String key = mDatabase.child(TRANSACTIONS).push().getKey();
         Map<String, Object> postValues = transction.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + TRANSACTIONS + "/" + key, postValues);
-        childUpdates.put("/user-" + TRANSACTIONS + "/" + userId + "/" + key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
@@ -224,7 +220,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        this.date = calendar.getTime();
-        dateText.setText(df.format(date));
+        this.date = Transaction.df.format(calendar.getTime());
+        dateText.setText(date);
     }
 }

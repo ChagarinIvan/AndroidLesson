@@ -16,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +33,6 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.TextRes;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +43,6 @@ import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
 import static by.chagarin.androidlesson.KindOfCategories.getStringArray;
-import static by.chagarin.androidlesson.objects.Transaction.df;
 
 @EActivity(R.layout.activity_add_proceed)
 public class AddProccedActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -77,7 +74,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
     private Proceed proceed;
     private List<Category> listCategoriesPlace;
     private List<Category> listCategoriesProceed;
-    private Date date;
+    private String date;
     private DatePickerDialog dpd;
     private DatabaseReference mDatabase;
     private List<Category> listCategoriesTransactions;
@@ -144,11 +141,11 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
     @Click
     void addButton() {
         try {
-            String name = title.getText().toString();
-            String price = sum.getText().toString();
-            String description = comment.getText().toString();
-            Category categoryTransaction = listCategoriesTransactions.get(spinnerProceed.getSelectedItemPosition());
-            Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
+            final String name = title.getText().toString();
+            final String price = sum.getText().toString();
+            final String description = comment.getText().toString();
+            final Category categoryTransaction = listCategoriesTransactions.get(spinnerProceed.getSelectedItemPosition());
+            final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
                 addButton.setEnabled(false);
@@ -157,9 +154,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                 } else {
                     float v = Float.parseFloat(price);
-                    createProceed = new Proceed(name, price, date, description, categoryTransaction, categoryPlace);
-                    createProceed.save();
-                    final String userId = getUid();
+                    final String userId = loader.getUid();
                     mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                             new ValueEventListener() {
                                 @Override
@@ -173,7 +168,8 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        writeNewProceed(userId, user.username, createProceed);
+                                        createProceed = new Proceed(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
+                                        writeNewProceed(createProceed);
                                     }
                                 }
 
@@ -193,20 +189,15 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
         }
     }
 
-    private void writeNewProceed(String userId, String username, Proceed createProceed) {
-        proceed.setAuthor(userId, username);
+    private void writeNewProceed(Proceed createProceed) {
         String key = mDatabase.child(PROCEEDS).push().getKey();
         Map<String, Object> postValues = createProceed.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + PROCEEDS + "/" + key, postValues);
-        childUpdates.put("/user-" + PROCEEDS + "/" + userId + "/" + key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
-    private String getUid() {
-        //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
-    }
+
 
     @AfterTextChange({R.id.title, R.id.sum})
     void afterTextChangedOnSomeTextViews() {
@@ -217,7 +208,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        this.date = calendar.getTime();
-        dateText.setText(df.format(date));
+        this.date = Proceed.df.format(calendar.getTime());
+        dateText.setText(date);
     }
 }

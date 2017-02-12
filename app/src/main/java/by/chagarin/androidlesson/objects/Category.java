@@ -1,13 +1,9 @@
 package by.chagarin.androidlesson.objects;
 
 import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.activeandroid.query.Select;
 import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,29 +13,11 @@ import java.util.Map;
  * нужные поля помечяем анотацией Column с именем
  * ВАЖНО! создаём пустой конструктор
  */
-@Table(name = "Categories")
 public class Category extends Model {
-
-    public static final String SYSTEM_CATEGORY = "system_category";
-    @Column(name = "title")
     public String name;
-    @Column(name = "kind")
     public String kind;
     public String uid;
     public String author;
-
-    public Category(String name, String kind) {
-        this.kind = kind;
-        this.name = name;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
 
     public Category(String name, String kind, String uid, String author) {
         this.name = name;
@@ -59,12 +37,6 @@ public class Category extends Model {
     public Category() {
     }
 
-    public static List<Category> getDataList() {
-        return new Select()
-                .from(Category.class)
-                .execute();
-    }
-
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -73,5 +45,37 @@ public class Category extends Model {
         result.put("name", name);
         result.put("kind", kind);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return this.toMap().toString();
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Category category = (Category) obj;
+        return this.getName().equals(category.getName()) &&
+                this.getKind().equals(category.getKind()) &&
+                this.getUid().equals(category.getUid()) &&
+                this.getAuthor().equals(category.getAuthor());
+    }
+
+    public static Category createCategory(String s) {
+        String[] array = s.split(",");
+        String[] categoryArray = new String[4];
+        int n = 0;
+        for (String line : array) {
+            categoryArray[n++] = line.split("=")[1];
+        }
+        return new Category(categoryArray[3], categoryArray[2], categoryArray[0], categoryArray[1]);
     }
 }

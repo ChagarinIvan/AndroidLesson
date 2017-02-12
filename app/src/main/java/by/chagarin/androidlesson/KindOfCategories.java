@@ -11,11 +11,6 @@ public class KindOfCategories {
     private static String TRANSACTION = "Категория трат";
     private static String PROCEED = "Категоря источника поступлений средств";
     private static String PLACE = "Категория места хранения средств";
-    private static String SYSTEM = Category.SYSTEM_CATEGORY;
-
-    public static String getSYSTEM() {
-        return SYSTEM;
-    }
 
     public static String[] getKinds() {
         return new String[]{TRANSACTION, PROCEED, PLACE};
