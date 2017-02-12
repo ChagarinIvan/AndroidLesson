@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/title"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:inputType="text"
+        android:textColor="#80000000"
+        android:textSize="@dimen/customTitle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/add_activity_sum_name"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <EditText
+        android:id="@+id/price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:inputType="numberDecimal"
+        android:textColor="#80000000"
+        android:textSize="@dimen/customTitle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/comment"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <EditText
+        android:id="@+id/comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:inputType="text"
+        android:textColor="#80000000"
+        android:textSize="@dimen/customTitle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/date"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/date"
+        android:textColor="#80000000"
+        android:textSize="@dimen/customTitle" />
+
+    <TextView
+        android:layout_marginTop="18dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="fill"
+        android:text="@string/transaction_category"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <Spinner
+        android:layout_marginTop="4dp"
+        android:id="@+id/spinner_transaction"
+        android:textSize="@dimen/customEntry"
+        android:spinnerMode="dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="18dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="fill"
+        android:text="@string/places_category"
+        android:textColor="#000000"
+        android:textSize="@dimen/customEntry" />
+
+    <Spinner
+        android:layout_marginTop="4dp"
+        android:id="@+id/spinner_place"
+        android:textSize="@dimen/customEntry"
+        android:spinnerMode="dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

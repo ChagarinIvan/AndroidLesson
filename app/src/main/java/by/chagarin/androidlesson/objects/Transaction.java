@@ -133,4 +133,31 @@ public class Transaction implements Parcelable {
                 this.getUid().equals(transaction.getUid()) &&
                 this.getAuthor().equals(transaction.getAuthor());
     }
+
+    public String[] toArray() {
+        String[] list = new String[6];
+        list[0] = this.getTitle();
+        list[1] = this.getPrice();
+        list[2] = this.getComment();
+        list[3] = this.getDate();
+        list[4] = this.getCategoryTransaction().getName();
+        list[5] = this.getCategoryPlace().getName();
+        return list;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

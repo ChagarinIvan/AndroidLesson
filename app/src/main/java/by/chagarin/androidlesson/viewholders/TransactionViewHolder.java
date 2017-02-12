@@ -16,7 +16,7 @@ public class TransactionViewHolder extends RecyclerView.ViewHolder {
     private TextView date;
     private TextView comment;
 
-    protected CardView cardView;
+    public CardView cardView;
 
     public TransactionViewHolder(View itemView) {
         super(itemView);

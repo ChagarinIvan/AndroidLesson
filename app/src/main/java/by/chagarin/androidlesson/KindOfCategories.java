@@ -71,4 +71,14 @@ public class KindOfCategories {
         }
         return list;
     }
+
+    public static String[] getArray(List<Category> categores, String transaction) {
+        List<Category> sortCategories = sortData(categores, transaction);
+        String[] array = new String[sortCategories.size()];
+        int n = 0;
+        for (Category category : sortCategories) {
+            array[n++] = category.getName();
+        }
+        return array;
+    }
 }

@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:text="@string/add_activity_sum_name" />
 
         <EditText
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:gravity="fill"
             android:inputType="numberDecimal"
-            android:hint="300"
+            android:hint="@string/_300"
             android:textSize="@dimen/add_transaction_text_size" />
 
         <TextView
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:text="Категория траты"
+            android:text="@string/transaction_category"
             android:textSize="@dimen/add_transaction_text_size" />
 
         <Spinner
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:text="Источник платежа"
+            android:text="@string/places_category"
             android:textSize="@dimen/add_transaction_text_size" />
 
         <Spinner
@@ -87,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="fill"
-            android:text="Дата"
+            android:text="@string/date"
             android:textSize="@dimen/add_transaction_text_size" />
 
         <TextView

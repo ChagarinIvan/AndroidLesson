@@ -56,4 +56,16 @@
     <string name="famile_password_title">Пароль</string>
     <string name="chat">Чат</string>
     <string name="icon">icon</string>
+    <string name="dialog_title">Хотите изменить запись</string>
+    <string name="agree">ИЗМЕНИТЬ</string>
+    <string name="disagree">ОСТАВИТЬ</string>
+    <string name="save">Сохранить</string>
+    <string name="dont_save">Отмена</string>
+    <string name="change_transacton_title">Редактирование записи</string>
+    <string name="string_change">Редактирование</string>
+    <string name="title">Заголовок</string>
+    <string name="transaction_category">Категория траты</string>
+    <string name="places_category">Источник платежа</string>
+    <string name="date">Дата</string>
+    <string name="_300">300</string>
 </resources>
