@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -33,6 +35,7 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
@@ -50,6 +53,9 @@ public class CategoresFragment extends Fragment {
 
     @ViewById(R.id.fab)
     FloatingActionButton fab;
+
+    @Bean
+    DataLoader loader;
 
     @ViewById
     SwipeRefreshLayout swipeLayout;
@@ -73,7 +79,7 @@ public class CategoresFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        Query postsQuery = getQuery(mDatabase);
+        final Query postsQuery = getQuery(mDatabase);
         mAdapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(Category.class, R.layout.category_list_item,
                 CategoryViewHolder.class, postsQuery) {
             @Override
@@ -89,7 +95,44 @@ public class CategoresFragment extends Fragment {
                 viewHolder.bindToCategory(model);
             }
         };
+        final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                postsQuery.addListenerForSingleValueEvent(
+                        new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                int position = viewHolder.getAdapterPosition();
+                                if (checkCategory(position)) {
+                                    DatabaseReference ref = mAdapter.getRef(position);
+                                    ref.removeValue();
+                                } else {
+                                    Toast.makeText(getActivity(), getString(R.string.warning_sql), Toast.LENGTH_LONG).show();
+                                    mRecycler.setAdapter(mAdapter);
+                                }
+                            }
+
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(mRecycler);
         mRecycler.setAdapter(mAdapter);
+        fab.attachToRecyclerView(mRecycler);
+    }
+
+    private boolean checkCategory(int position) {
+        return loader.checkCatrgory(position);
     }
 
     //по нажатию на ФАБ запускается диалог добавления новой категории
@@ -106,6 +149,11 @@ public class CategoresFragment extends Fragment {
 
         return databaseReference.child(CATEGORIES)
                 .limitToFirst(100);
+    }
+
+    public String getUid() {
+        //noinspection ConstantConditions
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
     /**
@@ -192,11 +240,8 @@ public class CategoresFragment extends Fragment {
         String key = mDatabase.child(CATEGORIES).push().getKey();
         Category category = new Category(title, kind, userId, username);
         Map<String, Object> postValues = category.toMap();
-
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + CATEGORIES + "/" + key, postValues);
-        childUpdates.put("/user-" + CATEGORIES + "/" + userId + "/" + key, postValues);
-
         mDatabase.updateChildren(childUpdates);
     }
 
@@ -208,8 +253,5 @@ public class CategoresFragment extends Fragment {
         }
     }
 
-    private String getUid() {
-        //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
-    }
+
 }

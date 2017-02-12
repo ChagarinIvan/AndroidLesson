@@ -4,48 +4,26 @@ package by.chagarin.androidlesson.objects;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.activeandroid.query.From;
-import com.activeandroid.query.Select;
-
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
-import by.chagarin.androidlesson.KindOfCategories;
-
-@Table(name = "Transactions")
-public class Transaction extends Model implements Parcelable {
-    public static final String SYSTEM_TRANSACTION = "system_transaction";
-
-
-    @Column(name = "title")
+public class Transaction implements Parcelable {
     private String title;
-    @Column(name = "price")
-    private float price;
-    @Column(name = "date")
-    private Date date;
-    @Column(name = "Comment")
+    private String price;
+    private String date;
     private String comment;
-    @Column(name = "categorytransaction")
     private Category categoryTransaction;
-    @Column(name = "categoryplace")
     private Category categoryPlace;
     public String uid;
     public String author;
 
     public Transaction(String title, String price, String date, String comment, Category categoryTransaction, Category categoryPlace, String uid, String author) {
         this.title = title;
-        this.price = Float.parseFloat(price);
-        try {
-            this.date = df.parse(date);
-        } catch (ParseException e) {
-        }
+        this.price = price;
+        this.date = date;
         this.comment = comment;
         this.categoryTransaction = categoryTransaction;
         this.categoryPlace = categoryPlace;
@@ -55,32 +33,15 @@ public class Transaction extends Model implements Parcelable {
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
-    /**
-     * need to active android
-     * @param title
-     * @param price
-     * @param date
-     * @param categoryTransaction
-     * @param categoryPlace
-     */
-    public Transaction(String title, String price, Date date, String comment, Category categoryTransaction, Category categoryPlace) {
-        this.title = title;
-        this.categoryTransaction = categoryTransaction;
-        this.categoryPlace = categoryPlace;
-        this.date = date;
-        this.comment = comment;
-    }
-
     protected Transaction(Parcel in) {
-        try {
-            title = in.readString();
-            price = in.readFloat();
-            date = df.parse(in.readString());
-            categoryTransaction = new Category(in.readString(), KindOfCategories.getTransaction());
-            comment = in.readString();
-            categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
-        } catch (ParseException ignored) {
-        }
+        title = in.readString();
+        price = in.readString();
+        date = in.readString();
+        categoryTransaction = Category.createCategory(in.readString());
+        comment = in.readString();
+        categoryPlace = Category.createCategory(in.readString());
+        this.uid = in.readString();
+        this.author = in.readString();
     }
 
     public Transaction() {
@@ -99,7 +60,7 @@ public class Transaction extends Model implements Parcelable {
     };
 
     public String getDate() {
-        return df.format(this.date);
+        return date;
     }
 
     public String getComment() {
@@ -127,26 +88,49 @@ public class Transaction extends Model implements Parcelable {
         return 0;
     }
 
-    /**
-     * для передачи объекта между активностями
-     * имплементим парселабле
-     * @param parcel
-     * @param i
-     */
+    public String getUid() {
+        return uid;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
-        parcel.writeFloat(price);
+        parcel.writeString(price);
         parcel.writeString(this.getDate());
-        parcel.writeString(categoryTransaction.getName());
+        parcel.writeString(categoryTransaction.toString());
         parcel.writeString(comment);
-        parcel.writeString(categoryPlace.getName());
+        parcel.writeString(categoryPlace.toString());
+        parcel.writeString(uid);
+        parcel.writeString(author);
     }
 
-    public static List<Transaction> getDataList() {
-        From from = new Select()
-                .from(Transaction.class)
-                .orderBy("date DESC");
-        return from.execute();
+    public Map<String,Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("uid", uid);
+        result.put("author", author);
+        result.put("title", title);
+        result.put("comment", comment);
+        result.put("price", price);
+        result.put("date", date);
+        result.put("categoryTransaction", categoryTransaction);
+        result.put("categoryPlace", categoryPlace);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Transaction transaction = (Transaction) obj;
+        return this.getTitle().equals(transaction.getTitle()) &&
+                this.getPrice().equals(transaction.getPrice()) &&
+                this.getDate().equals(transaction.getDate()) &&
+                this.getComment().equals(transaction.getComment()) &&
+                this.getCategoryPlace().equals(transaction.getCategoryPlace()) &&
+                this.getCategoryTransaction().equals(transaction.getCategoryTransaction()) &&
+                this.getUid().equals(transaction.getUid()) &&
+                this.getAuthor().equals(transaction.getAuthor());
     }
 }

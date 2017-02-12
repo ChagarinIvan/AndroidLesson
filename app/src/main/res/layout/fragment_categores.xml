@@ -3,10 +3,17 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     style="@style/Container.Background">
 
-    <android.support.v7.widget.RecyclerView
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/categories_list_view" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/categories_list_view" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <com.melnykov.fab.FloatingActionButton
         android:id="@+id/fab"

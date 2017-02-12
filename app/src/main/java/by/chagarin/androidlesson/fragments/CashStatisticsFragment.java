@@ -23,6 +23,9 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -39,20 +42,28 @@ import java.util.Random;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
+import by.chagarin.androidlesson.objects.Base;
+import by.chagarin.androidlesson.objects.BaseListeners;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
+import by.chagarin.androidlesson.objects.Transfer;
+import by.chagarin.androidlesson.objects.User;
+
+import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
 
 
 /**
  * фрагмент для отображения полу круглой диаграммы с данными о расположеннии денежных средств
  */
 @EFragment(R.layout.fragment_statistics)
-public class CashStatisticsFragment extends Fragment {
-
+public class CashStatisticsFragment extends Fragment implements BaseListeners {
     private List<Category> listCategory;
     private Dialog question_dialog;
     private Map<Category, Float> categoryFloatMap;
+
+    @Bean
+    Base base;
 
     @ViewById
     PieChart pieChart;
@@ -62,111 +73,19 @@ public class CashStatisticsFragment extends Fragment {
 
     @AfterViews
     public void ready() {
-        loadData();
-    }
-
-    /**
-     * метод запускает диалог перевода денег с одного метса на дрцгое
-     */
-    private void startAlertDialog(PieEntry pieEntry) {
-        question_dialog = new Dialog(getActivity());
-        question_dialog.setContentView(R.layout.dialog_transfer_question);
-        TextView textView = (TextView) question_dialog.findViewById(R.id.title);
-        Button toButton = (Button) question_dialog.findViewById(R.id.transfer_to);
-        Button fromButton = (Button) question_dialog.findViewById(R.id.transfer_from);
-        toButton.setOnClickListener(new ButtonClickListener(true, pieEntry));
-        fromButton.setOnClickListener(new ButtonClickListener(false, pieEntry));
-
-        textView.setText(pieEntry.getLabel());
-        //noinspection ConstantConditions
-        question_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        question_dialog.show();
-    }
-
-    private void moveOffScreen() {
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        @SuppressWarnings("deprecation") int height = display.getHeight();  // deprecated
-
-        int offset = (int) (height * 0.75); /* percent to move */
-
-        RelativeLayout.LayoutParams rlParams =
-                (RelativeLayout.LayoutParams) pieChart.getLayoutParams();
-        rlParams.setMargins(0, 0, 0, -offset);
-        pieChart.setLayoutParams(rlParams);
-    }
-
-    private String calcSumm() {
-        return "Общий баланс "; //+ loader.calcCash();
-    }
-
-    //метод будет возвращать лист рандомных цвето нужного размера
-    private List<Integer> getRandomColors(int size) {
-        List<Integer> colors = new ArrayList<>();
-        Random random = new Random();
-        for (int i = 0; i < size; i++) {
-            colors.add(Color.argb(180, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-        }
-        return colors;
-    }
-
-
-    private Map<Category, Float> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList) {
-        //создаем мап где для каждой категории указано сколько товаров куплено
-        Map<Category, Float> resultList = new HashMap<>();
-        //определяем для какие есть категории мест хранения денег
-        List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace());
-        for (Category category : data) {
-            resultList.put(category, 0f);
-        }
-        //в мап по категориям добавляем поступления
-        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
-            for (Proceed proceed : proceedList) {
-                if (proceed.getCategoryPlace() == mapEntry.getKey()) {
-                    float value = mapEntry.getValue() + Float.parseFloat(proceed.getPrice());
-                    mapEntry.setValue(value);
-                }
-            }
-        }
-        //в мап по категорям отнимаеи транзакции
-        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
-            for (Transaction transaction : transactionList) {
-                if (transaction.getCategoryPlace() == mapEntry.getKey()) {
-                    float value = mapEntry.getValue() - Float.parseFloat(transaction.getPrice());
-                    mapEntry.setValue(value);
-                }
-            }
-        }
-        return resultList;
-    }
-
-    private List<PieEntry> convertToEntry(Map<Category, Float> resultList) {
-        List<PieEntry> entries = new ArrayList<>();
-        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
-            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
-        }
-        return entries;
-    }
-
-    //метод проверяет хватает ли на выбранном балансе средств
-    private boolean checkCash(Category from, String cost) {
-        for (Map.Entry<Category, Float> mapEntry : categoryFloatMap.entrySet()) {
-            if (mapEntry.getKey() == from) {
-                if (mapEntry.getValue() > Float.parseFloat(cost)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public void onTaskFinished() {
         getActivity().setTitle("Где же Ваши денежки?");
+        base.addListener(this);
+        createPieChart();
         //берём необходимые листы данных
+    }
+
+    private void createPieChart() {
         listCategory = loader.getCategores();
         List<Transaction> listTransactions = loader.getTransactions();
+        List<Transfer> listTransfer = loader.getTransfers();
         List<Proceed> listProceedes = loader.getProceedes();
         //получаем значения для отображения
-        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes);
+        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
         final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
@@ -215,8 +134,122 @@ public class CashStatisticsFragment extends Fragment {
         pieChart.invalidate();
     }
 
-    private void loadData() {
-        loader.loadData();
+    /**
+     * метод запускает диалог перевода денег с одного метса на дрцгое
+     */
+    private void startAlertDialog(PieEntry pieEntry) {
+        question_dialog = new Dialog(getActivity());
+        question_dialog.setContentView(R.layout.dialog_transfer_question);
+        TextView textView = (TextView) question_dialog.findViewById(R.id.title);
+        Button toButton = (Button) question_dialog.findViewById(R.id.transfer_to);
+        Button fromButton = (Button) question_dialog.findViewById(R.id.transfer_from);
+        toButton.setOnClickListener(new ButtonClickListener(true, pieEntry));
+        fromButton.setOnClickListener(new ButtonClickListener(false, pieEntry));
+
+        textView.setText(pieEntry.getLabel());
+        //noinspection ConstantConditions
+        question_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        question_dialog.show();
+    }
+
+    private void moveOffScreen() {
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        @SuppressWarnings("deprecation") int height = display.getHeight();  // deprecated
+
+        int offset = (int) (height * 0.75); /* percent to move */
+
+        RelativeLayout.LayoutParams rlParams =
+                (RelativeLayout.LayoutParams) pieChart.getLayoutParams();
+        rlParams.setMargins(0, 0, 0, -offset);
+        pieChart.setLayoutParams(rlParams);
+    }
+
+    private String calcSumm() {
+        return "Общий баланс " + loader.getCashCount();
+    }
+
+    //метод будет возвращать лист рандомных цвето нужного размера
+    private List<Integer> getRandomColors(int size) {
+        List<Integer> colors = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            colors.add(Color.argb(180, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+        }
+        return colors;
+    }
+
+
+    private Map<Category, Float> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> listTransfer) {
+        //создаем мап где для каждой категории указано сколько товаров куплено
+        Map<Category, Float> resultList = new HashMap<>();
+        //определяем для какие есть категории мест хранения денег
+        List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace());
+        for (Category category : data) {
+            resultList.put(category, 0f);
+        }
+        //в мап по категориям добавляем поступления
+        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
+            for (Proceed proceed : proceedList) {
+                if (proceed.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
+                    float value = mapEntry.getValue() + Float.parseFloat(proceed.getPrice());
+                    mapEntry.setValue(value);
+                }
+            }
+        }
+        //в мап по категорям отнимаеи транзакции
+        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
+            for (Transaction transaction : transactionList) {
+                if (transaction.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
+                    float value = mapEntry.getValue() - Float.parseFloat(transaction.getPrice());
+                    mapEntry.setValue(value);
+                }
+            }
+        }
+
+        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
+            for (Transfer transfer : listTransfer) {
+                if (transfer.getCategoryPlaceFrom().name.equals(mapEntry.getKey().name)) {
+                    float value = mapEntry.getValue() - Float.parseFloat(transfer.getPrice());
+                    mapEntry.setValue(value);
+                }
+                if (transfer.getCategoryPlaceTo().name.equals(mapEntry.getKey().name)) {
+                    float value = mapEntry.getValue() + Float.parseFloat(transfer.getPrice());
+                    mapEntry.setValue(value);
+                }
+            }
+        }
+
+        return resultList;
+    }
+
+    private List<PieEntry> convertToEntry(Map<Category, Float> resultList) {
+        List<PieEntry> entries = new ArrayList<>();
+        for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
+            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
+        }
+        return entries;
+    }
+
+    //метод проверяет хватает ли на выбранном балансе средств
+    private boolean checkCash(Category from, String cost) {
+        for (Map.Entry<Category, Float> mapEntry : categoryFloatMap.entrySet()) {
+            if (mapEntry.getKey() == from) {
+                if (mapEntry.getValue() > Float.parseFloat(cost)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void doEvent() {
+        createPieChart();
+    }
+
+    @Override
+    public void removeElement() {
+        createPieChart();
     }
 
     private class ButtonClickListener implements View.OnClickListener {
@@ -255,18 +288,37 @@ public class CashStatisticsFragment extends Fragment {
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String cost = String.valueOf(et.getText());
+                    final String cost = String.valueOf(et.getText());
                     if (flag) {
                         from = arrayOfCategory.get(spinner.getSelectedItemPosition());
                     } else {
                         to = arrayOfCategory.get(spinner.getSelectedItemPosition());
                     }
                     if (checkCash(from, cost)) {
-                        new Transaction(Transaction.SYSTEM_TRANSACTION, cost, new Date(), Transaction.SYSTEM_TRANSACTION, loader.getSystemCategories(), from).save();
-                        new Proceed(Proceed.SYSTEM_PROCEED, cost, new Date(), Proceed.SYSTEM_PROCEED, to, loader.getSystemCategories()).save();
+                        final String userId = loader.getUid();
+                        loader.getmDatabase().child("users").child(userId).addListenerForSingleValueEvent(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        // Get user value
+                                        User user = dataSnapshot.getValue(User.class);
+
+                                        // [START_EXCLUDE]
+                                        if (user == null) {
+                                            // User is null, error out
+                                            Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // Write new post
+                                            writeNewTransfer(userId, user.username, cost, from, to);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
                         dialog.dismiss();
                         question_dialog.dismiss();
-                        loadData();
                     } else {
                         Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
                     }
@@ -282,6 +334,15 @@ public class CashStatisticsFragment extends Fragment {
             //noinspection ConstantConditions
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             dialog.show();
+        }
+
+        private void writeNewTransfer(String userId, String author, String cost, Category from, Category to) {
+            Transfer transfer = new Transfer(cost, Transfer.df.format(new Date()), from, to, userId, author);
+            String key = loader.getmDatabase().child(TRANSFERS).push().getKey();
+            Map<String, Object> postValues = transfer.toMap();
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("/" + TRANSFERS + "/" + key, postValues);
+            loader.getmDatabase().updateChildren(childUpdates);
         }
 
         /**

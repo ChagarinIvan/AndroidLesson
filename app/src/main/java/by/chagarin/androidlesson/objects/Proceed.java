@@ -3,62 +3,44 @@ package by.chagarin.androidlesson.objects;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
-import com.activeandroid.query.From;
-import com.activeandroid.query.Select;
-
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
-import by.chagarin.androidlesson.KindOfCategories;
-
-@Table(name = "Proceeds")
-public class Proceed extends Model implements Parcelable {
-    public static final String SYSTEM_PROCEED = "system_proceed";
-
-    @Column(name = "title")
+public class Proceed implements Parcelable {
     private String title;
-    @Column(name = "price")
-    private float price;
-    @Column(name = "date")
-    private Date date;
-    @Column(name = "Comment")
+    private String price;
+    private String date;
     private String comment;
-    @Column(name = "categoryplace")
     private Category categoryPlace;
-    @Column(name = "categoryproceed")
     private Category categoryProcees;
+    public String uid;
+    public String author;
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
-    /**
-     * need to active android
-     */
-    public Proceed(String title, String price, Date date, String comment, Category categoryPlace, Category categoryProceed) {
+    public Proceed(String title, String price, String date, String comment, Category categoryPlace, Category categoryProcees, String uid, String author) {
         this.title = title;
-        this.price = Float.parseFloat(price);
-        this.categoryPlace = categoryPlace;
+        this.price = price;
         this.date = date;
         this.comment = comment;
-        this.categoryProcees = categoryProceed;
+        this.categoryPlace = categoryPlace;
+        this.categoryProcees = categoryProcees;
+        this.uid = uid;
+        this.author = author;
     }
 
     protected Proceed(Parcel in) {
-        try {
-            title = in.readString();
-            price = in.readFloat();
-            date = df.parse(in.readString());
-            categoryPlace = new Category(in.readString(), KindOfCategories.getPlace());
-            comment = in.readString();
-            categoryProcees = new Category(in.readString(), KindOfCategories.getProceed());
-        } catch (ParseException ignored) {
-        }
+        title = in.readString();
+        price = in.readString();
+        date = in.readString();
+        categoryPlace = Category.createCategory(in.readString());
+        comment = in.readString();
+        categoryProcees = Category.createCategory(in.readString());
+        this.uid = in.readString();
+        this.author = in.readString();
     }
 
     public Proceed() {
@@ -77,7 +59,7 @@ public class Proceed extends Model implements Parcelable {
     };
 
     public String getDate() {
-        return df.format(this.date);
+        return date;
     }
 
     public String getComment() {
@@ -96,7 +78,7 @@ public class Proceed extends Model implements Parcelable {
         return categoryPlace;
     }
 
-    public Category getCategoryProcees() {
+    public Category getCategoryProceedes() {
         return categoryProcees;
     }
 
@@ -112,18 +94,52 @@ public class Proceed extends Model implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
-        parcel.writeFloat(price);
+        parcel.writeString(price);
         parcel.writeString(this.getDate());
-        parcel.writeString(categoryPlace.getName());
+        parcel.writeString(categoryPlace.toString());
         parcel.writeString(comment);
-        parcel.writeString(categoryProcees.getName());
+        parcel.writeString(categoryProcees.toString());
+        parcel.writeString(uid);
+        parcel.writeString(author);
     }
 
-    public static List<Proceed> getDataList() {
-        From from = new Select()
-                .from(Proceed.class)
-                .orderBy("date DESC");
-        return from.execute();
+    public void setAuthor(String userId, String username) {
+        this.uid = userId;
+        this.author = username;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("uid", uid);
+        result.put("author", author);
+        result.put("title", title);
+        result.put("comment", comment);
+        result.put("price", price);
+        result.put("date", date);
+        result.put("categoryProceed", categoryProcees);
+        result.put("categoryPlace", categoryPlace);
+        return result;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Proceed proceed = (Proceed) obj;
+        return this.getTitle().equals(proceed.getTitle()) &&
+                this.getPrice().equals(proceed.getPrice()) &&
+                this.getDate().equals(proceed.getDate()) &&
+                this.getComment().equals(proceed.getComment()) &&
+                this.getCategoryPlace().equals(proceed.getCategoryPlace()) &&
+                this.getCategoryProceedes().equals(proceed.getCategoryProceedes()) &&
+                this.getUid().equals(proceed.getUid()) &&
+                this.getAuthor().equals(proceed.getAuthor());
     }
 }
 

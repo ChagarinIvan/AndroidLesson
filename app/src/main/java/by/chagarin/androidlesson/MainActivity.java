@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,16 +22,12 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.List;
-
 import by.chagarin.androidlesson.auth.SessionManager;
 import by.chagarin.androidlesson.fragments.CategoresFragment_;
 import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
 import by.chagarin.androidlesson.fragments.StatisticsFragment_;
 import by.chagarin.androidlesson.fragments.TransactionsFragment_;
-import by.chagarin.androidlesson.objects.Proceed;
-import by.chagarin.androidlesson.objects.Transaction;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity {
@@ -47,15 +42,6 @@ public class MainActivity extends ActionBarActivity {
 
     @Bean
     SessionManager sessionManager;
-
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private List<Proceed> listProceedes;
-    private List<Transaction> listTransactions;
-    private float cashCount;
-    private LinearLayout linear;
-    private String mUsername;
-    private String mPhotoUrl;
 
     //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
     @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
@@ -72,18 +58,20 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterViews
     void afterCreate() {
-        loader.loadData();
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        if (!loader.isWorkc) {
+            loader.loadData();
+        }
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity_.class));
             finish();
             return;
         } else {
-            mUsername = mFirebaseUser.getDisplayName();
+            mFirebaseUser.getDisplayName();
             if (mFirebaseUser.getPhotoUrl() != null) {
-                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+                String s = mFirebaseUser.getPhotoUrl().toString();
             }
         }
 
