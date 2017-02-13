@@ -145,6 +145,14 @@ public class Transaction implements Parcelable {
         return list;
     }
 
+    public void setCategoryPlace(Category categoryPlace) {
+        this.categoryPlace = categoryPlace;
+    }
+
+    public void setCategoryTransaction(Category categoryTransaction) {
+        this.categoryTransaction = categoryTransaction;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -159,5 +167,13 @@ public class Transaction implements Parcelable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public void setUserId(String userId) {
+        this.uid = userId;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }

@@ -16,7 +16,7 @@ public class ProceedViewHolder extends RecyclerView.ViewHolder {
     private TextView date;
     private TextView comment;
 
-    protected CardView cardView;
+    public CardView cardView;
 
     public ProceedViewHolder(View itemView) {
         super(itemView);

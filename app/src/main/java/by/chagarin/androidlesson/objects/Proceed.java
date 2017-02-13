@@ -15,19 +15,55 @@ public class Proceed implements Parcelable {
     private String date;
     private String comment;
     private Category categoryPlace;
-    private Category categoryProcees;
+    private Category categoryProceedes;
     public String uid;
     public String author;
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setCategoryPlace(Category categoryPlace) {
+        this.categoryPlace = categoryPlace;
+    }
+
+    public Category getCategoryProceedes() {
+        return categoryProceedes;
+    }
+
+    public void setCategoryProceedes(Category categoryProceedes) {
+        this.categoryProceedes = categoryProceedes;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
-    public Proceed(String title, String price, String date, String comment, Category categoryPlace, Category categoryProcees, String uid, String author) {
+    public Proceed(String title, String price, String date, String comment, Category categoryPlace, Category categoryProceedes, String uid, String author) {
         this.title = title;
         this.price = price;
         this.date = date;
         this.comment = comment;
         this.categoryPlace = categoryPlace;
-        this.categoryProcees = categoryProcees;
+        this.categoryProceedes = categoryProceedes;
         this.uid = uid;
         this.author = author;
     }
@@ -38,7 +74,7 @@ public class Proceed implements Parcelable {
         date = in.readString();
         categoryPlace = Category.createCategory(in.readString());
         comment = in.readString();
-        categoryProcees = Category.createCategory(in.readString());
+        categoryProceedes = Category.createCategory(in.readString());
         this.uid = in.readString();
         this.author = in.readString();
     }
@@ -78,10 +114,6 @@ public class Proceed implements Parcelable {
         return categoryPlace;
     }
 
-    public Category getCategoryProceedes() {
-        return categoryProcees;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -98,7 +130,7 @@ public class Proceed implements Parcelable {
         parcel.writeString(this.getDate());
         parcel.writeString(categoryPlace.toString());
         parcel.writeString(comment);
-        parcel.writeString(categoryProcees.toString());
+        parcel.writeString(categoryProceedes.toString());
         parcel.writeString(uid);
         parcel.writeString(author);
     }
@@ -116,7 +148,7 @@ public class Proceed implements Parcelable {
         result.put("comment", comment);
         result.put("price", price);
         result.put("date", date);
-        result.put("categoryProceed", categoryProcees);
+        result.put("categoryProceed", categoryProceedes);
         result.put("categoryPlace", categoryPlace);
         return result;
     }

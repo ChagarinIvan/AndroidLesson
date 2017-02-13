@@ -39,6 +39,7 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +52,7 @@ import by.chagarin.androidlesson.objects.Base;
 import by.chagarin.androidlesson.objects.BaseListeners;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
+import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.TransactionViewHolder;
 
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
@@ -121,6 +123,10 @@ public class TransactionsFragment extends Fragment implements BaseListeners, Dat
                         new MaterialDialog.Builder(getActivity())
                                 .title(R.string.dialog_title)
                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    public Spinner spinnerPlace;
+                                    public Spinner spinnerTransaction;
+                                    public TextView dateText;
+
                                     @Override
                                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                         //показываем лист одиночного выбора полей транзакции для изменения
@@ -133,17 +139,84 @@ public class TransactionsFragment extends Fragment implements BaseListeners, Dat
                                                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                                         EditText title = (EditText) dialog.findViewById(R.id.title);
                                                         transaction.setTitle(title.getText().toString());
-                                                        showToast(transaction.getTitle());
+                                                        EditText price = (EditText) dialog.findViewById(R.id.price);
+                                                        transaction.setPrice(price.getText().toString());
+                                                        EditText comment = (EditText) dialog.findViewById(R.id.comment);
+                                                        transaction.setComment(comment.getText().toString());
+                                                        TextView date = (TextView) dialog.findViewById(R.id.date_text);
+                                                        transaction.setDate(date.getText().toString());
+                                                        final Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
+                                                        transaction.setCategoryTransaction(categoryTransaction);
+                                                        final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
+                                                        transaction.setCategoryPlace(categoryPlace);
+                                                        //записываем
+                                                        final String userId = loader.getUid();
+                                                        loader.getmDatabase().child("users").child(userId).addListenerForSingleValueEvent(
+                                                                new ValueEventListener() {
+                                                                    @Override
+                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                        //удаляем элемент
+                                                                        int position = viewHolder.getAdapterPosition();
+                                                                        DatabaseReference ref = mAdapter.getRef(position);
+                                                                        ref.removeValue();
+                                                                        //добавляем новый жлемент
+                                                                        // Get user value
+                                                                        User user = dataSnapshot.getValue(User.class);
+
+                                                                        // [START_EXCLUDE]
+                                                                        if (user == null) {
+                                                                            // User is null, error out
+                                                                            Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
+                                                                        } else {
+                                                                            // Write new post
+                                                                            transaction.setUserId(userId);
+                                                                            transaction.setAuthor(user.username);
+                                                                            loader.writeNewTransaction(transaction);
+                                                                        }
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onCancelled(DatabaseError databaseError) {
+                                                                    }
+                                                                });
                                                     }
                                                 }).build();
+                                        //устанавливаем в поля значения из редактируемой транзакции
                                         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
                                         title.setText(transaction.getTitle());
                                         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
                                         price.setText(transaction.getPrice());
                                         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);
                                         comment.setText(transaction.getComment());
-                                        TextView date = (TextView) newDialog.getCustomView().findViewById(R.id.date_text);
-                                        date.setText(transaction.getDate());
+                                        dateText = (TextView) newDialog.getCustomView().findViewById(R.id.date_text);
+                                        dateText.setText(transaction.getDate());
+                                        //слушатель вызова изменения даты
+                                        dateText.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Calendar now = Calendar.getInstance();
+                                                try {
+                                                    now.setTime(Transaction.df.parse(transaction.getDate()));
+                                                } catch (ParseException e) {
+
+                                                }
+                                                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                                                        new DatePickerDialog.OnDateSetListener() {
+                                                            @Override
+                                                            public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+                                                                Calendar calendar = Calendar.getInstance();
+                                                                calendar.set(year, monthOfYear, dayOfMonth);
+                                                                String date = Transaction.df.format(calendar.getTime());
+                                                                dateText.setText(date);
+                                                            }
+                                                        },
+                                                        now.get(Calendar.YEAR),
+                                                        now.get(Calendar.MONTH),
+                                                        now.get(Calendar.DAY_OF_MONTH)
+                                                );
+                                                dpd.show(getFragmentManager(), "Datepickerdialog");
+                                            }
+                                        });
                                         List<Category> data = loader.getCategores();
                                         //отделяем только необходимые категории
                                         listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
@@ -151,128 +224,13 @@ public class TransactionsFragment extends Fragment implements BaseListeners, Dat
                                         //создаём для каждого спинера свой адаптер и устанавливаем их
                                         ArrayAdapter<String> adapterTransactions = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
                                         ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-                                        Spinner spinnerTransaction = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_transaction);
-                                        Spinner spinnerPlace = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_place);
+                                        spinnerTransaction = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_transaction);
+                                        spinnerPlace = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_place);
                                         spinnerTransaction.setAdapter(adapterTransactions);
+                                        spinnerTransaction.setSelection(KindOfCategories.getPosition(listCategoriesTransactions, transaction.getCategoryTransaction()));
                                         spinnerPlace.setAdapter(adapterPlaces);
+                                        spinnerPlace.setSelection(KindOfCategories.getPosition(listCategoriesPlaces, transaction.getCategoryPlace()));
                                         newDialog.show();
-
-
-//                                                    .title(R.string.change_transacton_title)
-//                                                    .items(transaction.toArray())
-//                                                    .itemsCallback(new MaterialDialog.ListCallback() {
-//                                                        public MaterialDialog listDialog;
-//
-//                                                        public void rebuildAndShow(){
-//                                                            MaterialDialog.Builder builder = listDialog.getBuilder();
-//                                                            builder.items(transaction.toArray());
-//                                                            builder.build().show();
-//                                                        }
-//
-//                                                        @Override
-//                                                        public void onSelection(final MaterialDialog dialog, View itemView, int position, CharSequence text) {
-//                                                            listDialog = dialog;
-//                                                            List<Category> categores = loader.getCategores();
-//                                                            switch (position){
-//                                                                case 0:
-//                                                                    new MaterialDialog.Builder(getActivity())
-//                                                                            .title(R.string.string_change)
-//                                                                            .content(R.string.title)
-//                                                                            .inputType(InputType.TYPE_CLASS_TEXT)
-//                                                                            .inputRange(2, 100)
-//                                                                            .positiveText(R.string.save)
-//                                                                            .input(transaction.getTitle(), transaction.getTitle(), false, new MaterialDialog.InputCallback() {
-//                                                                                @Override
-//                                                                                public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-//                                                                                    transaction.setTitle(input.toString());
-//                                                                                    rebuildAndShow();
-//                                                                                }
-//                                                                            })
-//                                                                            .show();
-//                                                                    break;
-//                                                                case 1:
-//                                                                    new MaterialDialog.Builder(getActivity())
-//                                                                            .title(R.string.string_change)
-//                                                                            .content(R.string.add_activity_sum_name)
-//                                                                            .inputType(InputType.TYPE_NUMBER_FLAG_DECIMAL)
-//                                                                            .positiveText(R.string.save)
-//                                                                            .input(transaction.getPrice(), transaction.getPrice(), false, new MaterialDialog.InputCallback() {
-//                                                                                @Override
-//                                                                                public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-//                                                                                    transaction.setPrice(input.toString());
-//                                                                                    rebuildAndShow();
-//                                                                                }
-//                                                                            })
-//                                                                            .show();
-//                                                                    break;
-//                                                                case 2:
-//                                                                    new MaterialDialog.Builder(getActivity())
-//                                                                            .title(R.string.string_change)
-//                                                                            .content(R.string.comment)
-//                                                                            .inputType(InputType.TYPE_CLASS_TEXT)
-//                                                                            .positiveText(R.string.save)
-//                                                                            .input(transaction.getComment(), transaction.getComment(), false, new MaterialDialog.InputCallback() {
-//                                                                                @Override
-//                                                                                public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-//                                                                                    transaction.setComment(input.toString());
-//                                                                                    rebuildAndShow();
-//                                                                                }
-//                                                                            })
-//                                                                            .show();
-//                                                                    break;
-//                                                                case 3:
-//                                                                    Calendar cal = Calendar.getInstance();
-//                                                                    try {
-//                                                                        cal.setTime(Transaction.df.parse(transaction.getDate()));
-//                                                                    } catch (ParseException e) {
-//                                                                        e.printStackTrace();
-//                                                                    }
-//                                                                    DatePickerDialog dpd = DatePickerDialog.newInstance(
-//                                                                            TransactionsFragment.this,
-//                                                                            cal.get(Calendar.YEAR),
-//                                                                            cal.get(Calendar.MONTH),
-//                                                                            cal.get(Calendar.DAY_OF_MONTH)
-//                                                                    );
-//                                                                    dpd.show(getFragmentManager(), "Datepickerdialog");
-//                                                                    break;
-//                                                                case 4:
-//                                                                    String[] transactionsCategories = KindOfCategories.getArray(categores, KindOfCategories.getTransaction());
-//                                                                    new MaterialDialog.Builder(getActivity())
-//                                                                            .title(R.string.transaction_category)
-//                                                                            .items(transactionsCategories)
-//                                                                            .itemsCallbackSingleChoice(2, new MaterialDialog.ListCallbackSingleChoice() {
-//                                                                                @Override
-//                                                                                public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-//                                                                                    rebuildAndShow();
-//                                                                                    return true;
-//                                                                                }
-//                                                                            })
-//                                                                            .positiveText(R.string.save)
-//                                                                            .show();
-//                                                                case 5:
-//                                                                    String[] placesCategories = KindOfCategories.getArray(categores, KindOfCategories.getTransaction());
-//                                                                    new MaterialDialog.Builder(getActivity())
-//                                                                            .title(R.string.transaction_category)
-//                                                                            .items(placesCategories)
-//                                                                            .itemsCallbackSingleChoice(1, new MaterialDialog.ListCallbackSingleChoice() {
-//                                                                                @Override
-//                                                                                public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-//                                                                                    rebuildAndShow();
-//                                                                                    return true;
-//                                                                                }
-//                                                                            })
-//                                                                            .positiveText(R.string.save)
-//                                                                            .show();
-//                                                            }
-//                                                        }
-//                                                    })
-//                                                    .positiveText(R.string.save)
-//                                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-//                                                        @Override
-//                                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-//                                                            showToast("сохраняем");
-//                                                        }
-//                                                    })
                                     }
                                 })
                                 .positiveText(R.string.agree)

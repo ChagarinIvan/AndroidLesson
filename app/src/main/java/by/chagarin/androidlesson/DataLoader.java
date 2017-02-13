@@ -15,8 +15,10 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import by.chagarin.androidlesson.objects.Base;
 import by.chagarin.androidlesson.objects.Category;
@@ -175,6 +177,10 @@ public class DataLoader {
         });
     }
 
+    private void changedTransaction(Transaction transaction) {
+
+    }
+
     private void removeTransfer(Transfer transfer) {
         for (Transfer tf : transferList) {
             if (tf.equals(transfer)) {
@@ -302,5 +308,21 @@ public class DataLoader {
             }
         }
         return true;
+    }
+
+    public void writeNewTransaction(Transaction createTransction) {
+        String key = mDatabase.child(TRANSACTIONS).push().getKey();
+        Map<String, Object> postValues = createTransction.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + TRANSACTIONS + "/" + key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void writeNewProceed(Proceed proceed) {
+        String key = mDatabase.child(PROCEEDS).push().getKey();
+        Map<String, Object> postValues = proceed.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + PROCEEDS + "/" + key, postValues);
+        mDatabase.updateChildren(childUpdates);
     }
 }

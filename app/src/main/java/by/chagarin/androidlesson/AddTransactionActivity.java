@@ -35,15 +35,11 @@ import org.androidannotations.annotations.res.TextRes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
-
-import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
 
 @EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -183,7 +179,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                                     } else {
                                         // Write new post
                                         createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
-                                        writeNewTransaction(createTransction);
+                                        loader.writeNewTransaction(createTransction);
                                     }
                                 }
 
@@ -201,14 +197,6 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
             Toast.makeText(this, getString(R.string.warning_no_categories), Toast.LENGTH_LONG).show();
             addButton.setEnabled(false);
         }
-    }
-
-    private void writeNewTransaction(Transaction transction) {
-        String key = mDatabase.child(TRANSACTIONS).push().getKey();
-        Map<String, Object> postValues = transction.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + TRANSACTIONS + "/" + key, postValues);
-        mDatabase.updateChildren(childUpdates);
     }
 
     @AfterTextChange({R.id.title, R.id.sum})

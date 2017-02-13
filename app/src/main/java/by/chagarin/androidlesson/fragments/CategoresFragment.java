@@ -1,21 +1,18 @@
 package by.chagarin.androidlesson.fragments;
 
-import android.app.Dialog;
 import android.app.Fragment;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.Editable;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -36,10 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import by.chagarin.androidlesson.DataLoader;
-import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
-import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.CategoryViewHolder;
 
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
@@ -160,78 +155,95 @@ public class CategoresFragment extends Fragment {
      * инициируем всплывающий диалог
      */
     private void alertDialog() {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.setContentView(R.layout.dialog_window);
-        TextView textView = (TextView) dialog.findViewById(R.id.title);
-        spinner = (Spinner) dialog.findViewById(R.id.spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), R.layout.spinner_item, KindOfCategories.getKinds());
-        spinner.setAdapter(adapter);
-        final EditText editText = (EditText) dialog.findViewById(R.id.edit_text);
-        ok = (Button) dialog.findViewById(R.id.ok_button);
-        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
+        MaterialDialog newDialog = new MaterialDialog.Builder(getActivity())
+                .title(R.string.categores)
+                .positiveText(R.string.ok_button)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        //сохраняем категорию
+                    }
+                })
+                .negativeText(R.string.cancel_button)
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                }).show();
 
-        textView.setText(R.string.categores);
-        ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Editable text = editText.getText();
-                final String kind = (String) spinner.getSelectedItem();
-
-                // Title is required
-                if (TextUtils.isEmpty(text)) {
-                    editText.setError(REQUIRED);
-                    return;
-                }
-                // Disable button so there are no multi-posts
-                setEditingEnabled(false);
-                Toast.makeText(getActivity(), "Posting...", Toast.LENGTH_SHORT).show();
-
-                // [START single_value_read]
-                final String userId = getUid();
-                mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
-                        new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                // Get user value
-                                User user = dataSnapshot.getValue(User.class);
-
-                                // [START_EXCLUDE]
-                                if (user == null) {
-                                    // User is null, error out
-                                    Toast.makeText(getActivity(),
-                                            "Error: could not fetch user.",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    // Write new post
-                                    writeNewCategory(userId, user.username, text.toString(), kind);
-                                }
-
-                                // Finish this Activity, back to the stream
-                                setEditingEnabled(true);
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                // [START_EXCLUDE]
-                                setEditingEnabled(true);
-                                // [END_EXCLUDE]
-                            }
-                        });
-                // [END single_value_read]
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //собственно настравиваем вид и пакезываем диалог
-        //noinspection ConstantConditions
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
+//        final Dialog dialog = new Dialog(getActivity());
+//        dialog.setContentView(R.layout.dialog_window);
+//        TextView textView = (TextView) dialog.findViewById(R.id.title);
+//        spinner = (Spinner) dialog.findViewById(R.id.spinner);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), R.layout.spinner_item, KindOfCategories.getKinds());
+//        spinner.setAdapter(adapter);
+//        final EditText editText = (EditText) dialog.findViewById(R.id.edit_text);
+//        ok = (Button) dialog.findViewById(R.id.ok_button);
+//        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
+//
+//        textView.setText(R.string.categores);
+//        ok.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                final Editable text = editText.getText();
+//                final String kind = (String) spinner.getSelectedItem();
+//
+//                // Title is required
+//                if (TextUtils.isEmpty(text)) {
+//                    editText.setError(REQUIRED);
+//                    return;
+//                }
+//                // Disable button so there are no multi-posts
+//                setEditingEnabled(false);
+//                Toast.makeText(getActivity(), "Posting...", Toast.LENGTH_SHORT).show();
+//
+//                // [START single_value_read]
+//                final String userId = getUid();
+//                mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+//                        new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                // Get user value
+//                                User user = dataSnapshot.getValue(User.class);
+//
+//                                // [START_EXCLUDE]
+//                                if (user == null) {
+//                                    // User is null, error out
+//                                    Toast.makeText(getActivity(),
+//                                            "Error: could not fetch user.",
+//                                            Toast.LENGTH_SHORT).show();
+//                                } else {
+//                                    // Write new post
+//                                    writeNewCategory(userId, user.username, text.toString(), kind);
+//                                }
+//
+//                                // Finish this Activity, back to the stream
+//                                setEditingEnabled(true);
+//                                dialog.dismiss();
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//                                // [START_EXCLUDE]
+//                                setEditingEnabled(true);
+//                                // [END_EXCLUDE]
+//                            }
+//                        });
+//                // [END single_value_read]
+//            }
+//        });
+//
+//        cancelButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dialog.dismiss();
+//            }
+//        });
+//        //собственно настравиваем вид и пакезываем диалог
+//        //noinspection ConstantConditions
+//        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+//        dialog.show();
     }
 
     private void writeNewCategory(String userId, String username, String title, String kind) {

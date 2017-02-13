@@ -33,15 +33,12 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.TextRes;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.User;
 
-import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
 import static by.chagarin.androidlesson.KindOfCategories.getStringArray;
 
 @EActivity(R.layout.activity_add_proceed)
@@ -169,7 +166,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
                                     } else {
                                         // Write new post
                                         createProceed = new Proceed(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
-                                        writeNewProceed(createProceed);
+                                        loader.writeNewProceed(createProceed);
                                     }
                                 }
 
@@ -188,16 +185,6 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
             addButton.setEnabled(false);
         }
     }
-
-    private void writeNewProceed(Proceed createProceed) {
-        String key = mDatabase.child(PROCEEDS).push().getKey();
-        Map<String, Object> postValues = createProceed.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + PROCEEDS + "/" + key, postValues);
-        mDatabase.updateChildren(childUpdates);
-    }
-
-
 
     @AfterTextChange({R.id.title, R.id.sum})
     void afterTextChangedOnSomeTextViews() {

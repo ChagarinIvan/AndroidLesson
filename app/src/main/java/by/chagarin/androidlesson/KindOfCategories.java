@@ -81,4 +81,15 @@ public class KindOfCategories {
         }
         return array;
     }
+
+    public static int getPosition(List<Category> listCategoriesTransactions, Category categoryTransaction) {
+        int n = 0;
+        for (Category cat : listCategoriesTransactions) {
+            if (cat.equals(categoryTransaction)) {
+                return n;
+            }
+            n++;
+        }
+        return 0;
+    }
 }
