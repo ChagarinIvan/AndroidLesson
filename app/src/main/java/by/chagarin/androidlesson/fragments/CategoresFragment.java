@@ -6,6 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -29,12 +30,11 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import by.chagarin.androidlesson.DataLoader;
+import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
+import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.CategoryViewHolder;
 
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
@@ -60,6 +60,7 @@ public class CategoresFragment extends Fragment {
     private LinearLayoutManager mManager;
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
     private Button ok;
+    public int kind;
 
     @AfterViews
     void afterView() {
@@ -74,7 +75,7 @@ public class CategoresFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        final Query postsQuery = getQuery(mDatabase);
+        final Query postsQuery = loader.getQuery(mDatabase, CATEGORIES);
         mAdapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(Category.class, R.layout.category_list_item,
                 CategoryViewHolder.class, postsQuery) {
             @Override
@@ -102,17 +103,30 @@ public class CategoresFragment extends Fragment {
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                int position = viewHolder.getAdapterPosition();
-                                if (checkCategory(position)) {
-                                    DatabaseReference ref = mAdapter.getRef(position);
-                                    ref.removeValue();
-                                } else {
-                                    Toast.makeText(getActivity(), getString(R.string.warning_sql), Toast.LENGTH_LONG).show();
-                                    mRecycler.setAdapter(mAdapter);
-                                }
+                                new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.delet_dialog)
+                                        .positiveText(R.string.ok_button)
+                                        .negativeText(R.string.cancel_button)
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                int position = viewHolder.getAdapterPosition();
+                                                if (checkCategory(position)) {
+                                                    DatabaseReference ref = mAdapter.getRef(position);
+                                                    ref.removeValue();
+                                                } else {
+                                                    Toast.makeText(getActivity(), getString(R.string.warning_sql), Toast.LENGTH_LONG).show();
+                                                    mRecycler.setAdapter(mAdapter);
+                                                }
+                                            }
+                                        })
+                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                dialog.dismiss();
+                                            }
+                                        }).show();
                             }
-
-
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
 
@@ -136,19 +150,9 @@ public class CategoresFragment extends Fragment {
         alertDialog();
     }
 
-    public Query getQuery(DatabaseReference databaseReference) {
-        // [START recent_posts_query]
-        // Last 100 posts, these are automatically the 100 most recent
-        // due to sorting by push() keys
-        // [END recent_posts_query]
-
-        return databaseReference.child(CATEGORIES)
-                .limitToFirst(100);
-    }
-
     public String getUid() {
         //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
     }
 
     /**
@@ -156,12 +160,76 @@ public class CategoresFragment extends Fragment {
      */
     private void alertDialog() {
         MaterialDialog newDialog = new MaterialDialog.Builder(getActivity())
-                .title(R.string.categores)
+                .title(R.string.add_categores)
                 .positiveText(R.string.ok_button)
+                .content(R.string.chose_content)
+                .items(KindOfCategories.getKinds())
+                .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        kind = which;
+                        return true;
+                    }
+                })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //сохраняем категорию
+                        MaterialDialog titleDialog = new MaterialDialog.Builder(getActivity())
+                                .title(R.string.add_categores)
+                                .positiveText(R.string.save)
+                                .content(R.string.input_content)
+                                .inputType(InputType.TYPE_CLASS_TEXT |
+                                        InputType.TYPE_TEXT_VARIATION_PERSON_NAME |
+                                        InputType.TYPE_TEXT_FLAG_CAP_WORDS)
+                                .inputRange(2, 20)
+                                .input(R.string.hint_category_exemple, 0, false, new MaterialDialog.InputCallback() {
+                                    @Override
+                                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+
+                                    }
+                                })
+                                .negativeText(R.string.dont_save)
+                                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                                        final String userId = getUid();
+                                        mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                                new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        // Get user value
+                                                        User user = dataSnapshot.getValue(User.class);
+
+                                                        // [START_EXCLUDE]
+                                                        if (user == null) {
+                                                            // User is null, error out
+                                                            Toast.makeText(getActivity(),
+                                                                    "Error: could not fetch user.",
+                                                                    Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            // Write new post
+                                                            Category category = new Category(dialog.getInputEditText().getText().toString(),
+                                                                    KindOfCategories.getKinds()[kind],
+                                                                    userId,
+                                                                    true);
+                                                            loader.writeNewCategory(category);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+                                                        // [START_EXCLUDE]
+                                                    }
+                                                });
+                                        // [END single_value_read]
+                                    }
+                                }).show();
                     }
                 })
                 .negativeText(R.string.cancel_button)
@@ -171,99 +239,5 @@ public class CategoresFragment extends Fragment {
                         dialog.dismiss();
                     }
                 }).show();
-
-//        final Dialog dialog = new Dialog(getActivity());
-//        dialog.setContentView(R.layout.dialog_window);
-//        TextView textView = (TextView) dialog.findViewById(R.id.title);
-//        spinner = (Spinner) dialog.findViewById(R.id.spinner);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), R.layout.spinner_item, KindOfCategories.getKinds());
-//        spinner.setAdapter(adapter);
-//        final EditText editText = (EditText) dialog.findViewById(R.id.edit_text);
-//        ok = (Button) dialog.findViewById(R.id.ok_button);
-//        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
-//
-//        textView.setText(R.string.categores);
-//        ok.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final Editable text = editText.getText();
-//                final String kind = (String) spinner.getSelectedItem();
-//
-//                // Title is required
-//                if (TextUtils.isEmpty(text)) {
-//                    editText.setError(REQUIRED);
-//                    return;
-//                }
-//                // Disable button so there are no multi-posts
-//                setEditingEnabled(false);
-//                Toast.makeText(getActivity(), "Posting...", Toast.LENGTH_SHORT).show();
-//
-//                // [START single_value_read]
-//                final String userId = getUid();
-//                mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
-//                        new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                // Get user value
-//                                User user = dataSnapshot.getValue(User.class);
-//
-//                                // [START_EXCLUDE]
-//                                if (user == null) {
-//                                    // User is null, error out
-//                                    Toast.makeText(getActivity(),
-//                                            "Error: could not fetch user.",
-//                                            Toast.LENGTH_SHORT).show();
-//                                } else {
-//                                    // Write new post
-//                                    writeNewCategory(userId, user.username, text.toString(), kind);
-//                                }
-//
-//                                // Finish this Activity, back to the stream
-//                                setEditingEnabled(true);
-//                                dialog.dismiss();
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//                                // [START_EXCLUDE]
-//                                setEditingEnabled(true);
-//                                // [END_EXCLUDE]
-//                            }
-//                        });
-//                // [END single_value_read]
-//            }
-//        });
-//
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dialog.dismiss();
-//            }
-//        });
-//        //собственно настравиваем вид и пакезываем диалог
-//        //noinspection ConstantConditions
-//        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-//        dialog.show();
     }
-
-    private void writeNewCategory(String userId, String username, String title, String kind) {
-        // Create new post at /user-category/$userid/category and at
-        // /category/categoryID simultaneously
-        String key = mDatabase.child(CATEGORIES).push().getKey();
-        Category category = new Category(title, kind, userId, username);
-        Map<String, Object> postValues = category.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + CATEGORIES + "/" + key, postValues);
-        mDatabase.updateChildren(childUpdates);
-    }
-
-    private void setEditingEnabled(boolean enabled) {
-        if (enabled) {
-            ok.setVisibility(View.VISIBLE);
-        } else {
-            ok.setVisibility(View.GONE);
-        }
-    }
-
-
 }

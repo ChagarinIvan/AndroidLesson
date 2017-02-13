@@ -141,7 +141,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
             final String name = title.getText().toString();
             final String price = sum.getText().toString();
             final String description = comment.getText().toString();
-            final Category categoryTransaction = listCategoriesTransactions.get(spinnerProceed.getSelectedItemPosition());
+            final Category categoryProceed = listCategoriesTransactions.get(spinnerProceed.getSelectedItemPosition());
             final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(price)) {
                 Toast.makeText(this, getString(R.string.warning_null), Toast.LENGTH_LONG).show();
@@ -165,7 +165,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        createProceed = new Proceed(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
+                                        createProceed = new Proceed(name, price, date, description, categoryProceed, categoryPlace, userId, user.getEmail());
                                         loader.writeNewProceed(createProceed);
                                     }
                                 }

@@ -127,18 +127,12 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                                     @Override
                                                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                        EditText title = (EditText) dialog.findViewById(R.id.title);
-                                                        proceed.setTitle(title.getText().toString());
-                                                        EditText price = (EditText) dialog.findViewById(R.id.price);
-                                                        proceed.setPrice(price.getText().toString());
-                                                        EditText comment = (EditText) dialog.findViewById(R.id.comment);
-                                                        proceed.setComment(comment.getText().toString());
-                                                        TextView date = (TextView) dialog.findViewById(R.id.date_text);
-                                                        proceed.setDate(date.getText().toString());
+                                                        final EditText title = (EditText) dialog.findViewById(R.id.title);
+                                                        final EditText price = (EditText) dialog.findViewById(R.id.price);
+                                                        final EditText comment = (EditText) dialog.findViewById(R.id.comment);
+                                                        final TextView date = (TextView) dialog.findViewById(R.id.date_text);
                                                         final Category categoryProceed = listCategoriesProceedes.get(spinnerProceed.getSelectedItemPosition());
-                                                        proceed.setCategoryProceedes(categoryProceed);
                                                         final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
-                                                        proceed.setCategoryPlace(categoryPlace);
                                                         //записываем
                                                         final String userId = loader.getUid();
                                                         loader.getmDatabase().child("users").child(userId).addListenerForSingleValueEvent(
@@ -160,8 +154,15 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                                         } else {
                                                                             // Write new post
                                                                             proceed.setUid(userId);
-                                                                            proceed.setAuthor(user.username);
-                                                                            loader.writeNewProceed(proceed);
+                                                                            proceed.setAuthor(user.getEmail());
+                                                                            loader.writeNewProceed(new Proceed(title.getText().toString(),
+                                                                                    price.getText().toString(),
+                                                                                    date.getText().toString(),
+                                                                                    comment.getText().toString(),
+                                                                                    categoryProceed,
+                                                                                    categoryPlace,
+                                                                                    userId,
+                                                                                    user.getEmail()));
                                                                         }
                                                                     }
 
@@ -174,6 +175,10 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                         //устанавливаем в поля значения из редактируемой транзакции
                                         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
                                         title.setText(proceed.getTitle());
+                                        TextView category_first = (TextView) newDialog.getCustomView().findViewById(R.id.category_first);
+                                        category_first.setText(R.string.category_proceed);
+                                        TextView category_second = (TextView) newDialog.getCustomView().findViewById(R.id.category_second);
+                                        category_second.setText(R.string.category_place);
                                         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
                                         price.setText(proceed.getPrice());
                                         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);
@@ -235,10 +240,10 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                         return true;
                     }
                 });
-                cash.setTitle(loader.getCashCount());
             }
         };
         //слушатель кэша
+        cash.setTitle(loader.getCashCount());
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -259,9 +264,25 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                int position = viewHolder.getAdapterPosition();
-                                DatabaseReference ref = mAdapter.getRef(position);
-                                ref.removeValue();
+                                new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.delet_dialog)
+                                        .positiveText(R.string.ok_button)
+                                        .negativeText(R.string.cancel_button)
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                int position = viewHolder.getAdapterPosition();
+                                                DatabaseReference ref = mAdapter.getRef(position);
+                                                ref.removeValue();
+                                            }
+                                        })
+                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                dialog.dismiss();
+                                                mRecycler.setAdapter(mAdapter);
+                                            }
+                                        }).show();
                             }
 
                             @Override
@@ -294,8 +315,8 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                     "1239",
                     Proceed.df.format(new Date()),
                     "наконецто дали денежку!!!",
-                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace(), "", ""),
-                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed(), "", ""),
+                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed(), "", true),
+                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace(), "", true),
                     "",
                     "");
         }
@@ -307,7 +328,7 @@ public class ProceedFragment extends Fragment implements BaseListeners {
 
     @Override
     public void doEvent() {
-
+        cash.setTitle(loader.getCashCount());
     }
 
     @Override

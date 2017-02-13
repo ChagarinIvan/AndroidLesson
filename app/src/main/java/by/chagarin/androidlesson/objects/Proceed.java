@@ -57,7 +57,7 @@ public class Proceed implements Parcelable {
 
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
 
-    public Proceed(String title, String price, String date, String comment, Category categoryPlace, Category categoryProceedes, String uid, String author) {
+    public Proceed(String title, String price, String date, String comment, Category categoryProceedes, Category categoryPlace, String uid, String author) {
         this.title = title;
         this.price = price;
         this.date = date;
@@ -72,9 +72,9 @@ public class Proceed implements Parcelable {
         title = in.readString();
         price = in.readString();
         date = in.readString();
-        categoryPlace = Category.createCategory(in.readString());
-        comment = in.readString();
         categoryProceedes = Category.createCategory(in.readString());
+        comment = in.readString();
+        categoryPlace = Category.createCategory(in.readString());
         this.uid = in.readString();
         this.author = in.readString();
     }
@@ -128,9 +128,9 @@ public class Proceed implements Parcelable {
         parcel.writeString(title);
         parcel.writeString(price);
         parcel.writeString(this.getDate());
-        parcel.writeString(categoryPlace.toString());
-        parcel.writeString(comment);
         parcel.writeString(categoryProceedes.toString());
+        parcel.writeString(comment);
+        parcel.writeString(categoryPlace.toString());
         parcel.writeString(uid);
         parcel.writeString(author);
     }

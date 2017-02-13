@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -55,11 +56,15 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     @ViewById
     RadioGroup signRadioGroup;
 
+    @Bean
+    DataLoader loader;
+
     @ViewById
     SignInButton signInButton;
 
     @AfterViews
     void afterCreate() {
+        loader.isWorkc = false;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("family").addValueEventListener(new ValueEventListener() {
             @Override
@@ -161,8 +166,8 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     private void writeNewUser(FirebaseUser user) {
-        person = new User(user.getDisplayName(), user.getEmail());
-        mDatabase.child("users").child(user.getUid()).setValue(person);
+        person = new User(user.getEmail(), user.getPhotoUrl().toString());
+        mDatabase.child("users").child(user.getDisplayName()).setValue(person);
     }
 
     @Override

@@ -16,14 +16,14 @@ import java.util.Map;
 public class Category extends Model {
     public String name;
     public String kind;
-    public String uid;
     public String author;
+    public boolean isShowIt;
 
-    public Category(String name, String kind, String uid, String author) {
+    public Category(String name, String kind, String author, boolean isShowIt) {
         this.name = name;
         this.kind = kind;
-        this.uid = uid;
         this.author = author;
+        this.isShowIt = isShowIt;
     }
 
     public String getName() {
@@ -40,10 +40,9 @@ public class Category extends Model {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("uid", uid);
         result.put("author", author);
-        result.put("name", name);
         result.put("kind", kind);
+        result.put("isShow", isShowIt);
         return result;
     }
 
@@ -52,12 +51,17 @@ public class Category extends Model {
         return this.toMap().toString();
     }
 
-    public String getUid() {
-        return uid;
-    }
 
     public String getAuthor() {
         return author;
+    }
+
+    public boolean isShowIt() {
+        return isShowIt;
+    }
+
+    public void setShowIt(boolean showIt) {
+        isShowIt = showIt;
     }
 
     @Override
@@ -65,8 +69,8 @@ public class Category extends Model {
         Category category = (Category) obj;
         return this.getName().equals(category.getName()) &&
                 this.getKind().equals(category.getKind()) &&
-                this.getUid().equals(category.getUid()) &&
-                this.getAuthor().equals(category.getAuthor());
+                this.getAuthor().equals(category.getAuthor()) &&
+                this.isShowIt() == category.isShowIt();
     }
 
     public static Category createCategory(String s) {
@@ -76,6 +80,6 @@ public class Category extends Model {
         for (String line : array) {
             categoryArray[n++] = line.split("=")[1];
         }
-        return new Category(categoryArray[3], categoryArray[2], categoryArray[0], categoryArray[1]);
+        return new Category(categoryArray[2], categoryArray[1], categoryArray[0], Boolean.parseBoolean(categoryArray[3]));
     }
 }

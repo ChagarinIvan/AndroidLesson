@@ -4,23 +4,15 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
 public class User {
-    public String username;
     public String email;
+    public String photoUrl;
 
     public User() {
     }
 
-    public User(String username, String email) {
-        this.username = username;
+    public User(String email, String photoUrl) {
         this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        this.photoUrl = photoUrl;
     }
 
     public String getEmail() {
@@ -29,5 +21,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

@@ -178,7 +178,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace, userId, user.username);
+                                        createTransction = new Transaction(name, price, date, description, categoryTransaction, categoryPlace, userId, user.getEmail());
                                         loader.writeNewTransaction(createTransction);
                                     }
                                 }

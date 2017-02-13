@@ -92,6 +92,7 @@ public class DataLoader {
             public void onChildAdded(DataSnapshot snapshot, String previousChild) {
                 //noinspection unchecked
                 transactionList.add(createTransaction(snapshot));
+                base.doSomething();
             }
 
             @Override
@@ -198,17 +199,25 @@ public class DataLoader {
     }
 
     private void removeProceed(Proceed proceed) {
-        for (Proceed pr : proceedList) {
+        for (int n = 0; n < proceedList.size(); ) {
+            Proceed pr = proceedList.get(n);
             if (pr.equals(proceed)) {
                 proceedList.remove(pr);
+                return;
+            } else {
+                n++;
             }
         }
     }
 
     private void removeTransaction(Transaction transaction) {
-        for (Transaction tr : transactionList) {
-            if (tr.equals(transaction)) {
-                transactionList.remove(tr);
+        for (int n = 0; n < transferList.size(); ) {
+            Transaction pr = transactionList.get(n);
+            if (pr.equals(transaction)) {
+                transactionList.remove(pr);
+                return;
+            } else {
+                n++;
             }
         }
     }
@@ -252,11 +261,11 @@ public class DataLoader {
     }
 
     private Category createCategory(DataSnapshot snapshot) {
-        String name = (String) snapshot.child("name").getValue();
+        String name = snapshot.getKey();
         String kind = (String) snapshot.child("kind").getValue();
-        String uid = (String) snapshot.child("uid").getValue();
         String author = (String) snapshot.child("author").getValue();
-        return new Category(name, kind, uid, author);
+        boolean isShow = (boolean) snapshot.child("isShow").getValue();
+        return new Category(name, kind, author, isShow);
     }
 
     public Query getQuery(DatabaseReference mDatabase, String key) {
@@ -323,6 +332,13 @@ public class DataLoader {
         Map<String, Object> postValues = proceed.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + PROCEEDS + "/" + key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void writeNewCategory(Category category) {
+        Map<String, Object> postValues = category.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + CATEGORIES + "/" + category.getName(), postValues);
         mDatabase.updateChildren(childUpdates);
     }
 }

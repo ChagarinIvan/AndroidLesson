@@ -68,4 +68,10 @@
     <string name="places_category">Источник платежа</string>
     <string name="date">Дата</string>
     <string name="_300">300</string>
+    <string name="category_proceed">Источник поступления</string>
+    <string name="category_place">Средства поступили на</string>
+    <string name="delet_dialog">Желаете удалить элемент?</string>
+    <string name="add_categores">Добавление категории</string>
+    <string name="chose_content">Выбирите тип</string>
+    <string name="input_content">Укажите название</string>
 </resources>

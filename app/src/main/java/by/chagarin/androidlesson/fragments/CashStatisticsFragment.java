@@ -309,7 +309,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
                                             Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                         } else {
                                             // Write new post
-                                            writeNewTransfer(userId, user.username, cost, from, to);
+                                            writeNewTransfer(userId, user.getEmail(), cost, from, to);
                                         }
                                     }
 
