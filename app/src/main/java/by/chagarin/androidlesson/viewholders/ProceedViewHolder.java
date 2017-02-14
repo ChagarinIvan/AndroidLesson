@@ -28,9 +28,9 @@ public class ProceedViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToProceed(Proceed proceed) {
-        name.setText(proceed.getTitle());
-        sum.setText(proceed.getPrice());
-        date.setText(proceed.getDate());
-        comment.setText(proceed.getComment());
+        name.setText(proceed.title);
+        sum.setText(proceed.price);
+        date.setText(proceed.date);
+        comment.setText(proceed.comment);
     }
 }

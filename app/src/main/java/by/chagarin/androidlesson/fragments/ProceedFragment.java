@@ -37,20 +37,16 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
-import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import by.chagarin.androidlesson.AddProccedActivity_;
 import by.chagarin.androidlesson.DataLoader;
-import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Base;
 import by.chagarin.androidlesson.objects.BaseListeners;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
-import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.ProceedViewHolder;
 
@@ -99,7 +95,7 @@ public class ProceedFragment extends Fragment implements BaseListeners {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        final Query postsQuery = loader.getQuery(mDatabase, PROCEEDS);
+        final Query postsQuery = loader.getQuery(PROCEEDS);
         //адаптер БД
         mAdapter = new FirebaseRecyclerAdapter<Proceed, ProceedViewHolder>(Proceed.class, R.layout.list_item,
                 ProceedViewHolder.class, postsQuery) {
@@ -109,7 +105,7 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                 viewHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        proceed = loader.getProceedes().get(position);
+                        //proceed = loader.getProceedes().get(position);
                         new MaterialDialog.Builder(getActivity())
                                 .title(R.string.dialog_title)
                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -135,7 +131,7 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                         final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
                                                         //записываем
                                                         final String userId = loader.getUid();
-                                                        loader.getmDatabase().child("users").child(userId).addListenerForSingleValueEvent(
+                                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                                                                 new ValueEventListener() {
                                                                     @Override
                                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -153,16 +149,16 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                                             Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                                                         } else {
                                                                             // Write new post
-                                                                            proceed.setUid(userId);
-                                                                            proceed.setAuthor(user.getEmail());
-                                                                            loader.writeNewProceed(new Proceed(title.getText().toString(),
-                                                                                    price.getText().toString(),
-                                                                                    date.getText().toString(),
-                                                                                    comment.getText().toString(),
-                                                                                    categoryProceed,
-                                                                                    categoryPlace,
-                                                                                    userId,
-                                                                                    user.getEmail()));
+//                                                                            proceed.setUid(userId);
+//                                                                            proceed.setAuthor(user.getEmail());
+//                                                                            loader.writeNewProceed(new Proceed(title.getText().toString(),
+//                                                                                    price.getText().toString(),
+//                                                                                    date.getText().toString(),
+//                                                                                    comment.getText().toString(),
+//                                                                                    categoryProceed,
+//                                                                                    categoryPlace,
+//                                                                                    userId,
+//                                                                                    user.getEmail()));
                                                                         }
                                                                     }
 
@@ -174,34 +170,34 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                 }).build();
                                         //устанавливаем в поля значения из редактируемой транзакции
                                         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
-                                        title.setText(proceed.getTitle());
+                                        //title.setText(proceed.getTitle());
                                         TextView category_first = (TextView) newDialog.getCustomView().findViewById(R.id.category_first);
                                         category_first.setText(R.string.category_proceed);
                                         TextView category_second = (TextView) newDialog.getCustomView().findViewById(R.id.category_second);
                                         category_second.setText(R.string.category_place);
                                         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
-                                        price.setText(proceed.getPrice());
+                                        //price.setText(proceed.getPrice());
                                         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);
-                                        comment.setText(proceed.getComment());
+                                        //comment.setText(proceed.getComment());
                                         dateText = (TextView) newDialog.getCustomView().findViewById(R.id.date_text);
-                                        dateText.setText(proceed.getDate());
+                                        //dateText.setText(proceed.getDate());
                                         //слушатель вызова изменения даты
                                         dateText.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 Calendar now = Calendar.getInstance();
-                                                try {
-                                                    now.setTime(Transaction.df.parse(proceed.getDate()));
-                                                } catch (ParseException e) {
+                                                //try {
+                                                //now.setTime(loader.df.parse(proceed.getDate()));
+                                                //} catch (ParseException e) {
 
-                                                }
+                                                //}
                                                 DatePickerDialog dpd = DatePickerDialog.newInstance(
                                                         new DatePickerDialog.OnDateSetListener() {
                                                             @Override
                                                             public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
                                                                 Calendar calendar = Calendar.getInstance();
                                                                 calendar.set(year, monthOfYear, dayOfMonth);
-                                                                String date = Transaction.df.format(calendar.getTime());
+                                                                String date = loader.df.format(calendar.getTime());
                                                                 dateText.setText(date);
                                                             }
                                                         },
@@ -212,19 +208,19 @@ public class ProceedFragment extends Fragment implements BaseListeners {
                                                 dpd.show(getFragmentManager(), "Datepickerdialog");
                                             }
                                         });
-                                        List<Category> data = loader.getCategores();
+                                        //List<Category> data = loader.getCategores();
                                         //отделяем только необходимые категории
-                                        listCategoriesProceedes = KindOfCategories.sortData(data, KindOfCategories.getProceed());
-                                        listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+                                        //listCategoriesProceedes = KindOfCategories.sortData(data, KindOfCategories.getProceed());
+                                        //listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
                                         //создаём для каждого спинера свой адаптер и устанавливаем их
                                         ArrayAdapter<String> adapterProceedes = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
                                         ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
                                         spinnerProceed = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_transaction);
                                         spinnerPlace = (Spinner) newDialog.getCustomView().findViewById(R.id.spinner_place);
                                         spinnerProceed.setAdapter(adapterProceedes);
-                                        spinnerProceed.setSelection(KindOfCategories.getPosition(listCategoriesProceedes, proceed.getCategoryProceedes()));
+                                        //spinnerProceed.setSelection(KindOfCategories.getPosition(listCategoriesProceedes, proceed.getCategoryProceedes()));
                                         spinnerPlace.setAdapter(adapterPlaces);
-                                        spinnerPlace.setSelection(KindOfCategories.getPosition(listCategoriesPlaces, proceed.getCategoryPlace()));
+                                        //spinnerPlace.setSelection(KindOfCategories.getPosition(listCategoriesPlaces, proceed.getCategoryPlace()));
                                         newDialog.show();
                                     }
                                 })
@@ -243,7 +239,7 @@ public class ProceedFragment extends Fragment implements BaseListeners {
             }
         };
         //слушатель кэша
-        cash.setTitle(loader.getCashCount());
+        //cash.setTitle(loader.getCashCount());
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -305,35 +301,19 @@ public class ProceedFragment extends Fragment implements BaseListeners {
 
     @Click
     void fabClicked() {
-        List<Proceed> proceeds = loader.getProceedes();
-        Proceed lastProcced;
-        if (proceeds.size() != 0) {
-            lastProcced = proceeds.get(0);
-        } else {
-            lastProcced = new Proceed(
-                    "ЗАРПЛАТА",
-                    "1239",
-                    Proceed.df.format(new Date()),
-                    "наконецто дали денежку!!!",
-                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getProceed(), "", true),
-                    new Category(getString(R.string.hint_category_exemple), KindOfCategories.getPlace(), "", true),
-                    "",
-                    "");
-        }
         Intent intent = new Intent(getActivity(), AddProccedActivity_.class);
-        intent.putExtra(Proceed.class.getCanonicalName(), lastProcced);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.from_midle, R.anim.in_midle);
     }
 
     @Override
     public void doEvent() {
-        cash.setTitle(loader.getCashCount());
+        //cash.setTitle(loader.getCashCount());
     }
 
     @Override
     public void removeElement() {
-        cash.setTitle(loader.getCashCount());
+        //cash.setTitle(loader.getCashCount());
     }
 }
 

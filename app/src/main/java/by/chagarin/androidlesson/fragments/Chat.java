@@ -166,7 +166,7 @@ public class Chat extends Fragment {
                                             Toast.LENGTH_SHORT).show();
                                 } else {
                                     // Write new post
-                                    writeNewPost(userId, user.getEmail(), title, body);
+                                    writeNewPost(userId, user.userKey, title, body);
                                 }
 
                                 // Finish this Activity, back to the stream

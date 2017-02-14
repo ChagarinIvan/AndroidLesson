@@ -8,18 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
@@ -41,7 +37,6 @@ import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
 
 @EFragment(R.layout.fragment_categores)
 public class CategoresFragment extends Fragment {
-    private static final String REQUIRED = "Required";
 
     @ViewById(R.id.categories_list_view)
     RecyclerView mRecycler;
@@ -55,27 +50,21 @@ public class CategoresFragment extends Fragment {
     @ViewById
     SwipeRefreshLayout swipeLayout;
 
-    private Spinner spinner;
-    private DatabaseReference mDatabase;
-    private LinearLayoutManager mManager;
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
-    private Button ok;
     public int kind;
 
     @AfterViews
     void afterView() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
 
         // Set up Layout Manager, reverse layout
-        mManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager mManager = new LinearLayoutManager(getActivity());
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        final Query postsQuery = loader.getQuery(mDatabase, CATEGORIES);
+        final Query postsQuery = loader.getQuery(CATEGORIES);
         mAdapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(Category.class, R.layout.category_list_item,
                 CategoryViewHolder.class, postsQuery) {
             @Override
@@ -150,11 +139,6 @@ public class CategoresFragment extends Fragment {
         alertDialog();
     }
 
-    public String getUid() {
-        //noinspection ConstantConditions
-        return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-    }
-
     /**
      * инициируем всплывающий диалог
      */
@@ -198,8 +182,8 @@ public class CategoresFragment extends Fragment {
                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                     @Override
                                     public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
-                                        final String userId = getUid();
-                                        mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                        final String userId = loader.getUid();
+                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                                                 new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -213,11 +197,11 @@ public class CategoresFragment extends Fragment {
                                                                     "Error: could not fetch user.",
                                                                     Toast.LENGTH_SHORT).show();
                                                         } else {
-                                                            // Write new post
+                                                            // Write new postString name, String kind, String author, boolean isShowIt, String key
                                                             Category category = new Category(dialog.getInputEditText().getText().toString(),
                                                                     KindOfCategories.getKinds()[kind],
                                                                     userId,
-                                                                    true);
+                                                                    "yes");
                                                             loader.writeNewCategory(category);
                                                         }
                                                     }

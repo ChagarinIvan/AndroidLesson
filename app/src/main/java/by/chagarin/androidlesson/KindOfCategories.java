@@ -35,7 +35,7 @@ public class KindOfCategories {
     public static List<Category> sortData(List<Category> data, String kind) {
         List<Category> list = new ArrayList<>();
         for (Category cat : data) {
-            if (TextUtils.equals(cat.getKind(), kind)) {
+            if (TextUtils.equals(cat.kind, kind)) {
                 list.add(cat);
             }
         }
@@ -47,7 +47,7 @@ public class KindOfCategories {
      */
     public static Category findCategory(List<Category> list, String name) {
         for (Category category : list) {
-            if (TextUtils.equals(category.getName(), name)) {
+            if (TextUtils.equals(category.name, name)) {
                 return category;
             }
         }
@@ -57,7 +57,7 @@ public class KindOfCategories {
     public static List<String> getStringArray(List<Category> listCategories) {
         List<String> list = new ArrayList<>();
         for (Category cat : listCategories) {
-            list.add(cat.getName());
+            list.add(cat.name);
         }
         return list;
     }
@@ -65,7 +65,7 @@ public class KindOfCategories {
     public static List<Category> sortDataWithout(List<Category> data, String kind) {
         List<Category> list = new ArrayList<>();
         for (Category cat : data) {
-            if (!TextUtils.equals(cat.getKind(), kind)) {
+            if (!TextUtils.equals(cat.kind, kind)) {
                 list.add(cat);
             }
         }
@@ -77,7 +77,7 @@ public class KindOfCategories {
         String[] array = new String[sortCategories.size()];
         int n = 0;
         for (Category category : sortCategories) {
-            array[n++] = category.getName();
+            array[n++] = category.name;
         }
         return array;
     }

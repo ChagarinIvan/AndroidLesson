@@ -16,22 +16,15 @@ import java.util.Map;
 public class Category extends Model {
     public String name;
     public String kind;
-    public String author;
-    public boolean isShowIt;
+    public String userKey;
+    public String isShow;
+    public String key;
 
-    public Category(String name, String kind, String author, boolean isShowIt) {
+    public Category(String name, String kind, String userKey, String isShow) {
         this.name = name;
         this.kind = kind;
-        this.author = author;
-        this.isShowIt = isShowIt;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getKind() {
-        return kind;
+        this.userKey = userKey;
+        this.isShow = isShow;
     }
 
     public Category() {
@@ -40,9 +33,10 @@ public class Category extends Model {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("author", author);
+        result.put("name", name);
+        result.put("userKey", userKey);
         result.put("kind", kind);
-        result.put("isShow", isShowIt);
+        result.put("isShow", isShow);
         return result;
     }
 
@@ -51,35 +45,9 @@ public class Category extends Model {
         return this.toMap().toString();
     }
 
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public boolean isShowIt() {
-        return isShowIt;
-    }
-
-    public void setShowIt(boolean showIt) {
-        isShowIt = showIt;
-    }
-
     @Override
     public boolean equals(Object obj) {
         Category category = (Category) obj;
-        return this.getName().equals(category.getName()) &&
-                this.getKind().equals(category.getKind()) &&
-                this.getAuthor().equals(category.getAuthor()) &&
-                this.isShowIt() == category.isShowIt();
-    }
-
-    public static Category createCategory(String s) {
-        String[] array = s.split(",");
-        String[] categoryArray = new String[4];
-        int n = 0;
-        for (String line : array) {
-            categoryArray[n++] = line.split("=")[1];
-        }
-        return new Category(categoryArray[2], categoryArray[1], categoryArray[0], Boolean.parseBoolean(categoryArray[3]));
+        return this.key.equals(category.key);
     }
 }

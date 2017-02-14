@@ -26,12 +26,12 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToCategory(Category category) {
-        if (TextUtils.equals(category.getKind(), KindOfCategories.getProceed())) {
+        if (TextUtils.equals(category.kind, KindOfCategories.getProceed())) {
             selectedProceed.setVisibility(View.VISIBLE);
         }
-        if (TextUtils.equals(category.getKind(), KindOfCategories.getPlace())) {
+        if (TextUtils.equals(category.kind, KindOfCategories.getPlace())) {
             selectedPlace.setVisibility(View.VISIBLE);
         }
-        title.setText(category.getName());
+        title.setText(category.name);
     }
 }

@@ -113,10 +113,10 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
             setSupportActionBar(toolbar);
         }
         //получаем список категорий из лодера
-        List<Category> data = loader.getCategores();
+        //List<Category> data = loader.getCategores();
         //отделяем только необходимые категории
-        listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getProceed());
-        listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
+        //listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getProceed());
+        //listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
         //создаём для каждого спинера свой адаптер и устанавливаем их
         ArrayAdapter<String> adapterTransactions = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
         ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
@@ -124,8 +124,8 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
         spinnerPlace.setAdapter(adapterPlaces);
         //
         setTitle(name);
-        sum.setHint(proceed.getPrice());
-        title.setHint(proceed.getTitle());
+        //sum.setHint(proceed.getPrice());
+        //title.setHint(proceed.getTitle());
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -165,8 +165,8 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
                                         Toast.makeText(getParent(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Write new post
-                                        createProceed = new Proceed(name, price, date, description, categoryProceed, categoryPlace, userId, user.getEmail());
-                                        loader.writeNewProceed(createProceed);
+                                        //createProceed = new Proceed(name, price, date, description, categoryProceed, categoryPlace, userId, user.userKey);
+                                        //loader.writeNewProceed(createProceed);
                                     }
                                 }
 
@@ -195,7 +195,7 @@ public class AddProccedActivity extends ActionBarActivity implements DatePickerD
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        this.date = Proceed.df.format(calendar.getTime());
+        this.date = loader.df.format(calendar.getTime());
         dateText.setText(date);
     }
 }

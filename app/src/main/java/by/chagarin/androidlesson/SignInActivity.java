@@ -29,8 +29,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.androidannotations.annotations.AfterViews;
@@ -47,8 +45,6 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     private FirebaseAuth mFirebaseAuth;
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
-    private DatabaseReference mDatabase;
-    private FirebaseDatabase base;
     private Dialog question_dialog;
     private FirebaseUser user;
     private User person;
@@ -64,9 +60,7 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
 
     @AfterViews
     void afterCreate() {
-        loader.isWorkc = false;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("family").addValueEventListener(new ValueEventListener() {
+        loader.mDatabase.child("family").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -166,8 +160,8 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     private void writeNewUser(FirebaseUser user) {
-        person = new User(user.getEmail(), user.getPhotoUrl().toString());
-        mDatabase.child("users").child(user.getDisplayName()).setValue(person);
+        person = new User(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString(), user.getUid());
+        loader.writeNewUser(person);
     }
 
     @Override
@@ -200,7 +194,7 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
                         String familyName = String.valueOf(name.getText());
                         String familyPassword = String.valueOf(password.getText());
                         Family family = new Family(familyName, familyPassword, person);
-                        mDatabase.child("familes").child(family.getName()).setValue(family);
+                        loader.mDatabase.child("familes").child(family.getName()).setValue(family);
                         dialog.dismiss();
                         question_dialog.dismiss();
                         start();

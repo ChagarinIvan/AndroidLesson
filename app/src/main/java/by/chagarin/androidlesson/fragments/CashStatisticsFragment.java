@@ -33,7 +33,6 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +48,6 @@ import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.Transfer;
 import by.chagarin.androidlesson.objects.User;
-
-import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
 
 
 /**
@@ -80,12 +77,12 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
     }
 
     private void createPieChart() {
-        listCategory = loader.getCategores();
-        List<Transaction> listTransactions = loader.getTransactions();
-        List<Transfer> listTransfer = loader.getTransfers();
-        List<Proceed> listProceedes = loader.getProceedes();
+//        listCategory = loader.getCategores();
+//        List<Transaction> listTransactions = loader.getTransactions();
+//        List<Transfer> listTransfer = loader.getTransfers();
+//        List<Proceed> listProceedes = loader.getProceedes();
         //получаем значения для отображения
-        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
+        //categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
         final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
@@ -165,7 +162,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
     }
 
     private String calcSumm() {
-        return "Общий баланс " + loader.getCashCount();
+        return "Общий баланс " /*loader.getCashCount()*/;
     }
 
     //метод будет возвращать лист рандомных цвето нужного размера
@@ -190,32 +187,32 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
         //в мап по категориям добавляем поступления
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Proceed proceed : proceedList) {
-                if (proceed.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
-                    float value = mapEntry.getValue() + Float.parseFloat(proceed.getPrice());
-                    mapEntry.setValue(value);
-                }
+                //if (proceed.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
+                //    float value = mapEntry.getValue() + Float.parseFloat(proceed.getPrice());
+                //    mapEntry.setValue(value);
+                //}
             }
         }
         //в мап по категорям отнимаеи транзакции
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Transaction transaction : transactionList) {
-                if (transaction.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
-                    float value = mapEntry.getValue() - Float.parseFloat(transaction.getPrice());
-                    mapEntry.setValue(value);
-                }
+                //if (transaction.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
+                //    float value = mapEntry.getValue() - Float.parseFloat(transaction.getPrice());
+                //    mapEntry.setValue(value);
+                //}
             }
         }
 
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Transfer transfer : listTransfer) {
-                if (transfer.getCategoryPlaceFrom().name.equals(mapEntry.getKey().name)) {
-                    float value = mapEntry.getValue() - Float.parseFloat(transfer.getPrice());
-                    mapEntry.setValue(value);
-                }
-                if (transfer.getCategoryPlaceTo().name.equals(mapEntry.getKey().name)) {
-                    float value = mapEntry.getValue() + Float.parseFloat(transfer.getPrice());
-                    mapEntry.setValue(value);
-                }
+                //if (transfer.getCategoryPlaceFrom().name.equals(mapEntry.getKey().name)) {
+                //    float value = mapEntry.getValue() - Float.parseFloat(transfer.getPrice());
+                //    mapEntry.setValue(value);
+                //}
+                //if (transfer.getCategoryPlaceTo().name.equals(mapEntry.getKey().name)) {
+                //    float value = mapEntry.getValue() + Float.parseFloat(transfer.getPrice());
+                //    mapEntry.setValue(value);
+                //}
             }
         }
 
@@ -225,7 +222,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
     private List<PieEntry> convertToEntry(Map<Category, Float> resultList) {
         List<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
-            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
+            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().name));
         }
         return entries;
     }
@@ -275,10 +272,10 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
             Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
             TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
             if (flag) {
-                to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
+                //to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
                 tv.setText(getString(R.string.to));
             } else {
-                from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
+                //from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
                 tv.setText(getString(R.string.from));
             }
             final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
@@ -296,7 +293,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
                     }
                     if (checkCash(from, cost)) {
                         final String userId = loader.getUid();
-                        loader.getmDatabase().child("users").child(userId).addListenerForSingleValueEvent(
+                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                                 new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -309,7 +306,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
                                             Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                         } else {
                                             // Write new post
-                                            writeNewTransfer(userId, user.getEmail(), cost, from, to);
+                                            //writeNewTransfer(userId, user.userKey, cost, from, to);
                                         }
                                     }
 
@@ -336,15 +333,6 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
             dialog.show();
         }
 
-        private void writeNewTransfer(String userId, String author, String cost, Category from, Category to) {
-            Transfer transfer = new Transfer(cost, Transfer.df.format(new Date()), from, to, userId, author);
-            String key = loader.getmDatabase().child(TRANSFERS).push().getKey();
-            Map<String, Object> postValues = transfer.toMap();
-            Map<String, Object> childUpdates = new HashMap<>();
-            childUpdates.put("/" + TRANSFERS + "/" + key, postValues);
-            loader.getmDatabase().updateChildren(childUpdates);
-        }
-
         /**
          * метод возращает все категории с типом места кроме выбранной
          *
@@ -353,7 +341,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
         private List<Category> getArrayOfCategory() {
             List<Category> list = new ArrayList<>();
             for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
-                if (!TextUtils.equals(category.getName(), pieEntry.getLabel())) {
+                if (!TextUtils.equals(category.name, pieEntry.getLabel())) {
                     list.add(category);
                 }
             }
