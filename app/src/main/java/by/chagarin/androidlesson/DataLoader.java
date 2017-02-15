@@ -26,9 +26,10 @@ import by.chagarin.androidlesson.objects.User;
 public class DataLoader {
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
     public static final String CATEGORIES = "categories";
-    public static final String TRANSACTIONS = "transactions";
-    public static final String PROCEEDS = "proceeds";
-    public static final String TRANSFERS = "transfers";
+    public static final String ACTIONS = "actions";
+    public static final String TRANSACTIONS = ACTIONS + "/transactions";
+    public static final String PROCEEDS = ACTIONS + "/proceeds";
+    public static final String TRANSFERS = ACTIONS + "/transfers";
     public static final String USERS = "users";
     public static List<Transfer> transferList = new ArrayList<>();
     public static List<Proceed> proceedList = new ArrayList<>();
