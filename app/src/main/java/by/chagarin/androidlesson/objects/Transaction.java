@@ -34,8 +34,8 @@ public class Transaction {
         result.put("price", price);
         result.put("date", date);
         result.put("comment", comment);
-        result.put("categoryTransaction", categoryTransactionKey);
-        result.put("categoryPlace", categoryPlaceKey);
+        result.put("categoryTransactionKey", categoryTransactionKey);
+        result.put("categoryPlaceKey", categoryPlaceKey);
         result.put("userKey", userKey);
         return result;
     }

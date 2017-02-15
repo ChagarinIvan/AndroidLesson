@@ -24,13 +24,11 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.Calendar;
-import java.util.List;
 
 import by.chagarin.androidlesson.AddTransactionActivity_;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Base;
-import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.viewholders.TransactionViewHolder;
 
@@ -64,9 +62,7 @@ public class TransactionsFragment extends Fragment implements DatePickerDialog.O
     Base base;
 
     private FirebaseRecyclerAdapter<Transaction, TransactionViewHolder> mAdapter;
-    private Transaction transaction;
-    private List<Category> listCategoriesTransactions;
-    private List<Category> listCategoriesPlaces;
+
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {

@@ -12,7 +12,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -61,42 +60,37 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     @TextRes(R.string.add_transaction)
     CharSequence name;
 
-    private Transaction transction;
-    private Transaction createTransction;
-    private List<Category> listCategoriesTransactions;
-    private List<Category> listCategoriesPlaces;
-    private List<Category> data;
-    private String date;
-    private DatePickerDialog dpd;
+    public Transaction transction;
+    public Transaction createTransction;
+    public List<Category> listCategoriesTransactions;
+    public List<Category> listCategoriesPlaces;
+    public String date;
+    public DatePickerDialog dpd;
 
     @Bean
     DataLoader loader;
 
     @AfterViews
     void ready() {
-        data = new ArrayList<>();
-        loader.mDatabase.child(DataLoader.CATEGORIES).addChildEventListener(new ChildEventListener() {
+        loader.mDatabase.child(DataLoader.CATEGORIES).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String key = dataSnapshot.getKey();
-                Category category = dataSnapshot.getValue(Category.class);
-                category.key = key;
-                data.add(category);
-            }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Is better to use a List, because you don't know the size
+                // of the iterator returned by dataSnapshot.getChildren() to
+                // initialize the array
+                final List<Category> categoryNames = new ArrayList<>();
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
+                for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
+                    Category categoryName = areaSnapshot.getValue(Category.class);
+                    categoryName.key = areaSnapshot.getKey();
+                    categoryNames.add(categoryName);
+                }
+                listCategoriesTransactions = KindOfCategories.sortData(categoryNames, KindOfCategories.getTransaction());
+                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace());
+                ArrayAdapter<String> adapterTransactions = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+                ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+                spinnerTransaction.setAdapter(adapterTransactions);
+                spinnerPlace.setAdapter(adapterPlaces);
             }
 
             @Override
@@ -104,6 +98,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
 
             }
         });
+
         Calendar now = Calendar.getInstance();
         dpd = DatePickerDialog.newInstance(
                 AddTransactionActivity.this,
@@ -121,19 +116,8 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-        //отделяем только необходимые категории
-        listCategoriesTransactions = KindOfCategories.sortData(data, KindOfCategories.getTransaction());
-        listCategoriesPlaces = KindOfCategories.sortData(data, KindOfCategories.getPlace());
-        //создаём для каждого спинера свой адаптер и устанавливаем их
-        ArrayAdapter<String> adapterTransactions = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
-        ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getApplication(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-        spinnerTransaction.setAdapter(adapterTransactions);
-        spinnerPlace.setAdapter(adapterPlaces);
-        //
+
         setTitle(name);
-        //sum.setHint(transction.price);
-        //title.setHint(transction.title);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

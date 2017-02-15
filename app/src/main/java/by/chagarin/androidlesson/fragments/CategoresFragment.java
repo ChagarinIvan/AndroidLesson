@@ -69,13 +69,6 @@ public class CategoresFragment extends Fragment {
                 CategoryViewHolder.class, postsQuery) {
             @Override
             protected void populateViewHolder(final CategoryViewHolder viewHolder, final Category model, final int position) {
-                final DatabaseReference postRef = getRef(position);
-
-                // Set click listener for the whole post view
-                final String postKey = postRef.getKey();
-
-                // Determine if the current user has liked this post and set UI accordingly
-
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToCategory(model);
             }

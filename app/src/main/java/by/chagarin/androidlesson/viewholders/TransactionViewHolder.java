@@ -31,6 +31,6 @@ public class TransactionViewHolder extends RecyclerView.ViewHolder {
         name.setText(transaction.title);
         sum.setText(transaction.price);
         date.setText(transaction.date);
-        comment.setText(transaction.categoryPlaceKey);
+        comment.setText(transaction.comment);
     }
 }
