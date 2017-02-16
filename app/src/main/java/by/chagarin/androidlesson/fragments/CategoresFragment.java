@@ -71,6 +71,7 @@ public class CategoresFragment extends Fragment {
             protected void populateViewHolder(final CategoryViewHolder viewHolder, final Category model, final int position) {
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToCategory(model);
+
             }
         };
         final ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -123,7 +124,8 @@ public class CategoresFragment extends Fragment {
     }
 
     private boolean checkCategory(int position) {
-        return loader.checkCatrgory(position);
+        //проверка есть ли жействия с данной категорией
+        return false;
     }
 
     //по нажатию на ФАБ запускается диалог добавления новой категории

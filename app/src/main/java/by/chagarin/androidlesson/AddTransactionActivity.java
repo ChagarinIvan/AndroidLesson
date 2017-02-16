@@ -35,6 +35,7 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
+import static by.chagarin.androidlesson.DataLoader.df;
 
 @EActivity(R.layout.activity_add_transaction)
 public class AddTransactionActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener {
@@ -195,7 +196,7 @@ public class AddTransactionActivity extends ActionBarActivity implements DatePic
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        this.date = DataLoader.df.format(calendar.getTime());
+        this.date = df.format(calendar.getTime());
         dateText.setText(date);
     }
 }

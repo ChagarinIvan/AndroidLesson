@@ -285,7 +285,7 @@ public class TransactionsFragment extends Fragment implements DatePickerDialog.O
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        String date = loader.df.format(calendar.getTime());
+        String date = DataLoader.df.format(calendar.getTime());
         //transaction.setDate(date);
     }
 }

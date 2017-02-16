@@ -341,15 +341,14 @@ public class DataLoader {
         mDatabase.updateChildren(childUpdates);
     }
 
-    //
-//    public void writeNewProceed(Proceed proceed) {
-//        String key = mDatabase.child(PROCEEDS).push().getKey();
-//        Map<String, Object> postValues = proceed.toMap();
-//        Map<String, Object> childUpdates = new HashMap<>();
-//        childUpdates.put("/" + PROCEEDS + "/" + key, postValues);
-//        mDatabase.updateChildren(childUpdates);
-//    }
-//
+
+    public void writeNewProceed(Proceed proceed) {
+        Map<String, Object> postValues = proceed.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + PROCEEDS + "/" + proceed.key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
     public void writeNewCategory(Category category) {
         String key = mDatabase.child(CATEGORIES).push().getKey();
         category.key = key;
