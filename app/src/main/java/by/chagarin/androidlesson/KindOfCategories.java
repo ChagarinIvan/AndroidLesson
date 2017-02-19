@@ -82,10 +82,10 @@ public class KindOfCategories {
         return array;
     }
 
-    public static int getPosition(List<Category> listCategoriesTransactions, Category categoryTransaction) {
+    public static int getPosition(List<Category> listCategoriesTransactions, String categoryKey) {
         int n = 0;
         for (Category cat : listCategoriesTransactions) {
-            if (cat.equals(categoryTransaction)) {
+            if (cat.key.equals(categoryKey)) {
                 return n;
             }
             n++;

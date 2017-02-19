@@ -20,11 +20,12 @@ public class Category extends Model {
     public String isShow;
     public String key;
 
-    public Category(String name, String kind, String userKey, String isShow) {
+    public Category(String name, String kind, String userKey, String isShow, String key) {
         this.name = name;
         this.kind = kind;
         this.userKey = userKey;
         this.isShow = isShow;
+        this.key = key;
     }
 
     public Category() {
@@ -37,6 +38,7 @@ public class Category extends Model {
         result.put("userKey", userKey);
         result.put("kind", kind);
         result.put("isShow", isShow);
+        result.put("key", key);
         return result;
     }
 

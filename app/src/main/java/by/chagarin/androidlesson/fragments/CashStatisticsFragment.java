@@ -41,26 +41,26 @@ import java.util.Random;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.R;
-import by.chagarin.androidlesson.objects.Base;
-import by.chagarin.androidlesson.objects.BaseListeners;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.Transfer;
 import by.chagarin.androidlesson.objects.User;
 
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
+import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
+import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
+import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
+
 
 /**
  * фрагмент для отображения полу круглой диаграммы с данными о расположеннии денежных средств
  */
 @EFragment(R.layout.fragment_statistics)
-public class CashStatisticsFragment extends Fragment implements BaseListeners {
-    private List<Category> listCategory;
+public class CashStatisticsFragment extends Fragment {
     private Dialog question_dialog;
     private Map<Category, Float> categoryFloatMap;
 
-    @Bean
-    Base base;
 
     @ViewById
     PieChart pieChart;
@@ -71,18 +71,40 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
     @AfterViews
     public void ready() {
         getActivity().setTitle("Где же Ваши денежки?");
-        base.addListener(this);
-        createPieChart();
-        //берём необходимые листы данных
+        //згружаем данные
+        loader.mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //загружаем все акшны
+                final List<Transaction> transactionList = new ArrayList<>();
+                final List<Proceed> proceedList = new ArrayList<>();
+                final List<Transfer> transferList = new ArrayList<>();
+                final List<Category> categoryList = new ArrayList<>();
+
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+                    transactionList.add(areaSnapshot.getValue(Transaction.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+                    proceedList.add(areaSnapshot.getValue(Proceed.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
+                    transferList.add(areaSnapshot.getValue(Transfer.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
+                    categoryList.add(areaSnapshot.getValue(Category.class));
+                }
+                createPierChart(categoryList, transactionList, proceedList, transferList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    private void createPieChart() {
-//        listCategory = loader.getCategores();
-//        List<Transaction> listTransactions = loader.getTransactions();
-//        List<Transfer> listTransfer = loader.getTransfers();
-//        List<Proceed> listProceedes = loader.getProceedes();
-        //получаем значения для отображения
-        //categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
+    private void createPierChart(List<Category> listCategory, List<Transaction> listTransactions, List<Proceed> listProceedes, List<Transfer> listTransfer) {
+        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
         final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
@@ -119,7 +141,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
             public void onValueSelected(Entry e, Highlight h) {
                 int entryIndex = set.getEntryIndex(e);
                 PieEntry pieEntry = pieEntries.get(entryIndex);
-                startAlertDialog(pieEntry);
+                //startAlertDialog(pieEntry);
             }
 
             @Override
@@ -187,32 +209,32 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
         //в мап по категориям добавляем поступления
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Proceed proceed : proceedList) {
-                //if (proceed.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
-                //    float value = mapEntry.getValue() + Float.parseFloat(proceed.getPrice());
-                //    mapEntry.setValue(value);
-                //}
+                if (proceed.categoryPlaceKey.equals(mapEntry.getKey().key)) {
+                    float value = mapEntry.getValue() + Float.parseFloat(proceed.price);
+                    mapEntry.setValue(value);
+                }
             }
         }
         //в мап по категорям отнимаеи транзакции
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Transaction transaction : transactionList) {
-                //if (transaction.getCategoryPlace().name.equals(mapEntry.getKey().name)) {
-                //    float value = mapEntry.getValue() - Float.parseFloat(transaction.getPrice());
-                //    mapEntry.setValue(value);
-                //}
+                if (transaction.categoryPlaceKey.equals(mapEntry.getKey().key)) {
+                    float value = mapEntry.getValue() - Float.parseFloat(transaction.price);
+                    mapEntry.setValue(value);
+                }
             }
         }
 
         for (Map.Entry<Category, Float> mapEntry : resultList.entrySet()) {
             for (Transfer transfer : listTransfer) {
-                //if (transfer.getCategoryPlaceFrom().name.equals(mapEntry.getKey().name)) {
-                //    float value = mapEntry.getValue() - Float.parseFloat(transfer.getPrice());
-                //    mapEntry.setValue(value);
-                //}
-                //if (transfer.getCategoryPlaceTo().name.equals(mapEntry.getKey().name)) {
-                //    float value = mapEntry.getValue() + Float.parseFloat(transfer.getPrice());
-                //    mapEntry.setValue(value);
-                //}
+                if (transfer.categoryPlaceFromKey.equals(mapEntry.getKey().key)) {
+                    float value = mapEntry.getValue() - Float.parseFloat(transfer.price);
+                    mapEntry.setValue(value);
+                }
+                if (transfer.categoryPlaceToKey.equals(mapEntry.getKey().name)) {
+                    float value = mapEntry.getValue() + Float.parseFloat(transfer.price);
+                    mapEntry.setValue(value);
+                }
             }
         }
 
@@ -239,16 +261,6 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
         return false;
     }
 
-    @Override
-    public void doEvent() {
-        createPieChart();
-    }
-
-    @Override
-    public void removeElement() {
-        createPieChart();
-    }
-
     private class ButtonClickListener implements View.OnClickListener {
         private boolean flag;
         private PieEntry pieEntry;
@@ -264,7 +276,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
 
         @Override
         public void onClick(View v) {
-            arrayOfCategory = getArrayOfCategory();
+            //arrayOfCategory = getArrayOfCategory();
             final Dialog dialog = new Dialog(getActivity());
             dialog.setContentView(R.layout.dialog_transfer);
             final EditText et = (EditText) dialog.findViewById(R.id.edit_text);
@@ -338,7 +350,7 @@ public class CashStatisticsFragment extends Fragment implements BaseListeners {
          *
          * @return лист категорий
          */
-        private List<Category> getArrayOfCategory() {
+        private List<Category> getArrayOfCategory(List<Category> listCategory) {
             List<Category> list = new ArrayList<>();
             for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
                 if (!TextUtils.equals(category.name, pieEntry.getLabel())) {

@@ -12,7 +12,7 @@ import by.chagarin.androidlesson.objects.Category;
 
 public class CategoryViewHolder extends RecyclerView.ViewHolder {
 
-    CardView cardView;
+    public CardView cardView;
     TextView title;
     View selectedProceed;
     View selectedPlace;

@@ -33,9 +33,10 @@ public class Proceed {
         result.put("price", price);
         result.put("date", date);
         result.put("comment", comment);
-        result.put("categoryProceed", categoryProceedesKey);
-        result.put("categoryPlace", categoryPlaceKey);
+        result.put("categoryProceedesKey", categoryProceedesKey);
+        result.put("categoryPlaceKey", categoryPlaceKey);
         result.put("userKey", userKey);
+        result.put("key", key);
         return result;
     }
 

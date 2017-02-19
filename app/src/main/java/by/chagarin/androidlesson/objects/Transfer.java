@@ -29,14 +29,16 @@ public class Transfer {
 
     public Transfer() {
     }
+
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("title", title);
         result.put("price", price);
         result.put("date", date);
-        result.put("categoryFrom", categoryPlaceFromKey);
-        result.put("categoryTo", categoryPlaceToKey);
+        result.put("categoryPlaceFromKey", categoryPlaceFromKey);
+        result.put("categoryPlaceToKey", categoryPlaceToKey);
         result.put("userKey", userKey);
+        result.put("key", key);
         return result;
     }
 
