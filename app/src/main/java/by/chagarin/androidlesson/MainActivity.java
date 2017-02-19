@@ -3,20 +3,34 @@ package by.chagarin.androidlesson;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mikepenz.crossfader.Crossfader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.MiniDrawer;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.view.BezelImageView;
+import com.mikepenz.materialize.util.UIUtils;
+import com.squareup.picasso.Picasso;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
@@ -42,6 +56,9 @@ public class MainActivity extends ActionBarActivity {
 
     @Bean
     SessionManager sessionManager;
+    private AccountHeader headerResult;
+    private MiniDrawer miniResult;
+    private Crossfader crossFader;
 
     //регистрируем ресивер для приёма сообщений от Локал Бродкаст манагера из сессион манагера
     @Receiver(actions = {SessionManager.SESSION_OPEN_BROADCAST})
@@ -56,11 +73,13 @@ public class MainActivity extends ActionBarActivity {
         sessionManager.login();
     }
 
-    @AfterViews
-    void afterCreate() {
-        if (!loader.isWorkc) {
-//            loader.loadData();
-        }
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
@@ -68,30 +87,36 @@ public class MainActivity extends ActionBarActivity {
             startActivity(new Intent(this, SignInActivity_.class));
             finish();
             return;
-        } else {
-            mFirebaseUser.getDisplayName();
-            if (mFirebaseUser.getPhotoUrl() != null) {
-                String s = mFirebaseUser.getPhotoUrl().toString();
-            }
         }
+
+        final IProfile profile = new ProfileDrawerItem().withName(mFirebaseUser.getDisplayName());
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withCompactStyle(true)
+                .withTranslucentStatusBar(true)
+                .withSelectionListEnabledForSingleProfile(false)
+                .withHeaderBackground(R.drawable.drawer_header)
+                .withHeightPx(UIUtils.getActionBarHeight(this))
+                .withAccountHeader(R.layout.material_drawer_compact_persistent_header)
+                .withTextColor(Color.BLACK)
+                .withSavedInstance(savedInstanceState)
+                .addProfiles(profile)
+                .build();
+        BezelImageView imageView = (BezelImageView) headerResult.getView().findViewById(R.id.material_drawer_account_header_current);
+        Picasso.with(this).load(mFirebaseUser.getPhotoUrl()).into(imageView);
 
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
 
-        String login = "Chagarin_Ivan";
-        String token = "213asdas32d1as5f4f4g3sg4f6s4ggd";
-        sessionManager.createAccount(login, token);
 
 
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer = new DrawerBuilder()
                 .withActivity(this)
-                .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .withHeader(R.layout.drawer_header)
+                .withTranslucentStatusBar(true)
+                .withAccountHeader(headerResult)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
                         new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
@@ -99,6 +124,7 @@ public class MainActivity extends ActionBarActivity {
                         new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart),
                         new PrimaryDrawerItem().withName(R.string.chat).withIcon(FontAwesome.Icon.faw_chain_broken)
                 )
+                .withGenerateMiniDrawer(true)
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -117,8 +143,53 @@ public class MainActivity extends ActionBarActivity {
 
                     }
                 })
+                .withSavedInstance(savedInstanceState)
                 .build();
+
+        miniResult = drawer.getMiniDrawer().withIncludeSecondaryDrawerItems(true);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(false);
+
+
+        //get the widths in px for the first and second panel
+        int firstWidth = (int) com.mikepenz.crossfader.util.UIUtils.convertDpToPixel(300, this);
+        int secondWidth = (int) com.mikepenz.crossfader.util.UIUtils.convertDpToPixel(72, this);
+
+        //create and build our crossfader (see the MiniDrawer is also builded in here, as the build method returns the view to be used in the crossfader)
+        crossFader = new Crossfader();
+        crossFader
+                .withContent(findViewById(R.id.crossfade_content))
+                .withFirst(drawer.getSlider(), firstWidth)
+                .withSecond(miniResult.build(this), secondWidth)
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        //define the crossfader to be used with the miniDrawer. This is required to be able to automatically toggle open / close
+        miniResult.withCrossFader(new CrossfadeWrapper(crossFader));
+
+        //define and create the arrow ;)
+        ImageView toggle = (ImageView) headerResult.getView().findViewById(R.id.material_drawer_account_header_toggle);
+        //for RTL you would have to define the other arrow
+        toggle.setImageDrawable(new IconicsDrawable(this, GoogleMaterial.Icon.gmd_chevron_left).sizeDp(16).color(Color.BLACK));
+        toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                crossFader.crossFade();
+            }
+        });
         setFragment(0, R.string.transactions, TransactionsFragment_.builder().build());
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //add the values which need to be saved from the drawer to the bundle
+        outState = drawer.saveInstanceState(outState);
+        //add the values which need to be saved from the accountHeader to the bundle
+        outState = headerResult.saveInstanceState(outState);
+        //add the values which need to be saved from the crossFader to the bundle
+        outState = crossFader.saveInstanceState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
