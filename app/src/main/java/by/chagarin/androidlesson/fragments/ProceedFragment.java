@@ -318,6 +318,10 @@ public class ProceedFragment extends Fragment {
                 .onPositive(singleButtonCallback)
                 .build();
         //устанавливаем в поля значения из редактируемой транзакции
+        TextView textView = (TextView) newDialog.getCustomView().findViewById(R.id.category_first);
+        textView.setText(R.string.category_proceed);
+        TextView textView2 = (TextView) newDialog.getCustomView().findViewById(R.id.category_second);
+        textView2.setText(R.string.category_place);
         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);
@@ -362,7 +366,7 @@ public class ProceedFragment extends Fragment {
                     categoryName.key = areaSnapshot.getKey();
                     categoryNames.add(categoryName);
                 }
-                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getTransaction());
+                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed());
                 listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace());
                 adapterProceedes = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
                 adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));

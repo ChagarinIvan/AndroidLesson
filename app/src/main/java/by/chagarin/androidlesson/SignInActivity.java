@@ -135,7 +135,7 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     private void start() {
-        startActivity(new Intent(getApplicationContext(), MainActivity_.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
         finish();
     }
 
