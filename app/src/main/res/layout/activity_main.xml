@@ -1,5 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Container">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
 
     <LinearLayout
         android:id="@+id/crossfade_content"
@@ -7,8 +11,22 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/toolbar" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:paddingTop="@dimen/tool_bar_top_padding">
 
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                tools:ignore="UnusedAttribute" />
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -16,13 +34,5 @@
             android:id="@+id/content_frame"
             android:background="@color/background" />
 
-        <ListView
-            android:layout_width="@dimen/drawer_list_width"
-            android:layout_height="match_parent"
-            android:id="@+id/left_drawer"
-            android:layout_gravity="start"
-            android:choiceMode="singleChoice"
-            android:background="@color/background"
-            android:divider="@android:color/transparent" />
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

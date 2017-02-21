@@ -84,7 +84,6 @@ public class ProceedFragment extends Fragment {
     private List<Category> listCategoriesPlaces;
     private Proceed proceed;
     private TextView dateText;
-    private DatePickerDialog dpd;
     private ArrayAdapter<String> adapterProceedes;
     private ArrayAdapter<String> adapterPlaces;
     private Spinner spinnerProceed;
@@ -295,7 +294,7 @@ public class ProceedFragment extends Fragment {
             } catch (ParseException ignored) {
             }
         }
-        dpd = DatePickerDialog.newInstance(new ProceedFragment.DatePicker(),
+        DatePickerDialog dpd = DatePickerDialog.newInstance(new DatePicker(),
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)

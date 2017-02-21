@@ -90,7 +90,6 @@ public class TransactionsFragment extends Fragment {
     private Spinner spinnerPlace;
     private ArrayAdapter<String> adapterTransaction;
     private ArrayAdapter<String> adapterPlaces;
-    private DatePickerDialog dpd;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -424,7 +423,7 @@ public class TransactionsFragment extends Fragment {
             } catch (ParseException ignored) {
             }
         }
-        dpd = DatePickerDialog.newInstance(new DatePicker(),
+        DatePickerDialog dpd = DatePickerDialog.newInstance(new DatePicker(),
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)

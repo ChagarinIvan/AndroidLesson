@@ -3,17 +3,18 @@ package by.chagarin.androidlesson.fragments;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Display;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -33,6 +34,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +131,7 @@ public class CashStatisticsFragment extends Fragment {
         legend.setTextSize(20f);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
         //настройка описания
-        pieChart.setCenterText(calcSumm());
+        calcSumm(pieChart);
         pieChart.setCenterTextColor(Color.BLACK);
         pieChart.setCenterTextSize(24f);
         //убираем ценральный круг
@@ -141,7 +143,7 @@ public class CashStatisticsFragment extends Fragment {
             public void onValueSelected(Entry e, Highlight h) {
                 int entryIndex = set.getEntryIndex(e);
                 PieEntry pieEntry = pieEntries.get(entryIndex);
-                //startAlertDialog(pieEntry);
+                startAlertDialog(pieEntry);
             }
 
             @Override
@@ -157,25 +159,21 @@ public class CashStatisticsFragment extends Fragment {
      * метод запускает диалог перевода денег с одного метса на дрцгое
      */
     private void startAlertDialog(PieEntry pieEntry) {
-        question_dialog = new Dialog(getActivity());
-        question_dialog.setContentView(R.layout.dialog_transfer_question);
-        TextView textView = (TextView) question_dialog.findViewById(R.id.title);
-        Button toButton = (Button) question_dialog.findViewById(R.id.transfer_to);
-        Button fromButton = (Button) question_dialog.findViewById(R.id.transfer_from);
-        toButton.setOnClickListener(new ButtonClickListener(true, pieEntry));
-        fromButton.setOnClickListener(new ButtonClickListener(false, pieEntry));
-
-        textView.setText(pieEntry.getLabel());
-        //noinspection ConstantConditions
-        question_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        question_dialog.show();
+        new MaterialDialog.Builder(getActivity())
+                .title(R.string.transfer)
+                .content(R.string.dialog_transfer_question)
+                .positiveText(R.string.transfer_to)
+                .negativeText(R.string.transfer_from)
+                .onPositive(new ButtonClickListener(true, pieEntry))
+                .onNegative(new ButtonClickListener(false, pieEntry))
+                .show();
     }
 
     private void moveOffScreen() {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         @SuppressWarnings("deprecation") int height = display.getHeight();  // deprecated
 
-        int offset = (int) (height * 0.75); /* percent to move */
+        int offset = (int) (height * 0.65); /* percent to move */
 
         RelativeLayout.LayoutParams rlParams =
                 (RelativeLayout.LayoutParams) pieChart.getLayoutParams();
@@ -183,8 +181,8 @@ public class CashStatisticsFragment extends Fragment {
         pieChart.setLayoutParams(rlParams);
     }
 
-    private String calcSumm() {
-        return "Общий баланс " /*loader.getCashCount()*/;
+    private void calcSumm(PieChart pieChart) {
+        loader.calcAndSetCash(pieChart);
     }
 
     //метод будет возвращать лист рандомных цвето нужного размера
@@ -231,7 +229,7 @@ public class CashStatisticsFragment extends Fragment {
                     float value = mapEntry.getValue() - Float.parseFloat(transfer.price);
                     mapEntry.setValue(value);
                 }
-                if (transfer.categoryPlaceToKey.equals(mapEntry.getKey().name)) {
+                if (transfer.categoryPlaceToKey.equals(mapEntry.getKey().key)) {
                     float value = mapEntry.getValue() + Float.parseFloat(transfer.price);
                     mapEntry.setValue(value);
                 }
@@ -252,7 +250,7 @@ public class CashStatisticsFragment extends Fragment {
     //метод проверяет хватает ли на выбранном балансе средств
     private boolean checkCash(Category from, String cost) {
         for (Map.Entry<Category, Float> mapEntry : categoryFloatMap.entrySet()) {
-            if (mapEntry.getKey() == from) {
+            if (mapEntry.getKey().equals(from)) {
                 if (mapEntry.getValue() > Float.parseFloat(cost)) {
                     return true;
                 }
@@ -261,7 +259,7 @@ public class CashStatisticsFragment extends Fragment {
         return false;
     }
 
-    private class ButtonClickListener implements View.OnClickListener {
+    private class ButtonClickListener implements MaterialDialog.SingleButtonCallback {
         private boolean flag;
         private PieEntry pieEntry;
         private Category from;
@@ -272,77 +270,6 @@ public class CashStatisticsFragment extends Fragment {
         public ButtonClickListener(boolean b, PieEntry pieEntry) {
             this.flag = b;
             this.pieEntry = pieEntry;
-        }
-
-        @Override
-        public void onClick(View v) {
-            //arrayOfCategory = getArrayOfCategory();
-            final Dialog dialog = new Dialog(getActivity());
-            dialog.setContentView(R.layout.dialog_transfer);
-            final EditText et = (EditText) dialog.findViewById(R.id.edit_text);
-            Button ok = (Button) dialog.findViewById(R.id.ok_button);
-            Button cancel = (Button) dialog.findViewById(R.id.cancel_button);
-            TextView tv = (TextView) dialog.findViewById(R.id.transfer_to_or_from);
-            if (flag) {
-                //to = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
-                tv.setText(getString(R.string.to));
-            } else {
-                //from = KindOfCategories.findCategory(loader.getCategores(), pieEntry.getLabel());
-                tv.setText(getString(R.string.from));
-            }
-            final Spinner spinner = (Spinner) dialog.findViewById(R.id.transfer_spinner);
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, KindOfCategories.getStringArray(arrayOfCategory));
-            spinner.setAdapter(adapter);
-            ok.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final String cost = String.valueOf(et.getText());
-                    if (flag) {
-                        from = arrayOfCategory.get(spinner.getSelectedItemPosition());
-                    } else {
-                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
-                    }
-                    if (checkCash(from, cost)) {
-                        final String userId = loader.getUid();
-                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
-                                new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        // Get user value
-                                        User user = dataSnapshot.getValue(User.class);
-
-                                        // [START_EXCLUDE]
-                                        if (user == null) {
-                                            // User is null, error out
-                                            Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            // Write new post
-                                            //writeNewTransfer(userId, user.userKey, cost, from, to);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                    }
-                                });
-                        dialog.dismiss();
-                        question_dialog.dismiss();
-                    } else {
-                        Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-            cancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    question_dialog.dismiss();
-                }
-            });
-            //noinspection ConstantConditions
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
         }
 
         /**
@@ -358,6 +285,104 @@ public class CashStatisticsFragment extends Fragment {
                 }
             }
             return list;
+        }
+
+        @Override
+        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            loader.mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                public EditText et;
+                public ArrayAdapter<String> adapter;
+                public Spinner spinner;
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //загружаем категории
+                    final List<Category> categoryList = new ArrayList<>();
+
+                    for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
+                        categoryList.add(areaSnapshot.getValue(Category.class));
+                    }
+                    arrayOfCategory = getArrayOfCategory(categoryList);
+                    MaterialDialog newDialog = new MaterialDialog.Builder(getActivity())
+                            .title(R.string.transfer_title)
+                            .customView(R.layout.dialog_transfer, true)
+                            .positiveText(R.string.save)
+                            .negativeText(R.string.dont_save)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    final String cost = String.valueOf(et.getText());
+                                    if (flag) {
+                                        from = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                                    } else {
+                                        to = arrayOfCategory.get(spinner.getSelectedItemPosition());
+                                    }
+                                    if (checkCash(from, cost)) {
+                                        final String userId = loader.getUid();
+                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                                new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        // Get user value
+                                                        User user = dataSnapshot.getValue(User.class);
+
+                                                        // [START_EXCLUDE]
+                                                        if (user == null) {
+                                                            // User is null, error out
+                                                            Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            // Write new post
+                                                            String key = loader.mDatabase.child(TRANSFERS).push().getKey();
+                                                            loader.writeNewTransfer(new Transfer(
+                                                                    cost,
+                                                                    DataLoader.df.format(new Date()),
+                                                                    from.key,
+                                                                    to.key,
+                                                                    userId,
+                                                                    key));
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+                                        dialog.dismiss();
+                                    } else {
+                                        Toast.makeText(getActivity(), getString(R.string.warning_no_cash), Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            })
+                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    dialog.dismiss();
+                                }
+                            }).build();
+
+
+                    TextView tv = (TextView) newDialog.getCustomView().findViewById(R.id.transfer_to_or_from);
+                    et = (EditText) newDialog.getCustomView().findViewById(R.id.price);
+                    if (flag) {
+                        to = KindOfCategories.findCategory(categoryList, pieEntry.getLabel());
+                        tv.setText(getString(R.string.to));
+                    } else {
+                        from = KindOfCategories.findCategory(categoryList, pieEntry.getLabel());
+                        tv.setText(getString(R.string.from));
+                    }
+                    spinner = (Spinner) newDialog.getCustomView().findViewById(R.id.transfer_spinner);
+                    adapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, KindOfCategories.getStringArray(arrayOfCategory));
+                    spinner.setAdapter(adapter);
+                    newDialog.show();
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 }

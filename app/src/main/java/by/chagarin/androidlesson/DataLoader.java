@@ -3,6 +3,7 @@ package by.chagarin.androidlesson;
 
 import android.view.MenuItem;
 
+import com.github.mikephil.charting.charts.PieChart;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,6 +25,7 @@ import java.util.Map;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
+import by.chagarin.androidlesson.objects.Transfer;
 import by.chagarin.androidlesson.objects.User;
 
 @EBean(scope = EBean.Scope.Singleton)
@@ -76,13 +78,35 @@ public class DataLoader {
         mDatabase.updateChildren(childUpdates);
     }
 
-    private void writeNewTransfer(String userId, String author, String cost, Category from, Category to) {
-        //Transfer transfer = new Transfer(cost, df.format(new Date()), from, to, userId, author);
-        String key = mDatabase.child(TRANSFERS).push().getKey();
-        //Map<String, Object> postValues = transfer.toMap();
+    public void writeNewTransfer(Transfer transfer) {
+        Map<String, Object> postValues = transfer.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        //childUpdates.put("/" + TRANSFERS + "/" + key, postValues);
+        childUpdates.put("/" + TRANSFERS + "/" + transfer.key, postValues);
         mDatabase.updateChildren(childUpdates);
+    }
+
+    public void calcAndSetCash(final PieChart cash) {
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final List<Transaction> transactionList = new ArrayList<>();
+                final List<Proceed> proceedList = new ArrayList<>();
+
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+                    transactionList.add(areaSnapshot.getValue(Transaction.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+                    proceedList.add(areaSnapshot.getValue(Proceed.class));
+                }
+                float cashCount = calcCashCount(transactionList, proceedList);
+                cash.setCenterText(String.format("%.2f  BYN", cashCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void calcAndSetCash(final MenuItem cash) {
