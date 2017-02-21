@@ -136,6 +136,7 @@ public class CategoresFragment extends Fragment {
                                                                             } else {
                                                                                 isShow = "yes";
                                                                             }
+                                                                            //noinspection ConstantConditions
                                                                             Category category = new Category(dialoge.getInputEditText().getText().toString(),
                                                                                     model.kind,
                                                                                     userId,
@@ -305,11 +306,11 @@ public class CategoresFragment extends Fragment {
      * инициируем всплывающий диалог
      */
     private void alertDialog() {
-        MaterialDialog newDialog = new MaterialDialog.Builder(getActivity())
+        new MaterialDialog.Builder(getActivity())
                 .title(R.string.add_categores)
                 .positiveText(R.string.ok_button)
                 .content(R.string.chose_content)
-                .items(KindOfCategories.getKinds())
+                .items((CharSequence[]) KindOfCategories.getKinds())
                 .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
@@ -320,7 +321,7 @@ public class CategoresFragment extends Fragment {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        MaterialDialog titleDialog = new MaterialDialog.Builder(getActivity())
+                        new MaterialDialog.Builder(getActivity())
                                 .title(R.string.add_categores)
                                 .positiveText(R.string.save)
                                 .content(R.string.input_content)
@@ -374,6 +375,7 @@ public class CategoresFragment extends Fragment {
                                                             } else {
                                                                 isShow = "yes";
                                                             }
+                                                            //noinspection ConstantConditions
                                                             Category category = new Category(dialog.getInputEditText().getText().toString(),
                                                                     KindOfCategories.getKinds()[kind],
                                                                     userId,

@@ -319,6 +319,7 @@ public class TransactionsFragment extends Fragment {
                 .onPositive(singleButtonCallback).build();
         //устанавливаем в поля значения из редактируемой транзакции
 
+        //noinspection ConstantConditions
         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);

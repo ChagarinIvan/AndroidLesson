@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //
-    public void setFragment(int position, int title, Fragment fragment) {
+    public void setFragment(int title, Fragment fragment) {
         result.closeDrawer();
         setTitle(getString(title));
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -77,39 +77,35 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 1:
                     result.setSelection(1);
-                    setFragment(position, R.string.transactions, TransactionsFragment_.builder().build());
+                    setFragment(R.string.transactions, TransactionsFragment_.builder().build());
                     return true;
                 case 2:
                     result.setSelection(2);
-                    setFragment(position, R.string.add, ProceedFragment_.builder().build());
+                    setFragment(R.string.add, ProceedFragment_.builder().build());
                     return true;
                 case 3:
                     result.setSelection(3);
-                    setFragment(position, R.string.categores, CategoresFragment_.builder().build());
+                    setFragment(R.string.categores, CategoresFragment_.builder().build());
                     return true;
                 case 4:
                     result.setSelection(4);
-                    setFragment(position, R.string.statistics, StatisticsFragment_.builder().build());
+                    setFragment(R.string.statistics, StatisticsFragment_.builder().build());
                     return true;
                 case 5:
                     result.setSelection(4);
-                    setFragment(position, R.string.chat, Chat_.builder().build());
+                    setFragment(R.string.chat, Chat_.builder().build());
                     return true;
             }
             return false;
         }
     }
 
-    private static final int PROFILE_SETTING = 1;
-
     //save our header or result
     private AccountHeader headerResult = null;
     private Drawer result = null;
-    private MiniDrawer miniResult = null;
     private Crossfader crossFader;
 
 
-    private Bundle savedInstanceState;
     private Target target = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -175,9 +171,10 @@ public class MainActivity extends AppCompatActivity {
                     .buildView();
 
             // create the MiniDrawer and define the drawer and header to be used (it will automatically use the items from them)
-            miniResult = result.getMiniDrawer().withIncludeSecondaryDrawerItems(true);
+            MiniDrawer miniResult = result.getMiniDrawer().withIncludeSecondaryDrawerItems(true);
 
             //set the back arrow in the toolbar
+            //noinspection ConstantConditions
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(false);
 
@@ -205,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                     crossFader.crossFade();
                 }
             });
-            setFragment(0, R.string.transactions, TransactionsFragment_.builder().build());
+            setFragment(R.string.transactions, TransactionsFragment_.builder().build());
         }
 
         @Override
@@ -230,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         activity = this;
-        this.savedInstanceState = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
 

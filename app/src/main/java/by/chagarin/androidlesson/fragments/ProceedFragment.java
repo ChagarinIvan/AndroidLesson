@@ -24,7 +24,6 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
@@ -92,7 +91,6 @@ public class ProceedFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
         // Set up Layout Manager, reverse layout
@@ -126,8 +124,6 @@ public class ProceedFragment extends Fragment {
                                 }
                                 listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed(), true);
                                 listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
-                                final ArrayAdapter<String> adapterProceed = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
-                                final ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
 
                                 new MaterialDialog.Builder(getActivity())
                                         .title(R.string.dialog_title)
@@ -317,6 +313,7 @@ public class ProceedFragment extends Fragment {
                 .onPositive(singleButtonCallback)
                 .build();
         //устанавливаем в поля значения из редактируемой транзакции
+        //noinspection ConstantConditions
         TextView textView = (TextView) newDialog.getCustomView().findViewById(R.id.category_first);
         textView.setText(R.string.category_proceed);
         TextView textView2 = (TextView) newDialog.getCustomView().findViewById(R.id.category_second);

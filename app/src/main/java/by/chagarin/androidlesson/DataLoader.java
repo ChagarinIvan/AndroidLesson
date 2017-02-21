@@ -38,7 +38,6 @@ public class DataLoader {
     public static final String TRANSFERS = ACTIONS + "/transfers";
     public static final String USERS = "users";
     public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-    public boolean isWorkc = false;
 
     public void writeNewUser(User person) {
         Map<String, Object> postValues = person.toMap();
@@ -99,7 +98,7 @@ public class DataLoader {
                     proceedList.add(areaSnapshot.getValue(Proceed.class));
                 }
                 float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setCenterText(String.format("Общий баланс %.2f BYN", cashCount));
+                cash.setCenterText(String.format(Locale.ENGLISH, "Общий баланс %.2f BYN", cashCount));
             }
 
             @Override
@@ -123,7 +122,7 @@ public class DataLoader {
                     proceedList.add(areaSnapshot.getValue(Proceed.class));
                 }
                 float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setTitle(String.format("%.2f", cashCount));
+                cash.setTitle(String.format(Locale.ENGLISH, "%.2f", cashCount));
             }
 
             @Override
