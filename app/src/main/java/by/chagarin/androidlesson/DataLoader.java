@@ -99,7 +99,7 @@ public class DataLoader {
                     proceedList.add(areaSnapshot.getValue(Proceed.class));
                 }
                 float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setCenterText(String.format("%.2f  BYN", cashCount));
+                cash.setCenterText(String.format("Общий баланс %.2f BYN", cashCount));
             }
 
             @Override
@@ -123,7 +123,7 @@ public class DataLoader {
                     proceedList.add(areaSnapshot.getValue(Proceed.class));
                 }
                 float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setTitle(String.format("%.2f  BYN", cashCount));
+                cash.setTitle(String.format("%.2f", cashCount));
             }
 
             @Override

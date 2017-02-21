@@ -1,14 +1,15 @@
 package by.chagarin.androidlesson.fragments;
 
-import android.app.Dialog;
 import android.app.Fragment;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,12 +61,14 @@ import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
  */
 @EFragment(R.layout.fragment_statistics)
 public class CashStatisticsFragment extends Fragment {
-    private Dialog question_dialog;
     private Map<Category, Float> categoryFloatMap;
 
 
     @ViewById
     PieChart pieChart;
+
+    @ViewById
+    CheckBox isShow;
 
     @Bean
     DataLoader loader;
@@ -73,6 +76,17 @@ public class CashStatisticsFragment extends Fragment {
     @AfterViews
     public void ready() {
         getActivity().setTitle("Где же Ваши денежки?");
+        isShow.setChecked(true);
+        isShow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startLoad();
+            }
+        });
+        startLoad();
+    }
+
+    private void startLoad() {
         //згружаем данные
         loader.mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -106,7 +120,7 @@ public class CashStatisticsFragment extends Fragment {
     }
 
     private void createPierChart(List<Category> listCategory, List<Transaction> listTransactions, List<Proceed> listProceedes, List<Transfer> listTransfer) {
-        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer);
+        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer, isShow.isChecked());
         final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
@@ -173,10 +187,10 @@ public class CashStatisticsFragment extends Fragment {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         @SuppressWarnings("deprecation") int height = display.getHeight();  // deprecated
 
-        int offset = (int) (height * 0.65); /* percent to move */
+        int offset = (int) (height * 0.30); /* percent to move */
 
-        RelativeLayout.LayoutParams rlParams =
-                (RelativeLayout.LayoutParams) pieChart.getLayoutParams();
+        LinearLayout.LayoutParams rlParams =
+                (LinearLayout.LayoutParams) pieChart.getLayoutParams();
         rlParams.setMargins(0, 0, 0, -offset);
         pieChart.setLayoutParams(rlParams);
     }
@@ -196,11 +210,11 @@ public class CashStatisticsFragment extends Fragment {
     }
 
 
-    private Map<Category, Float> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> listTransfer) {
+    private Map<Category, Float> sortData(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> listTransfer, boolean enabled) {
         //создаем мап где для каждой категории указано сколько товаров куплено
         Map<Category, Float> resultList = new HashMap<>();
         //определяем для какие есть категории мест хранения денег
-        List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace());
+        List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace(), enabled);
         for (Category category : data) {
             resultList.put(category, 0f);
         }
@@ -279,7 +293,7 @@ public class CashStatisticsFragment extends Fragment {
          */
         private List<Category> getArrayOfCategory(List<Category> listCategory) {
             List<Category> list = new ArrayList<>();
-            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace())) {
+            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace(), true)) {
                 if (!TextUtils.equals(category.name, pieEntry.getLabel())) {
                     list.add(category);
                 }

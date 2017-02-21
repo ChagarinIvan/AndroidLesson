@@ -286,8 +286,8 @@ public class TransactionsFragment extends Fragment {
                     categoryName.key = areaSnapshot.getKey();
                     categoryNames.add(categoryName);
                 }
-                listCategoriesTransactions = KindOfCategories.sortData(categoryNames, KindOfCategories.getTransaction());
-                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace());
+                listCategoriesTransactions = KindOfCategories.sortData(categoryNames, KindOfCategories.getTransaction(), true);
+                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
                 adapterTransaction = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
                 adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
                 try {

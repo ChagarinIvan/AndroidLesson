@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -62,6 +63,7 @@ public class CategoresFragment extends Fragment {
 
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
     public int kind;
+    private boolean isCheck;
 
     @AfterViews
     void afterView() {
@@ -103,6 +105,12 @@ public class CategoresFragment extends Fragment {
 
                                                     }
                                                 })
+                                                .checkBoxPrompt(getString(R.string.copilka), !model.isShow.equals("yes"), new CompoundButton.OnCheckedChangeListener() {
+                                                    @Override
+                                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                                        isCheck = isChecked;
+                                                    }
+                                                })
                                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                                     @Override
                                                     public void onClick(@NonNull final MaterialDialog dialoge, @NonNull DialogAction which) {
@@ -122,10 +130,16 @@ public class CategoresFragment extends Fragment {
                                                                                     Toast.LENGTH_SHORT).show();
                                                                         } else {
                                                                             // Write new postString name, String kind, String author, boolean isShowIt, String key
+                                                                            String isShow;
+                                                                            if (isCheck) {
+                                                                                isShow = "not";
+                                                                            } else {
+                                                                                isShow = "yes";
+                                                                            }
                                                                             Category category = new Category(dialoge.getInputEditText().getText().toString(),
                                                                                     model.kind,
                                                                                     userId,
-                                                                                    "yes",
+                                                                                    isShow,
                                                                                     model.key);
                                                                             loader.writeNewCategory(category);
                                                                         }
@@ -320,6 +334,13 @@ public class CategoresFragment extends Fragment {
 
                                     }
                                 })
+                                .checkBoxPrompt(getString(R.string.copilka), false, new CompoundButton.OnCheckedChangeListener() {
+
+                                    @Override
+                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                        isCheck = isChecked;
+                                    }
+                                })
                                 .negativeText(R.string.dont_save)
                                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                                     @Override
@@ -347,10 +368,16 @@ public class CategoresFragment extends Fragment {
                                                         } else {
                                                             // Write new postString name, String kind, String author, boolean isShowIt, String key
                                                             String key = loader.mDatabase.child(CATEGORIES).push().getKey();
+                                                            String isShow;
+                                                            if (isCheck) {
+                                                                isShow = "not";
+                                                            } else {
+                                                                isShow = "yes";
+                                                            }
                                                             Category category = new Category(dialog.getInputEditText().getText().toString(),
                                                                     KindOfCategories.getKinds()[kind],
                                                                     userId,
-                                                                    "yes",
+                                                                    isShow,
                                                                     key);
                                                             loader.writeNewCategory(category);
                                                         }

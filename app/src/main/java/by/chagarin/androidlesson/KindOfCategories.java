@@ -32,14 +32,24 @@ public class KindOfCategories {
      * метод сортирует данные
      * выбирает из списка категорий только с нужным типом
      */
-    public static List<Category> sortData(List<Category> data, String kind) {
+    public static List<Category> sortData(List<Category> data, String kind, boolean enabled) {
         List<Category> list = new ArrayList<>();
         for (Category cat : data) {
             if (TextUtils.equals(cat.kind, kind)) {
                 list.add(cat);
             }
         }
-        return list;
+        if (enabled) {
+            return list;
+        } else {
+            List<Category> resultList = new ArrayList<>();
+            for (Category category : list) {
+                if (category.isShow.equals("yes")) {
+                    resultList.add(category);
+                }
+            }
+            return resultList;
+        }
     }
 
     /**
@@ -62,25 +72,6 @@ public class KindOfCategories {
         return list;
     }
 
-    public static List<Category> sortDataWithout(List<Category> data, String kind) {
-        List<Category> list = new ArrayList<>();
-        for (Category cat : data) {
-            if (!TextUtils.equals(cat.kind, kind)) {
-                list.add(cat);
-            }
-        }
-        return list;
-    }
-
-    public static String[] getArray(List<Category> categores, String transaction) {
-        List<Category> sortCategories = sortData(categores, transaction);
-        String[] array = new String[sortCategories.size()];
-        int n = 0;
-        for (Category category : sortCategories) {
-            array[n++] = category.name;
-        }
-        return array;
-    }
 
     public static int getPosition(List<Category> listCategoriesTransactions, String categoryKey) {
         int n = 0;

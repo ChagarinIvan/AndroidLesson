@@ -124,8 +124,8 @@ public class ProceedFragment extends Fragment {
                                     categoryName.key = areaSnapshot.getKey();
                                     categoryNames.add(categoryName);
                                 }
-                                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed());
-                                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace());
+                                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed(), true);
+                                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
                                 final ArrayAdapter<String> adapterProceed = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
                                 final ArrayAdapter<String> adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
 
@@ -365,8 +365,8 @@ public class ProceedFragment extends Fragment {
                     categoryName.key = areaSnapshot.getKey();
                     categoryNames.add(categoryName);
                 }
-                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed());
-                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace());
+                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed(), true);
+                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
                 adapterProceedes = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
                 adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
                 try {

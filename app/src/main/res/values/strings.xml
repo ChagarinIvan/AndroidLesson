@@ -89,4 +89,6 @@
     <string name="drawer_item_contact">Contact</string>
     <string name="drawer_item_persistent_compact_header">херня</string>
     <string name="drawer_item_embedded_drawer">Embedded Drawer</string>
+    <string name="isShow">Показывть копилки?</string>
+    <string name="copilka">копилка?</string>
 </resources>
