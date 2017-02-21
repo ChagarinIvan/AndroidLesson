@@ -4,11 +4,10 @@
     <item
         android:id="@+id/cash"
         android:title="cash"
-        app:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_attach_money" />
+        app:showAsAction="always|withText" />
     <item
         android:id="@+id/menu_search"
         android:title="@string/search"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         app:actionViewClass="android.widget.SearchView" />
 </menu>

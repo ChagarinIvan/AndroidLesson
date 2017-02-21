@@ -2,32 +2,38 @@ package by.chagarin.androidlesson.objects;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @IgnoreExtraProperties
 public class User {
-    public String username;
+    public String name;
     public String email;
+    public String photoUrl;
+    public String userKey;
+
+
+    /**
+     * @param name     of user
+     * @param email    of user
+     * @param photoUrl of user
+     * @param userKey  of user
+     */
+    public User(String name, String email, String photoUrl, String userKey) {
+        this.name = name;
+        this.email = email;
+        this.photoUrl = photoUrl;
+        this.userKey = userKey;
+    }
 
     public User() {
     }
 
-    public User(String username, String email) {
-        this.username = username;
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("name", name);
+        result.put("email", email);
+        result.put("photoUrl", photoUrl);
+        return result;
     }
 }

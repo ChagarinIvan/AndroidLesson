@@ -16,7 +16,7 @@ public class TransactionViewHolder extends RecyclerView.ViewHolder {
     private TextView date;
     private TextView comment;
 
-    protected CardView cardView;
+    public CardView cardView;
 
     public TransactionViewHolder(View itemView) {
         super(itemView);
@@ -28,9 +28,9 @@ public class TransactionViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToTransaction(Transaction transaction) {
-        name.setText(transaction.getTitle());
-        sum.setText(transaction.getPrice());
-        date.setText(transaction.getDate());
-        comment.setText(transaction.getComment());
+        name.setText(transaction.title);
+        sum.setText(transaction.price);
+        date.setText(transaction.date);
+        comment.setText(transaction.comment);
     }
 }

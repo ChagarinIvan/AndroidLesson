@@ -1,50 +1,50 @@
 package by.chagarin.androidlesson;
 
 
-import android.text.TextUtils;
+import android.view.MenuItem;
 
+import com.github.mikephil.charting.charts.PieChart;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-import by.chagarin.androidlesson.objects.Base;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.Transfer;
+import by.chagarin.androidlesson.objects.User;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class DataLoader {
+    public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
     public static final String CATEGORIES = "categories";
-    public static final String TRANSACTIONS = "transactions";
-    public static final String PROCEEDS = "proceeds";
-    public static final String TRANSFERS = "transfers";
-    private static List<Transfer> transferList = new ArrayList<>();
-    private static List<Proceed> proceedList = new ArrayList<>();
-    private static List<Transaction> transactionList = new ArrayList<>();
-    private static List<Category> categoryList = new ArrayList<>();
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    public static final String ACTIONS = "actions";
+    public static final String TRANSACTIONS = ACTIONS + "/transactions";
+    public static final String PROCEEDS = ACTIONS + "/proceeds";
+    public static final String TRANSFERS = ACTIONS + "/transfers";
+    public static final String USERS = "users";
+    public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     public boolean isWorkc = false;
 
-    private float cashCount;
-
-    @Bean
-    Base base;
-
-    public String getCashCount() {
-        calcCash();
-        return String.format(Locale.ENGLISH, "%.2f", cashCount) + " BYN";
+    public void writeNewUser(User person) {
+        Map<String, Object> postValues = person.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + USERS + "/" + person.userKey, postValues);
+        mDatabase.updateChildren(childUpdates);
     }
 
     public String getUid() {
@@ -52,255 +52,95 @@ public class DataLoader {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    public void loadData() {
-        isWorkc = true;
-        Query queryRef = getQuery(mDatabase, CATEGORIES);
-        queryRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-                //noinspection unchecked
-                categoryList.add(createCategory(snapshot));
-                base.doSomething();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                removeCategory(createCategory(dataSnapshot));
-                base.removeElementToListeners();
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        Query transactionQuery = getQuery(mDatabase, TRANSACTIONS);
-        transactionQuery.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-                //noinspection unchecked
-                transactionList.add(createTransaction(snapshot));
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                removeTransaction(createTransaction(dataSnapshot));
-                base.removeElementToListeners();
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        final Query proceedQuery = getQuery(mDatabase, PROCEEDS);
-        proceedQuery.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-                //noinspection unchecked
-                proceedList.add(createProceed(snapshot));
-                base.doSomething();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                removeProceed(createProceed(dataSnapshot));
-                base.removeElementToListeners();
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        Query transferQue = getQuery(mDatabase, TRANSFERS);
-        transferQue.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-                //noinspection unchecked
-                transferList.add(createTransfer(snapshot));
-                base.doSomething();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                removeTransfer(createTransfer(dataSnapshot));
-                base.removeElementToListeners();
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void removeTransfer(Transfer transfer) {
-        for (Transfer tf : transferList) {
-            if (tf.equals(transfer)) {
-                transferList.remove(tf);
-            }
-        }
-    }
-
-    private void removeCategory(Category category) {
-        for (Category cat : categoryList) {
-            if (cat.equals(category)) {
-                categoryList.remove(cat);
-            }
-        }
-    }
-
-    private void removeProceed(Proceed proceed) {
-        for (Proceed pr : proceedList) {
-            if (pr.equals(proceed)) {
-                proceedList.remove(pr);
-            }
-        }
-    }
-
-    private void removeTransaction(Transaction transaction) {
-        for (Transaction tr : transactionList) {
-            if (tr.equals(transaction)) {
-                transactionList.remove(tr);
-            }
-        }
-    }
-
-    public DatabaseReference getmDatabase() {
-        return mDatabase;
-    }
-
-    private Proceed createProceed(DataSnapshot snapshot) {
-        String title = (String) snapshot.child("title").getValue();
-        String price = String.valueOf(snapshot.child("price").getValue());
-        Category categoryTransaction = createCategory(snapshot.child("categoryProceed"));
-        Category categoryPlace = createCategory(snapshot.child("categoryPlace"));
-        String date = (String) snapshot.child("date").getValue();
-        String comment = (String) snapshot.child("comment").getValue();
-        String uid = (String) snapshot.child("uid").getValue();
-        String author = (String) snapshot.child("author").getValue();
-        return new Proceed(title, price, date, comment, categoryTransaction, categoryPlace, uid, author);
-    }
-
-    private Transfer createTransfer(DataSnapshot snapshot) {
-        String price = String.valueOf(snapshot.child("price").getValue());
-        Category categoryPlaceFrom = createCategory(snapshot.child("categoryPlaceFrom"));
-        Category categoryPlaceTo = createCategory(snapshot.child("categoryPlaceTo"));
-        String date = (String) snapshot.child("date").getValue();
-        String uid = (String) snapshot.child("uid").getValue();
-        String author = (String) snapshot.child("author").getValue();
-        return new Transfer(price, date, categoryPlaceFrom, categoryPlaceTo, uid, author);
-    }
-
-    private Transaction createTransaction(DataSnapshot snapshot) {
-        String title = (String) snapshot.child("title").getValue();
-        String price = String.valueOf(snapshot.child("price").getValue());
-        Category categoryTransaction = createCategory(snapshot.child("categoryTransaction"));
-        Category categoryPlace = createCategory(snapshot.child("categoryPlace"));
-        String date = (String) snapshot.child("date").getValue();
-        String comment = (String) snapshot.child("comment").getValue();
-        String uid = (String) snapshot.child("uid").getValue();
-        String author = (String) snapshot.child("author").getValue();
-        return new Transaction(title,price,date,comment, categoryTransaction, categoryPlace, uid, author);
-    }
-
-    private Category createCategory(DataSnapshot snapshot) {
-        String name = (String) snapshot.child("name").getValue();
-        String kind = (String) snapshot.child("kind").getValue();
-        String uid = (String) snapshot.child("uid").getValue();
-        String author = (String) snapshot.child("author").getValue();
-        return new Category(name, kind, uid, author);
-    }
-
-    public Query getQuery(DatabaseReference mDatabase, String key) {
+    public Query getQuery(String key) {
         return mDatabase.child(key);
     }
 
-    private void calcCash() {
-        cashCount = 0;
+    public void writeNewTransaction(Transaction createTransction) {
+        Map<String, Object> postValues = createTransction.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + TRANSACTIONS + "/" + createTransction.key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+
+    public void writeNewProceed(Proceed proceed) {
+        Map<String, Object> postValues = proceed.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + PROCEEDS + "/" + proceed.key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void writeNewCategory(Category category) {
+        Map<String, Object> postValues = category.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + CATEGORIES + "/" + category.key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void writeNewTransfer(Transfer transfer) {
+        Map<String, Object> postValues = transfer.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + TRANSFERS + "/" + transfer.key, postValues);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void calcAndSetCash(final PieChart cash) {
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final List<Transaction> transactionList = new ArrayList<>();
+                final List<Proceed> proceedList = new ArrayList<>();
+
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+                    transactionList.add(areaSnapshot.getValue(Transaction.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+                    proceedList.add(areaSnapshot.getValue(Proceed.class));
+                }
+                float cashCount = calcCashCount(transactionList, proceedList);
+                cash.setCenterText(String.format("Общий баланс %.2f BYN", cashCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void calcAndSetCash(final MenuItem cash) {
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final List<Transaction> transactionList = new ArrayList<>();
+                final List<Proceed> proceedList = new ArrayList<>();
+
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+                    transactionList.add(areaSnapshot.getValue(Transaction.class));
+                }
+                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+                    proceedList.add(areaSnapshot.getValue(Proceed.class));
+                }
+                float cashCount = calcCashCount(transactionList, proceedList);
+                cash.setTitle(String.format("%.2f", cashCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private float calcCashCount(List<Transaction> transactionList, List<Proceed> proceedList) {
+        float count = 0;
         for (Proceed proceed : proceedList) {
-            cashCount += Float.valueOf(proceed.getPrice());
+            count += Float.valueOf(proceed.price);
         }
         for (Transaction transaction : transactionList) {
-            cashCount -= Float.valueOf(transaction.getPrice());
+            count -= Float.valueOf(transaction.price);
         }
-    }
-
-    public List<Proceed> getProceedes() {
-        return proceedList;
-    }
-
-    public List<Transaction> getTransactions() {
-        return transactionList;
-    }
-
-    public List<Category> getCategores() {
-        //отдаёт список категорий без системной категории
-        return categoryList;
-    }
-
-    public List<Transfer> getTransfers() {
-        return transferList;
-    }
-
-    public boolean checkCatrgory(int position) {
-        Category cat = categoryList.get(position);
-        for (Transaction tr : transactionList) {
-            if (TextUtils.equals(tr.getCategoryPlace().getName(), cat.getName()) || TextUtils.equals(tr.getCategoryTransaction().getName(), cat.getName())) {
-                return false;
-            }
-        }
-        for (Proceed pr : proceedList) {
-            if (TextUtils.equals(pr.getCategoryPlace().getName(), cat.getName()) || TextUtils.equals(pr.getCategoryProceedes().getName(), cat.getName())) {
-                return false;
-            }
-        }
-        for (Transfer tf : transferList) {
-            if (TextUtils.equals(tf.getCategoryPlaceFrom().getName(), cat.getName()) || TextUtils.equals(tf.getCategoryPlaceTo().getName(), cat.getName())) {
-                return false;
-            }
-        }
-        return true;
+        return count;
     }
 }

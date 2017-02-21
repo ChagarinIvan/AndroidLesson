@@ -32,14 +32,24 @@ public class KindOfCategories {
      * метод сортирует данные
      * выбирает из списка категорий только с нужным типом
      */
-    public static List<Category> sortData(List<Category> data, String kind) {
+    public static List<Category> sortData(List<Category> data, String kind, boolean enabled) {
         List<Category> list = new ArrayList<>();
         for (Category cat : data) {
-            if (TextUtils.equals(cat.getKind(), kind)) {
+            if (TextUtils.equals(cat.kind, kind)) {
                 list.add(cat);
             }
         }
-        return list;
+        if (enabled) {
+            return list;
+        } else {
+            List<Category> resultList = new ArrayList<>();
+            for (Category category : list) {
+                if (category.isShow.equals("yes")) {
+                    resultList.add(category);
+                }
+            }
+            return resultList;
+        }
     }
 
     /**
@@ -47,7 +57,7 @@ public class KindOfCategories {
      */
     public static Category findCategory(List<Category> list, String name) {
         for (Category category : list) {
-            if (TextUtils.equals(category.getName(), name)) {
+            if (TextUtils.equals(category.name, name)) {
                 return category;
             }
         }
@@ -57,18 +67,20 @@ public class KindOfCategories {
     public static List<String> getStringArray(List<Category> listCategories) {
         List<String> list = new ArrayList<>();
         for (Category cat : listCategories) {
-            list.add(cat.getName());
+            list.add(cat.name);
         }
         return list;
     }
 
-    public static List<Category> sortDataWithout(List<Category> data, String kind) {
-        List<Category> list = new ArrayList<>();
-        for (Category cat : data) {
-            if (!TextUtils.equals(cat.getKind(), kind)) {
-                list.add(cat);
+
+    public static int getPosition(List<Category> listCategoriesTransactions, String categoryKey) {
+        int n = 0;
+        for (Category cat : listCategoriesTransactions) {
+            if (cat.key.equals(categoryKey)) {
+                return n;
             }
+            n++;
         }
-        return list;
+        return 0;
     }
 }
