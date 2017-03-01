@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,8 +51,9 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.TransactionViewHolder;
 
-import static by.chagarin.androidlesson.DataLoader.ACTIONS;
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
+import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
 import static by.chagarin.androidlesson.KindOfCategories.getStringArray;
 
@@ -90,6 +90,7 @@ public class TransactionsFragment extends Fragment {
     private Spinner spinnerPlace;
     private ArrayAdapter<String> adapterTransaction;
     private ArrayAdapter<String> adapterPlaces;
+    private ValueEventListener valueEventListener;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -114,6 +115,28 @@ public class TransactionsFragment extends Fragment {
             @Override
             protected void populateViewHolder(final TransactionViewHolder viewHolder, final Transaction model, final int position) {
                 viewHolder.bindToTransaction(model);
+                viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        loader.mDatabase.child(CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String transactionName = dataSnapshot.child(model.categoryTransactionKey).child("name").getValue(String.class);
+                                String placeName = dataSnapshot.child(model.categoryPlaceKey).child("name").getValue(String.class);
+                                new MaterialDialog.Builder(getActivity())
+                                        .items(getListForViewInfoDialog(model, transactionName, placeName))
+                                        .autoDismiss(true)
+                                        .canceledOnTouchOutside(true)
+                                        .show();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                });
                 //слушатель долгого нажатия на карточку транзаеции
                 viewHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -146,8 +169,8 @@ public class TransactionsFragment extends Fragment {
                                                         final Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
                                                         final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
                                                         //записываем
-                                                        final String userId = loader.getUid();
-                                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                                        final String userId = DataLoader.getUid();
+                                                        loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
                                                                 new ValueEventListener() {
                                                                     @Override
                                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -192,32 +215,19 @@ public class TransactionsFragment extends Fragment {
             }
         };
         //слушатель нажатий на остаток кэша
-        loader.mDatabase.child(ACTIONS).addChildEventListener(new ChildEventListener() {
+        valueEventListener = new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                loader.calcAndSetCash(cash);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                loader.calcAndSetCash(cash, true);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                loader.calcAndSetCash(cash);
+
             }
-        });
+        };
+
+        loader.mDatabase.addValueEventListener(valueEventListener);
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -272,8 +282,19 @@ public class TransactionsFragment extends Fragment {
         fab.attachToRecyclerView(mRecycler);
     }
 
+    private List<String> getListForViewInfoDialog(Transaction model, String transactionName, String placeName) {
+        ArrayList<String> list = new ArrayList<>();
+        list.add(model.title);
+        list.add(model.price);
+        list.add(model.comment);
+        list.add(model.date);
+        list.add(transactionName);
+        list.add(placeName);
+        return list;
+    }
+
     private void loadCategories(final Callable func) {
-        loader.mDatabase.child(DataLoader.CATEGORIES).addValueEventListener(new ValueEventListener() {
+        loader.mDatabase.child(DataLoader.CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Is better to use a List, because you don't know the size
@@ -319,6 +340,7 @@ public class TransactionsFragment extends Fragment {
                 .onPositive(singleButtonCallback).build();
         //устанавливаем в поля значения из редактируемой транзакции
 
+        //noinspection ConstantConditions
         EditText title = (EditText) newDialog.getCustomView().findViewById(R.id.title);
         EditText price = (EditText) newDialog.getCustomView().findViewById(R.id.price);
         EditText comment = (EditText) newDialog.getCustomView().findViewById(R.id.comment);
@@ -349,6 +371,12 @@ public class TransactionsFragment extends Fragment {
         newDialog.show();
     }
 
+    @Override
+    public void onDestroy() {
+        loader.mDatabase.removeEventListener(valueEventListener);
+        super.onDestroy();
+    }
+
     @Click
     void fabClicked() {
         loadCategories(new Callable() {
@@ -365,8 +393,8 @@ public class TransactionsFragment extends Fragment {
                                 final Category categoryTransaction = listCategoriesTransactions.get(spinnerTransaction.getSelectedItemPosition());
                                 final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
                                 //записываем
-                                final String userId = loader.getUid();
-                                loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                final String userId = DataLoader.getUid();
+                                loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
                                         new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {

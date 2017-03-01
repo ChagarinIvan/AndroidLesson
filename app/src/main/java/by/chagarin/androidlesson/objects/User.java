@@ -11,6 +11,7 @@ public class User {
     public String email;
     public String photoUrl;
     public String userKey;
+    public boolean isShow;
 
 
     /**
@@ -19,11 +20,12 @@ public class User {
      * @param photoUrl of user
      * @param userKey  of user
      */
-    public User(String name, String email, String photoUrl, String userKey) {
+    public User(String name, String email, String photoUrl, String userKey, boolean isShow) {
         this.name = name;
         this.email = email;
         this.photoUrl = photoUrl;
         this.userKey = userKey;
+        this.isShow = isShow;
     }
 
     public User() {
@@ -34,6 +36,7 @@ public class User {
         result.put("name", name);
         result.put("email", email);
         result.put("photoUrl", photoUrl);
+        result.put("isShow", isShow);
         return result;
     }
 }

@@ -91,4 +91,5 @@
     <string name="drawer_item_embedded_drawer">Embedded Drawer</string>
     <string name="isShow">Показывть копилки?</string>
     <string name="copilka">копилка?</string>
+    <string name="swich">Показ копилок</string>
 </resources>

@@ -160,7 +160,7 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     private void writeNewUser(FirebaseUser user) {
-        person = new User(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString(), user.getUid());
+        person = new User(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString(), user.getUid(), true);
         loader.writeNewUser(person);
     }
 

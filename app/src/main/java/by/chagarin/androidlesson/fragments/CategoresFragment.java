@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import org.androidannotations.annotations.ViewById;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
@@ -42,9 +44,6 @@ import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.CategoryViewHolder;
 
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
-import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
-import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
-import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
 
 @EFragment(R.layout.fragment_categores)
 public class CategoresFragment extends Fragment {
@@ -62,7 +61,6 @@ public class CategoresFragment extends Fragment {
     SwipeRefreshLayout swipeLayout;
 
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
-    public int kind;
     private boolean isCheck;
 
     @AfterViews
@@ -114,8 +112,8 @@ public class CategoresFragment extends Fragment {
                                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                                     @Override
                                                     public void onClick(@NonNull final MaterialDialog dialoge, @NonNull DialogAction which) {
-                                                        final String userId = loader.getUid();
-                                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                                        final String userId = DataLoader.getUid();
+                                                        loader.mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
                                                                 new ValueEventListener() {
                                                                     @Override
                                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -136,6 +134,7 @@ public class CategoresFragment extends Fragment {
                                                                             } else {
                                                                                 isShow = "yes";
                                                                             }
+                                                                            //noinspection ConstantConditions
                                                                             Category category = new Category(dialoge.getInputEditText().getText().toString(),
                                                                                     model.kind,
                                                                                     userId,
@@ -202,44 +201,20 @@ public class CategoresFragment extends Fragment {
                                             @Override
                                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                                 final int position = viewHolder.getAdapterPosition();
-                                                loader.mDatabase.addValueEventListener(new ValueEventListener() {
+                                                loader.mDatabase.addListenerForSingleValueEvent(new DataLoader.AllDataLoaderListener(new Callable() {
                                                     @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        //загружаем все акшны
-                                                        final List<Transaction> transactionList = new ArrayList<>();
-                                                        final List<Proceed> proceedList = new ArrayList<>();
-                                                        final List<Transfer> transferList = new ArrayList<>();
-                                                        final List<Category> categoryList = new ArrayList<>();
-
-                                                        for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
-                                                            transactionList.add(areaSnapshot.getValue(Transaction.class));
-                                                        }
-                                                        for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
-                                                            proceedList.add(areaSnapshot.getValue(Proceed.class));
-                                                        }
-                                                        for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
-                                                            transferList.add(areaSnapshot.getValue(Transfer.class));
-                                                        }
-                                                        for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
-                                                            categoryList.add(areaSnapshot.getValue(Category.class));
-                                                        }
-                                                        List<String> allUsedCategoresKeys = getAllCategoryKeys(transactionList, proceedList, transferList);
-                                                        if (checkCategory(allUsedCategoresKeys, categoryList.get(position).key)) {
+                                                    public Object call() throws Exception {
+                                                        List<String> allUsedCategoresKeys = getAllCategoryKeys(DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
+                                                        if (checkCategory(allUsedCategoresKeys, DataLoader.categoryList.get(position).key)) {
                                                             DatabaseReference ref = mAdapter.getRef(position);
                                                             ref.removeValue();
                                                         } else {
                                                             Toast.makeText(getActivity(), getString(R.string.warning_sql), Toast.LENGTH_LONG).show();
                                                             mRecycler.setAdapter(mAdapter);
                                                         }
-
-
+                                                        return null;
                                                     }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
+                                                }));
                                             }
                                         })
                                         .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -305,22 +280,22 @@ public class CategoresFragment extends Fragment {
      * инициируем всплывающий диалог
      */
     private void alertDialog() {
-        MaterialDialog newDialog = new MaterialDialog.Builder(getActivity())
+        new MaterialDialog.Builder(getActivity())
                 .title(R.string.add_categores)
                 .positiveText(R.string.ok_button)
                 .content(R.string.chose_content)
-                .items(KindOfCategories.getKinds())
+                .items((CharSequence[]) KindOfCategories.getKinds())
                 .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                        kind = which;
                         return true;
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        MaterialDialog titleDialog = new MaterialDialog.Builder(getActivity())
+                        final int kind = dialog.getSelectedIndex();
+                        MaterialDialog.Builder newBuilder = new MaterialDialog.Builder(getActivity())
                                 .title(R.string.add_categores)
                                 .positiveText(R.string.save)
                                 .content(R.string.input_content)
@@ -334,13 +309,6 @@ public class CategoresFragment extends Fragment {
 
                                     }
                                 })
-                                .checkBoxPrompt(getString(R.string.copilka), false, new CompoundButton.OnCheckedChangeListener() {
-
-                                    @Override
-                                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                        isCheck = isChecked;
-                                    }
-                                })
                                 .negativeText(R.string.dont_save)
                                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                                     @Override
@@ -351,8 +319,9 @@ public class CategoresFragment extends Fragment {
                                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                                     @Override
                                     public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
-                                        final String userId = loader.getUid();
-                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+
+                                        final String userId = DataLoader.getUid();
+                                        loader.mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
                                                 new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -374,6 +343,7 @@ public class CategoresFragment extends Fragment {
                                                             } else {
                                                                 isShow = "yes";
                                                             }
+                                                            //noinspection ConstantConditions
                                                             Category category = new Category(dialog.getInputEditText().getText().toString(),
                                                                     KindOfCategories.getKinds()[kind],
                                                                     userId,
@@ -390,7 +360,16 @@ public class CategoresFragment extends Fragment {
                                                 });
                                         // [END single_value_read]
                                     }
-                                }).show();
+                                });
+                        if (TextUtils.equals(KindOfCategories.getKinds()[kind], KindOfCategories.getPlace())) {
+                            newBuilder.checkBoxPrompt(getString(R.string.copilka), false, new CompoundButton.OnCheckedChangeListener() {
+                                @Override
+                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                    isCheck = isChecked;
+                                }
+                            });
+                        }
+                        newBuilder.build().show();
                     }
                 })
                 .negativeText(R.string.cancel_button)

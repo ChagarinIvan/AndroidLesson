@@ -31,6 +31,7 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Post;
 import by.chagarin.androidlesson.objects.User;
@@ -50,31 +51,22 @@ public class Chat extends Fragment {
     @ViewById(R.id.categories_list_view)
     RecyclerView mRecycler;
 
-    private LinearLayoutManager mManager;
-    private FirebaseRecyclerAdapter<Post, PostViewHolder> mAdapter;
-
     @AfterViews
     void ready() {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
         // Set up Layout Manager, reverse layout
-        mManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager mManager = new LinearLayoutManager(getActivity());
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(mDatabase);
-        mAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(Post.class, R.layout.item_post,
+        FirebaseRecyclerAdapter<Post, PostViewHolder> mAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(Post.class, R.layout.item_post,
                 PostViewHolder.class, postsQuery) {
             @Override
             protected void populateViewHolder(final PostViewHolder viewHolder, final Post model, final int position) {
-                final DatabaseReference postRef = getRef(position);
-
-                // Set click listener for the whole post view
-                final String postKey = postRef.getKey();
-
-                // Determine if the current user has liked this post and set UI accordingly
 
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToPost(model);
@@ -151,7 +143,7 @@ public class Chat extends Fragment {
 
                 // [START single_value_read]
                 final String userId = getUid();
-                mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
