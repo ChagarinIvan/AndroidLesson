@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
@@ -37,7 +38,13 @@ public class DataLoader {
     public static final String PROCEEDS = ACTIONS + "/proceeds";
     public static final String TRANSFERS = ACTIONS + "/transfers";
     public static final String USERS = "users";
+    public static boolean isShow;
     public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    public static User user;
+    public static List<Transaction> transactionList;
+    public static List<Proceed> proceedList;
+    public static List<Transfer> transferList;
+    public static List<Category> categoryList;
 
     public void writeNewUser(User person) {
         Map<String, Object> postValues = person.toMap();
@@ -46,7 +53,7 @@ public class DataLoader {
         mDatabase.updateChildren(childUpdates);
     }
 
-    public String getUid() {
+    public static String getUid() {
         //noinspection ConstantConditions
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -84,62 +91,107 @@ public class DataLoader {
         mDatabase.updateChildren(childUpdates);
     }
 
-    public void calcAndSetCash(final PieChart cash) {
-        mDatabase.addValueEventListener(new ValueEventListener() {
+    public void calcAndSetCash(final Object cash, final boolean variant) {
+        mDatabase.addListenerForSingleValueEvent(new AllDataLoaderListener(new Callable() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final List<Transaction> transactionList = new ArrayList<>();
-                final List<Proceed> proceedList = new ArrayList<>();
-
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
-                    transactionList.add(areaSnapshot.getValue(Transaction.class));
-                }
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
-                    proceedList.add(areaSnapshot.getValue(Proceed.class));
-                }
-                float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setCenterText(String.format(Locale.ENGLISH, "Общий баланс %.2f BYN", cashCount));
+            public Object call() throws Exception {
+                float cashCount = calcCashCount(categoryList, transactionList, proceedList, transferList, user.isShow);
+                setCash(cashCount, cash, variant);
+                return null;
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+                })
+        );
     }
 
-    public void calcAndSetCash(final MenuItem cash) {
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final List<Transaction> transactionList = new ArrayList<>();
-                final List<Proceed> proceedList = new ArrayList<>();
-
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
-                    transactionList.add(areaSnapshot.getValue(Transaction.class));
-                }
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
-                    proceedList.add(areaSnapshot.getValue(Proceed.class));
-                }
-                float cashCount = calcCashCount(transactionList, proceedList);
-                cash.setTitle(String.format(Locale.ENGLISH, "%.2f", cashCount));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private float calcCashCount(List<Transaction> transactionList, List<Proceed> proceedList) {
+    private float calcCashCount(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> transferList, boolean isShow) {
         float count = 0;
-        for (Proceed proceed : proceedList) {
-            count += Float.valueOf(proceed.price);
+        if (isShow) {
+            for (Proceed proceed : proceedList) {
+                count += Float.valueOf(proceed.price);
+            }
+            for (Transaction transaction : transactionList) {
+                count -= Float.valueOf(transaction.price);
+            }
+            return count;
+        } else {
+            List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace(), isShow);
+            List<String> categoriesKeys = new ArrayList<>();
+            for (Category cat : data) {
+                categoriesKeys.add(cat.key);
+            }
+            for (Proceed pr : proceedList) {
+                if (categoriesKeys.contains(pr.categoryPlaceKey)) {
+                    count += Float.valueOf(pr.price);
+                }
+            }
+            for (Transaction tr : transactionList) {
+                if (categoriesKeys.contains(tr.categoryPlaceKey)) {
+                    count -= Float.valueOf(tr.price);
+                }
+            }
+            for (Transfer trans : transferList) {
+                if (categoriesKeys.contains(trans.categoryPlaceFromKey)) {
+                    if (!categoriesKeys.contains(trans.categoryPlaceToKey)) {
+                        count -= Float.valueOf(trans.price);
+                    }
+                } else {
+                    if (categoriesKeys.contains(trans.categoryPlaceToKey)) {
+                        count += Float.valueOf(trans.price);
+                    }
+                }
+            }
+            return count;
         }
-        for (Transaction transaction : transactionList) {
-            count -= Float.valueOf(transaction.price);
+    }
+
+    private void setCash(float cashCount, Object cash, boolean b) {
+        if (b) {
+            MenuItem menuItem = (MenuItem) cash;
+            menuItem.setTitle(String.format(Locale.ENGLISH, "%.2f", cashCount));
+        } else {
+            PieChart pie = (PieChart) cash;
+            pie.setCenterText(String.format(Locale.ENGLISH, "Общий баланс %.2f BYN", cashCount));
         }
-        return count;
+    }
+
+    public static class AllDataLoaderListener implements ValueEventListener {
+        private final Callable func;
+
+        public AllDataLoaderListener(final Callable func) {
+            this.func = func;
+        }
+
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            user = dataSnapshot.child(USERS).child(getUid()).getValue(User.class);
+            transactionList = new ArrayList<>();
+            transferList = new ArrayList<>();
+            categoryList = new ArrayList<>();
+            proceedList = new ArrayList<>();
+
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+                transactionList.add(areaSnapshot.getValue(Transaction.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+                proceedList.add(areaSnapshot.getValue(Proceed.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
+                transferList.add(areaSnapshot.getValue(Transfer.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
+                categoryList.add(areaSnapshot.getValue(Category.class));
+            }
+            try {
+                func.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
     }
 }
+

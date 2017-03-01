@@ -31,6 +31,7 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Post;
 import by.chagarin.androidlesson.objects.User;
@@ -142,7 +143,7 @@ public class Chat extends Fragment {
 
                 // [START single_value_read]
                 final String userId = getUid();
-                mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -5,9 +5,8 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Display;
-import android.view.View;
+import android.view.Gravity;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -38,8 +37,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
@@ -50,10 +51,12 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.Transfer;
 import by.chagarin.androidlesson.objects.User;
 
+import static by.chagarin.androidlesson.DataLoader.AllDataLoaderListener;
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
-import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
-import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
 import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
+import static by.chagarin.androidlesson.DataLoader.USERS;
+import static by.chagarin.androidlesson.DataLoader.df;
+import static by.chagarin.androidlesson.DataLoader.isShow;
 
 
 /**
@@ -67,60 +70,38 @@ public class CashStatisticsFragment extends Fragment {
     @ViewById
     PieChart pieChart;
 
-    @ViewById
-    CheckBox isShow;
-
     @Bean
     DataLoader loader;
+
+    @ViewById
+    LinearLayout childLayout;
+    private final DataLoader.AllDataLoaderListener singleValueListener = new AllDataLoaderListener(new Callable() {
+        @Override
+        public Object call() throws Exception {
+            createPierChart(DataLoader.categoryList, DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
+            return null;
+        }
+    });
 
     @AfterViews
     public void ready() {
         getActivity().setTitle("Где же Ваши денежки?");
-        isShow.setChecked(true);
-        isShow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startLoad();
-            }
-        });
         startLoad();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        loader.mDatabase.removeEventListener(singleValueListener);
+    }
+
     private void startLoad() {
-        //згружаем данные
-        loader.mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //загружаем все акшны
-                final List<Transaction> transactionList = new ArrayList<>();
-                final List<Proceed> proceedList = new ArrayList<>();
-                final List<Transfer> transferList = new ArrayList<>();
-                final List<Category> categoryList = new ArrayList<>();
-
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
-                    transactionList.add(areaSnapshot.getValue(Transaction.class));
-                }
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
-                    proceedList.add(areaSnapshot.getValue(Proceed.class));
-                }
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
-                    transferList.add(areaSnapshot.getValue(Transfer.class));
-                }
-                for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
-                    categoryList.add(areaSnapshot.getValue(Category.class));
-                }
-                createPierChart(categoryList, transactionList, proceedList, transferList);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        //загружаем данные
+        loader.mDatabase.addValueEventListener(singleValueListener);
     }
 
     private void createPierChart(List<Category> listCategory, List<Transaction> listTransactions, List<Proceed> listProceedes, List<Transfer> listTransfer) {
-        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer, isShow.isChecked());
+        categoryFloatMap = sortData(listCategory, listTransactions, listProceedes, listTransfer, isShow);
         final List<PieEntry> pieEntries = convertToEntry(categoryFloatMap);
 
         final PieDataSet set = new PieDataSet(pieEntries, "");
@@ -144,6 +125,46 @@ public class CashStatisticsFragment extends Fragment {
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         legend.setTextSize(20f);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+        int colorcodes[] = legend.getColors();
+        childLayout.removeAllViews();
+        for (int n = 0; n < legend.getColors().length - 1; n++) {
+            LinearLayout.LayoutParams parms_left_layout = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            parms_left_layout.weight = 1F;
+            LinearLayout left_layout = new LinearLayout(getActivity());
+            left_layout.setOrientation(LinearLayout.HORIZONTAL);
+            left_layout.setGravity(Gravity.CENTER);
+            left_layout.setLayoutParams(parms_left_layout);
+
+            LinearLayout.LayoutParams parms_legen_layout = new LinearLayout.LayoutParams(
+                    20, 20);
+            parms_legen_layout.setMargins(0, 0, 20, 0);
+            LinearLayout legend_layout = new LinearLayout(getActivity());
+            legend_layout.setLayoutParams(parms_legen_layout);
+            legend_layout.setOrientation(LinearLayout.HORIZONTAL);
+            legend_layout.setBackgroundColor(colorcodes[n]);
+            left_layout.addView(legend_layout);
+
+            TextView txt_unit = new TextView(getActivity());
+            txt_unit.setText(legend.getLabels()[n]);
+            left_layout.addView(txt_unit);
+
+            LinearLayout.LayoutParams parms_middle_layout = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            parms_middle_layout.weight = 1F;
+            LinearLayout middle_layout = new LinearLayout(getActivity());
+            middle_layout.setOrientation(LinearLayout.HORIZONTAL);
+            middle_layout.setGravity(Gravity.CENTER);
+            middle_layout.setLayoutParams(parms_middle_layout);
+
+            TextView txt_leads = new TextView(getActivity());
+            txt_leads.setText(String.format(Locale.ENGLISH, "%.2f", pieEntries.get(n).getY()));
+            middle_layout.addView(txt_leads);
+
+            childLayout.addView(left_layout);
+            childLayout.addView(middle_layout);
+        }
+        legend.setEnabled(false);
         //настройка описания
         calcSumm(pieChart);
         pieChart.setCenterTextColor(Color.BLACK);
@@ -196,7 +217,7 @@ public class CashStatisticsFragment extends Fragment {
     }
 
     private void calcSumm(PieChart pieChart) {
-        loader.calcAndSetCash(pieChart);
+        loader.calcAndSetCash(pieChart, false);
     }
 
     //метод будет возвращать лист рандомных цвето нужного размера
@@ -332,8 +353,8 @@ public class CashStatisticsFragment extends Fragment {
                                         to = arrayOfCategory.get(spinner.getSelectedItemPosition());
                                     }
                                     if (checkCash(from, cost)) {
-                                        final String userId = loader.getUid();
-                                        loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                        final String userId = DataLoader.getUid();
+                                        loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
                                                 new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -349,7 +370,7 @@ public class CashStatisticsFragment extends Fragment {
                                                             String key = loader.mDatabase.child(TRANSFERS).push().getKey();
                                                             loader.writeNewTransfer(new Transfer(
                                                                     cost,
-                                                                    DataLoader.df.format(new Date()),
+                                                                    df.format(new Date()),
                                                                     from.key,
                                                                     to.key,
                                                                     userId,

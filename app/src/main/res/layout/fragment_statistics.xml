@@ -2,14 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Container.Background">
 
-    <CheckBox
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/is_show"
-        android:enabled="true"
-        android:textSize="@dimen/dialog_text_size"
-        android:textColor="@color/text_color"
-        android:text="@string/isShow" />
+        android:id="@+id/child_layout"
+        android:orientation="vertical" />
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/pie_chart"

@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,9 +49,9 @@ import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.ProceedViewHolder;
 
-import static by.chagarin.androidlesson.DataLoader.ACTIONS;
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
 import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
+import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
 import static by.chagarin.androidlesson.KindOfCategories.getStringArray;
 
@@ -87,6 +86,7 @@ public class ProceedFragment extends Fragment {
     private ArrayAdapter<String> adapterPlaces;
     private Spinner spinnerProceed;
     private Spinner spinnerPlace;
+    private ValueEventListener valueEventListener;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -106,88 +106,18 @@ public class ProceedFragment extends Fragment {
             @Override
             protected void populateViewHolder(final ProceedViewHolder viewHolder, final Proceed model, final int position) {
                 viewHolder.bindToProceed(model);
-                viewHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
+                viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View v) {
-                        loader.mDatabase.child(CATEGORIES).addValueEventListener(new ValueEventListener() {
+                    public void onClick(View v) {
+                        loader.mDatabase.child(CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                // Is better to use a List, because you don't know the size
-                                // of the iterator returned by dataSnapshot.getChildren() to
-                                // initialize the array
-                                final List<Category> categoryNames = new ArrayList<>();
-
-                                for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
-                                    Category categoryName = areaSnapshot.getValue(Category.class);
-                                    categoryName.key = areaSnapshot.getKey();
-                                    categoryNames.add(categoryName);
-                                }
-                                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed(), true);
-                                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
-
+                                String proceedName = dataSnapshot.child(model.categoryProceedesKey).child("name").getValue(String.class);
+                                String placeName = dataSnapshot.child(model.categoryPlaceKey).child("name").getValue(String.class);
                                 new MaterialDialog.Builder(getActivity())
-                                        .title(R.string.dialog_title)
-                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                            public Spinner spinnerProceed;
-                                            public Spinner spinnerPlace;
-
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                //показываем лист одиночного выбора полей транзакции для изменения
-                                                getMaterialDialog(model, new MaterialDialog.SingleButtonCallback() {
-                                                            @Override
-                                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                                final EditText title = (EditText) dialog.findViewById(R.id.title);
-                                                                final EditText price = (EditText) dialog.findViewById(R.id.price);
-                                                                final EditText comment = (EditText) dialog.findViewById(R.id.comment);
-                                                                final Category categoryProceed = listCategoriesProceedes.get(spinnerProceed.getSelectedItemPosition());
-                                                                final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
-                                                                //записываем
-                                                                final String userId = loader.getUid();
-                                                                loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
-                                                                        new ValueEventListener() {
-                                                                            @Override
-                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                //удаляем элемент
-                                                                                int position = viewHolder.getAdapterPosition();
-                                                                                DatabaseReference ref = mAdapter.getRef(position);
-                                                                                ref.removeValue();
-                                                                                //добавляем новый жлемент
-                                                                                // Get user value
-                                                                                User user = dataSnapshot.getValue(User.class);
-
-                                                                                // [START_EXCLUDE]
-                                                                                if (user == null) {
-                                                                                    // User is null, error out
-                                                                                    Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
-                                                                                } else {
-                                                                                    //Write new post
-                                                                                    proceed = new Proceed(title.getText().toString(),
-                                                                                            price.getText().toString(),
-                                                                                            dateText.getText().toString(),
-                                                                                            comment.getText().toString(),
-                                                                                            categoryProceed.key, categoryPlace.key, userId, model.key);
-                                                                                    loader.writeNewProceed(proceed);
-                                                                                }
-                                                                            }
-
-                                                                            @Override
-                                                                            public void onCancelled(DatabaseError databaseError) {
-                                                                            }
-                                                                        });
-                                                            }
-                                                        },
-                                                        R.string.change_transacton_title);
-                                            }
-                                        })
-                                        .positiveText(R.string.agree)
-                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                                dialog.dismiss();
-                                            }
-                                        })
-                                        .negativeText(R.string.disagree)
+                                        .items(getListForViewInfoDialog(model, proceedName, placeName))
+                                        .autoDismiss(true)
+                                        .canceledOnTouchOutside(true)
                                         .show();
                             }
 
@@ -196,38 +126,97 @@ public class ProceedFragment extends Fragment {
 
                             }
                         });
+                    }
+                });
+                viewHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        loadCategories(new Callable() {
+                            @Override
+                            public Object call() throws Exception {
+                                //запускаем диалог с вопросом об изменении
+                                new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.dialog_title)
+                                        .positiveText(R.string.agree)
+                                        .negativeText(R.string.disagree)
+                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                //показываем лист одиночного выбора полей транзакции для изменения
+                                                getMaterialDialog(model, new MaterialDialog.SingleButtonCallback() {
+                                                    @Override
+                                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                        final EditText title = (EditText) dialog.findViewById(R.id.title);
+                                                        final EditText price = (EditText) dialog.findViewById(R.id.price);
+                                                        final EditText comment = (EditText) dialog.findViewById(R.id.comment);
+                                                        final Category categoryProceed = listCategoriesProceedes.get(spinnerProceed.getSelectedItemPosition());
+                                                        final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
+                                                        //записываем
+                                                        final String userId = DataLoader.getUid();
+                                                        loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
+                                                                new ValueEventListener() {
+                                                                    @Override
+                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                        //удаляем элемент
+                                                                        int position = viewHolder.getAdapterPosition();
+                                                                        DatabaseReference ref = mAdapter.getRef(position);
+                                                                        ref.removeValue();
+                                                                        //добавляем новый жлемент
+                                                                        // Get user value
+                                                                        User user = dataSnapshot.getValue(User.class);
+
+                                                                        // [START_EXCLUDE]
+                                                                        if (user == null) {
+                                                                            // User is null, error out
+                                                                            Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
+                                                                        } else {
+                                                                            // Write new post
+                                                                            proceed = new Proceed(title.getText().toString(),
+                                                                                    price.getText().toString(),
+                                                                                    dateText.getText().toString(),
+                                                                                    comment.getText().toString(),
+                                                                                    categoryProceed.key, categoryPlace.key, userId, model.key);
+                                                                            loader.writeNewProceed(proceed);
+                                                                        }
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onCancelled(DatabaseError databaseError) {
+                                                                    }
+                                                                });
+                                                    }
+                                                }, R.string.change_transacton_title);
+                                            }
+                                        })
+                                        .show();
+                                return null;
+                            }
+                        });
                         return true;
                     }
                 });
             }
         };
-        //слушатель кэша
-        loader.mDatabase.child(ACTIONS).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
-            }
 
+        valueEventListener = new ValueEventListener() {
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                loader.calcAndSetCash(cash);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                loader.calcAndSetCash(cash);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                loader.calcAndSetCash(cash, true);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                loader.calcAndSetCash(cash);
+
             }
-        });
+        };
+        //слушатель кэша
+        loader.mDatabase.addValueEventListener(valueEventListener);
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -280,6 +269,23 @@ public class ProceedFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(mRecycler);
         mRecycler.setAdapter(mAdapter);
         fab.attachToRecyclerView(mRecycler);
+    }
+
+    private List<String> getListForViewInfoDialog(Proceed model, String proceedName, String placeName) {
+        ArrayList<String> list = new ArrayList<>();
+        list.add(model.title);
+        list.add(model.price);
+        list.add(model.comment);
+        list.add(model.date);
+        list.add(proceedName);
+        list.add(placeName);
+        return list;
+    }
+
+    @Override
+    public void onDestroy() {
+        loader.mDatabase.removeEventListener(valueEventListener);
+        super.onDestroy();
     }
 
     private void createDataPickerDialogWithNowDate(String date) {
@@ -396,8 +402,8 @@ public class ProceedFragment extends Fragment {
                                 final Category categoryProceed = listCategoriesProceedes.get(spinnerProceed.getSelectedItemPosition());
                                 final Category categoryPlace = listCategoriesPlaces.get(spinnerPlace.getSelectedItemPosition());
                                 //записываем
-                                final String userId = loader.getUid();
-                                loader.mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+                                final String userId = DataLoader.getUid();
+                                loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
                                         new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
