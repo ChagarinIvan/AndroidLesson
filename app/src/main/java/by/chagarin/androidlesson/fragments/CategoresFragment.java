@@ -35,6 +35,7 @@ import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
@@ -65,6 +66,9 @@ public class CategoresFragment extends Fragment {
 
     @AfterViews
     void afterView() {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.categores);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
 

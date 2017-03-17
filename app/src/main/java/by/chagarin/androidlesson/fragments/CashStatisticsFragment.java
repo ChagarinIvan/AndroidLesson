@@ -44,6 +44,7 @@ import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
@@ -85,8 +86,10 @@ public class CashStatisticsFragment extends Fragment {
 
     @AfterViews
     public void ready() {
-        getActivity().setTitle("Где же Ваши денежки?");
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
         startLoad();
+        mainActivity.setTitle("Где же Ваши денежки?");
     }
 
     @Override

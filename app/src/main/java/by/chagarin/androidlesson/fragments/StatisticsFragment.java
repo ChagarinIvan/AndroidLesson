@@ -4,11 +4,13 @@ import android.app.Fragment;
 
 import com.github.mikephil.charting.charts.PieChart;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import by.chagarin.androidlesson.DataLoader;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 
 @EFragment(R.layout.fragment_statistics)
@@ -19,6 +21,13 @@ public class StatisticsFragment extends Fragment {
 
     @ViewById
     PieChart pieChart;
+
+    @AfterViews
+    void ready() {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.statistics);
+    }
 
 
 //    @Override

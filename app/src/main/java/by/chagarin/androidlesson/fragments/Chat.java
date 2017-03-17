@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import by.chagarin.androidlesson.DataLoader;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Post;
 import by.chagarin.androidlesson.objects.User;
@@ -53,6 +54,9 @@ public class Chat extends Fragment {
 
     @AfterViews
     void ready() {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.chat);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);

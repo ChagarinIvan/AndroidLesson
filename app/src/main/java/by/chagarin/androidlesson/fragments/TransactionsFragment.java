@@ -45,6 +45,7 @@ import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Transaction;
@@ -94,6 +95,9 @@ public class TransactionsFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        final MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.transactions);
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         //делаем хинт из хмл
@@ -226,11 +230,12 @@ public class TransactionsFragment extends Fragment {
 
             }
         };
-
         loader.mDatabase.addValueEventListener(valueEventListener);
+        final Fragment fragment = this;
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                mainActivity.parentFragment = fragment;
                 getFragmentManager().beginTransaction().replace(R.id.content_frame, CashStatisticsFragment_.builder().build()).commit();
                 return true;
             }
@@ -468,4 +473,5 @@ public class TransactionsFragment extends Fragment {
             dateText.setText(date);
         }
     }
+
 }

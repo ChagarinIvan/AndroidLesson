@@ -9,21 +9,20 @@ import java.util.Map;
 public class User {
     public String name;
     public String email;
-    public String photoUrl;
     public String userKey;
+    public String photoURL;
     public boolean isShow;
 
 
     /**
      * @param name     of user
      * @param email    of user
-     * @param photoUrl of user
      * @param userKey  of user
      */
-    public User(String name, String email, String photoUrl, String userKey, boolean isShow) {
+    public User(String name, String email, String photoURL, String userKey, boolean isShow) {
         this.name = name;
         this.email = email;
-        this.photoUrl = photoUrl;
+        this.photoURL = photoURL;
         this.userKey = userKey;
         this.isShow = isShow;
     }
@@ -35,7 +34,7 @@ public class User {
         HashMap<String, Object> result = new HashMap<>();
         result.put("name", name);
         result.put("email", email);
-        result.put("photoUrl", photoUrl);
+        result.put("photoURL", photoURL);
         result.put("isShow", isShow);
         return result;
     }
