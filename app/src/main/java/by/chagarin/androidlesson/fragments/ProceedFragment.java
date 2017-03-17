@@ -43,6 +43,7 @@ import java.util.concurrent.Callable;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
@@ -90,6 +91,8 @@ public class ProceedFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.actualFragment = this;
         super.onPrepareOptionsMenu(menu);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);

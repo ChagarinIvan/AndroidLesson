@@ -122,8 +122,8 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            user = task.getResult().getUser();
-                            writeNewUser(user);
+                            //user = task.getResult().getUser();
+                            //writeNewUser(user);
                             if (signRadioGroup.getCheckedRadioButtonId() == R.id.sign_radio_button_1) {
                                 start();
                             } else {
@@ -160,7 +160,7 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     }
 
     private void writeNewUser(FirebaseUser user) {
-        person = new User(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString(), user.getUid(), true);
+        person = new User(user.getDisplayName(), user.getEmail(), user.getUid(), true);
         loader.writeNewUser(person);
     }
 
