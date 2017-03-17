@@ -91,8 +91,9 @@ public class ProceedFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        MainActivity mainActivity = (MainActivity) getActivity();
+        final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.add);
         super.onPrepareOptionsMenu(menu);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
@@ -220,9 +221,11 @@ public class ProceedFragment extends Fragment {
         };
         //слушатель кэша
         loader.mDatabase.addValueEventListener(valueEventListener);
+        final Fragment fragment = this;
         cash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                mainActivity.parentFragment = fragment;
                 getFragmentManager().beginTransaction().replace(R.id.content_frame, CashStatisticsFragment_.builder().build()).commit();
                 return true;
             }

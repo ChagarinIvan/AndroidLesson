@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "44069515698-2hesnb924etk5m677fjikmp7mob1ma1p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "by.chagarin.androidlesson",
+            "certificate_hash": "c7b8b809511d6030a493d1afce80a2371398c22e"
+          }
+        },
+        {
           "client_id": "44069515698-17hilpgl1mdf418oht9mk556ov3o7iv9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

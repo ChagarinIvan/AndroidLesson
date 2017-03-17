@@ -60,10 +60,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //
-    public void setFragment(int title, Fragment fragment) {
+    public void setFragment(Fragment fragment) {
         parentFragment = actualFragment;
         result.closeDrawer();
-        setTitle(getString(title));
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
@@ -75,23 +74,23 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 1:
                     result.setSelection(1);
-                    setFragment(R.string.transactions, TransactionsFragment_.builder().build());
+                    setFragment(TransactionsFragment_.builder().build());
                     return true;
                 case 2:
                     result.setSelection(2);
-                    setFragment(R.string.add, ProceedFragment_.builder().build());
+                    setFragment(ProceedFragment_.builder().build());
                     return true;
                 case 3:
                     result.setSelection(3);
-                    setFragment(R.string.categores, CategoresFragment_.builder().build());
+                    setFragment(CategoresFragment_.builder().build());
                     return true;
                 case 4:
                     result.setSelection(4);
-                    setFragment(R.string.statistics, StatisticsFragment_.builder().build());
+                    setFragment(StatisticsFragment_.builder().build());
                     return true;
                 case 5:
                     result.setSelection(4);
-                    setFragment(R.string.chat, Chat_.builder().build());
+                    setFragment(Chat_.builder().build());
                     return true;
             }
             return false;
@@ -178,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 .withSavedInstance(savedInstance)
                 .build();
         actualFragment = TransactionsFragment_.builder().build();
-        setFragment(R.string.transactions, actualFragment);
+        setFragment(actualFragment);
     }
 
     @Override
@@ -201,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             if (actualFragment != parentFragment) {
                 actualFragment = parentFragment;
-                setFragment(R.string.transactions, parentFragment);
+                setFragment(parentFragment);
             } else {
                 super.onBackPressed();
             }

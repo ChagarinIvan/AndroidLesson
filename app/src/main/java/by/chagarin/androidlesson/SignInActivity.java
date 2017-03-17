@@ -25,7 +25,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,7 +45,6 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
     private Dialog question_dialog;
-    private FirebaseUser user;
     private User person;
 
     @ViewById
@@ -57,6 +55,9 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
 
     @ViewById
     SignInButton signInButton;
+    private String name;
+    private String photo;
+    private String email;
 
     @AfterViews
     void afterCreate() {
@@ -100,6 +101,9 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
+                name = account.getDisplayName();
+                email = account.getEmail();
+                photo = account.getPhotoUrl().toString();
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed
@@ -122,8 +126,9 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            //user = task.getResult().getUser();
-                            //writeNewUser(user);
+                            String uid = mFirebaseAuth.getCurrentUser().getUid();
+                            person = new User(name, email, photo, uid, false);
+                            writeNewUser(person);
                             if (signRadioGroup.getCheckedRadioButtonId() == R.id.sign_radio_button_1) {
                                 start();
                             } else {
@@ -159,9 +164,8 @@ public class SignInActivity extends ActionBarActivity implements GoogleApiClient
         question_dialog.show();
     }
 
-    private void writeNewUser(FirebaseUser user) {
-        person = new User(user.getDisplayName(), user.getEmail(), user.getUid(), true);
-        loader.writeNewUser(person);
+    private void writeNewUser(User user) {
+        loader.writeNewUser(user);
     }
 
     @Override

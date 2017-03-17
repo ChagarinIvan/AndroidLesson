@@ -56,6 +56,7 @@ public class Chat extends Fragment {
     void ready() {
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.chat);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);

@@ -68,6 +68,7 @@ public class CategoresFragment extends Fragment {
     void afterView() {
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
+        mainActivity.setTitle(R.string.categores);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
 

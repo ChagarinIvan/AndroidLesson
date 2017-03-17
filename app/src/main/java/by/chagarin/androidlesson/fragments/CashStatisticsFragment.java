@@ -86,10 +86,10 @@ public class CashStatisticsFragment extends Fragment {
 
     @AfterViews
     public void ready() {
-        getActivity().setTitle("Где же Ваши денежки?");
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         startLoad();
+        mainActivity.setTitle("Где же Ваши денежки?");
     }
 
     @Override
