@@ -16,6 +16,10 @@ public class KindOfCategories {
         return new String[]{TRANSACTION, PROCEED, PLACE};
     }
 
+    public static String[] getLatinKinds() {
+        return new String[]{"transactions", "proceed", "places"};
+    }
+
     public static String getTransaction() {
         return TRANSACTION;
     }

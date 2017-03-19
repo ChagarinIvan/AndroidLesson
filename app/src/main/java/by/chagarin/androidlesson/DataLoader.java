@@ -77,10 +77,10 @@ public class DataLoader {
         mDatabase.updateChildren(childUpdates);
     }
 
-    public void writeNewCategory(Category category) {
+    public void writeNewCategory(Category category, String kind) {
         Map<String, Object> postValues = category.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + CATEGORIES + "/" + category.key, postValues);
+        childUpdates.put(kind + "/" + category.key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 

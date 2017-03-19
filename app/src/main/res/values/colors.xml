@@ -10,8 +10,6 @@
     <color name="accent">#dc3e56</color>
     <color name="accent_pressed">#C2185B</color>
     <color name="primary_foreground">#88bebebe</color>
-    <color name="proceed_category_foreground">#88ffff33</color>
-    <color name="place_category_foreground">#8833ffff</color>
     <color name="button_color">#7E7E7E</color>
     <color name="orange">#FF4500</color>
     <color name="blue">#0000FF</color>
