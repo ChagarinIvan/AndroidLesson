@@ -92,4 +92,10 @@
     <string name="isShow">Показывть копилки?</string>
     <string name="copilka">копилка?</string>
     <string name="swich">Показ копилок</string>
+    <string name="color_dialog">Настройка цвета</string>
+    <string name="color_palette">Палитра</string>
+    <string name="colors">Цвета</string>
+    <string name="transaction_categores">Категории трат</string>
+    <string name="categores_proceed">Источники поступления</string>
+    <string name="places_categores">Категории места хранения</string>
 </resources>

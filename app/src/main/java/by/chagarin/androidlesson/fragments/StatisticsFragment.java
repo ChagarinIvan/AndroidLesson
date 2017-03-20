@@ -9,6 +9,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
+import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
@@ -22,8 +23,12 @@ public class StatisticsFragment extends Fragment {
     @ViewById
     PieChart pieChart;
 
+    @Bean
+    ColorRandom colorRandom;
+
     @AfterViews
     void ready() {
+        getView().setBackgroundColor(colorRandom.getRandomColor());
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.statistics);
@@ -88,18 +93,18 @@ public class StatisticsFragment extends Fragment {
 //
 //    private List<PieEntry> sortData(List<Transaction> data) {
 //        //создаем мап где для каждой категории указано сколько товаров куплено
-//        HashMap<Category, Float> categoryList = new HashMap<Category, Float>();
+//        HashMap<Category, Float> allCategoryList = new HashMap<Category, Float>();
 //        for (Transaction tr : data) {
 //            Category category = tr.getCategoryTransaction();
 //            float summ = Float.parseFloat(tr.getPrice());
-//            if (categoryList.containsKey(category)) {
-//                summ += categoryList.get(category);
+//            if (allCategoryList.containsKey(category)) {
+//                summ += allCategoryList.get(category);
 //            }
-//            categoryList.put(category, summ);
+//            allCategoryList.put(category, summ);
 //        }
 //        //переводим всё в пие ентри
 //        List<PieEntry> entries = new ArrayList<>();
-//        for (Map.Entry<Category, Float> mapEntry : categoryList.entrySet()) {
+//        for (Map.Entry<Category, Float> mapEntry : allCategoryList.entrySet()) {
 //            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
 //        }
 //        return entries;

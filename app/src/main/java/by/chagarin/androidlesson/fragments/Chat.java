@@ -3,11 +3,15 @@ package by.chagarin.androidlesson.fragments;
 
 import android.app.Dialog;
 import android.app.Fragment;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -31,6 +36,7 @@ import org.androidannotations.annotations.ViewById;
 import java.util.HashMap;
 import java.util.Map;
 
+import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
@@ -51,6 +57,17 @@ public class Chat extends Fragment {
 
     @ViewById(R.id.categories_list_view)
     RecyclerView mRecycler;
+
+    @Bean
+    ColorRandom colorRandom;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        view.setBackgroundColor(colorRandom.getRandomColor());
+        return view;
+    }
 
     @AfterViews
     void ready() {

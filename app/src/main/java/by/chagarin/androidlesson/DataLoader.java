@@ -34,9 +34,10 @@ public class DataLoader {
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
     public static final String CATEGORIES = "categories";
     public static final String ACTIONS = "actions";
-    public static final String TRANSACTIONS = ACTIONS + "/transactions";
-    public static final String PROCEEDS = ACTIONS + "/proceeds";
-    public static final String TRANSFERS = ACTIONS + "/transfers";
+    public static final String TRANSACTIONS = "/transactions";
+    public static final String PROCEEDS = "/proceed";
+    public static final String PLACES = "/places";
+    public static final String TRANSFERS = "/transfers";
     public static final String USERS = "users";
     public static boolean isShow;
     public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -44,7 +45,9 @@ public class DataLoader {
     public static List<Transaction> transactionList;
     public static List<Proceed> proceedList;
     public static List<Transfer> transferList;
-    public static List<Category> categoryList;
+    public static List<Category> transactionsCategoryList;
+    public static List<Category> proceedesCategoryList;
+    public static List<Category> placesCategoryList;
 
     public void writeNewUser(User person) {
         Map<String, Object> postValues = person.toMap();
@@ -65,7 +68,7 @@ public class DataLoader {
     public void writeNewTransaction(Transaction createTransction) {
         Map<String, Object> postValues = createTransction.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + TRANSACTIONS + "/" + createTransction.key, postValues);
+        childUpdates.put("/" + ACTIONS + TRANSACTIONS + "/" + createTransction.key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
@@ -73,21 +76,21 @@ public class DataLoader {
     public void writeNewProceed(Proceed proceed) {
         Map<String, Object> postValues = proceed.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + PROCEEDS + "/" + proceed.key, postValues);
+        childUpdates.put("/" + ACTIONS + PROCEEDS + "/" + proceed.key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
-    public void writeNewCategory(Category category) {
+    public void writeNewCategory(Category category, String kind) {
         Map<String, Object> postValues = category.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + CATEGORIES + "/" + category.key, postValues);
+        childUpdates.put(kind + "/" + category.key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
     public void writeNewTransfer(Transfer transfer) {
         Map<String, Object> postValues = transfer.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + TRANSFERS + "/" + transfer.key, postValues);
+        childUpdates.put("/" + ACTIONS + TRANSFERS + "/" + transfer.key, postValues);
         mDatabase.updateChildren(childUpdates);
     }
 
@@ -95,12 +98,19 @@ public class DataLoader {
         mDatabase.addListenerForSingleValueEvent(new AllDataLoaderListener(new Callable() {
             @Override
             public Object call() throws Exception {
-                float cashCount = calcCashCount(categoryList, transactionList, proceedList, transferList, user.isShow);
+                float cashCount = calcCashCount(placesCategoryList, transactionList, proceedList, transferList, user.isShow);
                 setCash(cashCount, cash, variant);
                 return null;
             }
                 })
         );
+    }
+
+    public static List<Category> getAllCategoryList() {
+        List<Category> result = new ArrayList<>(transactionsCategoryList);
+        result.addAll(proceedesCategoryList);
+        result.addAll(placesCategoryList);
+        return result;
     }
 
     private float calcCashCount(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> transferList, boolean isShow) {
@@ -114,7 +124,7 @@ public class DataLoader {
             }
             return count;
         } else {
-            List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace(), isShow);
+            List<Category> data = KindOfCategories.sortData(categoryList, isShow);
             List<String> categoriesKeys = new ArrayList<>();
             for (Category cat : data) {
                 categoriesKeys.add(cat.key);
@@ -166,20 +176,28 @@ public class DataLoader {
             user = dataSnapshot.child(USERS).child(getUid()).getValue(User.class);
             transactionList = new ArrayList<>();
             transferList = new ArrayList<>();
-            categoryList = new ArrayList<>();
+            transactionsCategoryList = new ArrayList<>();
+            proceedesCategoryList = new ArrayList<>();
+            placesCategoryList = new ArrayList<>();
             proceedList = new ArrayList<>();
 
-            for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(ACTIONS + TRANSACTIONS).getChildren()) {
                 transactionList.add(areaSnapshot.getValue(Transaction.class));
             }
-            for (DataSnapshot areaSnapshot : dataSnapshot.child(PROCEEDS).getChildren()) {
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(ACTIONS + PROCEEDS).getChildren()) {
                 proceedList.add(areaSnapshot.getValue(Proceed.class));
             }
-            for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(ACTIONS + TRANSFERS).getChildren()) {
                 transferList.add(areaSnapshot.getValue(Transfer.class));
             }
-            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
-                categoryList.add(areaSnapshot.getValue(Category.class));
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES + TRANSACTIONS).getChildren()) {
+                transactionsCategoryList.add(areaSnapshot.getValue(Category.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES + PROCEEDS).getChildren()) {
+                proceedesCategoryList.add(areaSnapshot.getValue(Category.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES + PLACES).getChildren()) {
+                placesCategoryList.add(areaSnapshot.getValue(Category.class));
             }
             try {
                 func.call();

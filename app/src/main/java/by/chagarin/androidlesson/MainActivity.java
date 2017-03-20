@@ -2,6 +2,8 @@ package by.chagarin.androidlesson;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +29,8 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.octicons_typeface_library.Octicons;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import by.chagarin.androidlesson.fragments.CategoresFragment_;
 import by.chagarin.androidlesson.fragments.Chat_;
@@ -35,10 +39,13 @@ import by.chagarin.androidlesson.fragments.StatisticsFragment_;
 import by.chagarin.androidlesson.fragments.TransactionsFragment_;
 import by.chagarin.androidlesson.objects.User;
 
+import static by.chagarin.androidlesson.DataLoader.USERS;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseUser mFirebaseUser;
     private Bundle savedInstance;
+    private MainActivity context;
     public Fragment actualFragment;
     public Fragment parentFragment;
 
@@ -66,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
-
     //
     private class DrawerItemClickListener implements Drawer.OnDrawerItemClickListener {
         @Override
@@ -89,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     setFragment(StatisticsFragment_.builder().build());
                     return true;
                 case 5:
-                    result.setSelection(4);
+                    result.setSelection(5);
                     setFragment(Chat_.builder().build());
                     return true;
             }
@@ -105,41 +111,24 @@ public class MainActivity extends AppCompatActivity {
 
     private IProfile profile;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        this.savedInstance = savedInstanceState;
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_persistent_drawer);
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(new Intent(this, SignInActivity_.class));
-            finish();
-            return;
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            profile = new ProfileDrawerItem().withName(user.name).withIcon(bitmap);
+            DataLoader.isShow = user.isShow;
+            startMainActivity();
         }
 
-        loader = DataLoader_.getInstance_(this);
-        final String userId = DataLoader.getUid();
-        loader.mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        //удаляем элемент
-                        user = dataSnapshot.getValue(User.class);
-                        profile = new ProfileDrawerItem().withName(user.name);
-                        DataLoader.isShow = user.isShow;
-                        startActivity();
-                    }
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+        }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-    }
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+        }
+    };
 
-    private void startActivity() {
+    private void startMainActivity() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //set the back arrow in the toolbar
@@ -154,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                 .withHeaderBackground(R.drawable.drawer_header)
                 .addProfiles(profile)
                 .withSavedInstance(savedInstance)
-                .withProfileImagesVisible(false)
                 .withSelectionListEnabledForSingleProfile(false)
                 .withProfileImagesClickable(false)
                 .build();
@@ -163,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         result = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
-                .withAccountHeader(headerResult)
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
                         new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
@@ -180,6 +168,47 @@ public class MainActivity extends AppCompatActivity {
         setFragment(actualFragment);
     }
 
+    private void someMethod(String uri) {
+        Picasso.with(this).load(uri).into(target);
+    }
+
+    @Override
+    public void onDestroy() {  // could be in onPause or onStop
+        Picasso.with(this).cancelRequest(target);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        this.savedInstance = savedInstanceState;
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_persistent_drawer);
+
+        ColorRandom colorRandom = ColorRandom_.getInstance_(this);
+        context = this;
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        if (mFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            startActivity(new Intent(this, SignInActivity_.class));
+            finish();
+            return;
+        }
+        loader = DataLoader_.getInstance_(this);
+        loader.mDatabase.child(USERS).child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+                someMethod(user.photoURL);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handle the click on the back arrow click
@@ -187,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
             case android.R.id.home:
                 onBackPressed();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -211,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, final boolean isChecked) {
             final String userId = DataLoader.getUid();
-            loader.mDatabase.child(DataLoader.USERS).child(userId).addListenerForSingleValueEvent(
+            loader.mDatabase.child(USERS).child(userId).addListenerForSingleValueEvent(
                     new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

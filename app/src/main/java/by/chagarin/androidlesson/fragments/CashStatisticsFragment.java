@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.MainActivity;
@@ -52,8 +53,10 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.Transfer;
 import by.chagarin.androidlesson.objects.User;
 
+import static by.chagarin.androidlesson.DataLoader.ACTIONS;
 import static by.chagarin.androidlesson.DataLoader.AllDataLoaderListener;
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
+import static by.chagarin.androidlesson.DataLoader.PLACES;
 import static by.chagarin.androidlesson.DataLoader.TRANSFERS;
 import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
@@ -79,15 +82,19 @@ public class CashStatisticsFragment extends Fragment {
     private final DataLoader.AllDataLoaderListener singleValueListener = new AllDataLoaderListener(new Callable() {
         @Override
         public Object call() throws Exception {
-            createPierChart(DataLoader.categoryList, DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
+            createPierChart(DataLoader.placesCategoryList, DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
             return null;
         }
     });
+
+    @Bean
+    ColorRandom colorRandom;
 
     @AfterViews
     public void ready() {
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
+        getView().setBackgroundColor(colorRandom.getRandomColor());
         startLoad();
         mainActivity.setTitle("Где же Ваши денежки?");
     }
@@ -126,7 +133,8 @@ public class CashStatisticsFragment extends Fragment {
         Legend legend = pieChart.getLegend();
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setTextSize(20f);
+        legend.setTextSize(22f);
+        legend.setTextColor(Color.BLACK);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
         int colorcodes[] = legend.getColors();
         childLayout.removeAllViews();
@@ -238,7 +246,7 @@ public class CashStatisticsFragment extends Fragment {
         //создаем мап где для каждой категории указано сколько товаров куплено
         Map<Category, Float> resultList = new HashMap<>();
         //определяем для какие есть категории мест хранения денег
-        List<Category> data = KindOfCategories.sortData(categoryList, KindOfCategories.getPlace(), enabled);
+        List<Category> data = KindOfCategories.sortData(categoryList, enabled);
         for (Category category : data) {
             resultList.put(category, 0f);
         }
@@ -317,7 +325,7 @@ public class CashStatisticsFragment extends Fragment {
          */
         private List<Category> getArrayOfCategory(List<Category> listCategory) {
             List<Category> list = new ArrayList<>();
-            for (Category category : KindOfCategories.sortData(listCategory, KindOfCategories.getPlace(), true)) {
+            for (Category category : listCategory) {
                 if (!TextUtils.equals(category.name, pieEntry.getLabel())) {
                     list.add(category);
                 }
@@ -327,7 +335,7 @@ public class CashStatisticsFragment extends Fragment {
 
         @Override
         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-            loader.mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            loader.mDatabase.child(CATEGORIES + PLACES).addListenerForSingleValueEvent(new ValueEventListener() {
                 public EditText et;
                 public ArrayAdapter<String> adapter;
                 public Spinner spinner;
@@ -337,7 +345,7 @@ public class CashStatisticsFragment extends Fragment {
                     //загружаем категории
                     final List<Category> categoryList = new ArrayList<>();
 
-                    for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
+                    for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
                         categoryList.add(areaSnapshot.getValue(Category.class));
                     }
                     arrayOfCategory = getArrayOfCategory(categoryList);
@@ -370,7 +378,7 @@ public class CashStatisticsFragment extends Fragment {
                                                             Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                                         } else {
                                                             // Write new post
-                                                            String key = loader.mDatabase.child(TRANSFERS).push().getKey();
+                                                            String key = loader.mDatabase.child(ACTIONS + TRANSFERS).push().getKey();
                                                             loader.writeNewTransfer(new Transfer(
                                                                     cost,
                                                                     df.format(new Date()),
