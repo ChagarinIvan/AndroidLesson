@@ -36,18 +36,12 @@ public class KindOfCategories {
      * метод сортирует данные
      * выбирает из списка категорий только с нужным типом
      */
-    public static List<Category> sortData(List<Category> data, String kind, boolean enabled) {
-        List<Category> list = new ArrayList<>();
-        for (Category cat : data) {
-            if (TextUtils.equals(cat.kind, kind)) {
-                list.add(cat);
-            }
-        }
+    public static List<Category> sortData(List<Category> data, boolean enabled) {
         if (enabled) {
-            return list;
+            return data;
         } else {
             List<Category> resultList = new ArrayList<>();
-            for (Category category : list) {
+            for (Category category : data) {
                 if (category.isShow.equals("yes")) {
                     resultList.add(category);
                 }

@@ -3,29 +3,20 @@ package by.chagarin.androidlesson;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.color.CircleView;
-import com.afollestad.materialdialogs.color.ColorChooserDialog;
-import com.afollestad.materialdialogs.util.DialogUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -34,7 +25,6 @@ import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
@@ -51,12 +41,11 @@ import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.USERS;
 
-public class MainActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback {
+public class MainActivity extends AppCompatActivity {
 
     private FirebaseUser mFirebaseUser;
     private Bundle savedInstance;
     private MainActivity context;
-    private int primaryPreselect;
     public Fragment actualFragment;
     public Fragment parentFragment;
 
@@ -84,22 +73,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
-    @Override
-    public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
-        primaryPreselect = selectedColor;
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(selectedColor));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(CircleView.shiftColorDown(selectedColor));
-            getWindow().setNavigationBarColor(selectedColor);
-        }
-    }
-
-    @Override
-    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog) {
-        Toast.makeText(this, "NET", Toast.LENGTH_SHORT).show();
-    }
-
     //
     private class DrawerItemClickListener implements Drawer.OnDrawerItemClickListener {
         @Override
@@ -124,11 +97,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                 case 5:
                     result.setSelection(5);
                     setFragment(Chat_.builder().build());
-                    return true;
-                case 8:
-                    new ColorChooserDialog.Builder(context, R.string.color_palette)
-                            .titleSub(R.string.colors)
-                            .show();
                     return true;
             }
             return false;
@@ -191,8 +159,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                         new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart),
                         new PrimaryDrawerItem().withName(R.string.chat).withIcon(FontAwesome.Icon.faw_chain_broken),
                         new DividerDrawerItem(),
-                        new SwitchDrawerItem().withName(R.string.swich).withIcon(Octicons.Icon.oct_tools).withChecked(user.isShow).withOnCheckedChangeListener(new SwitchListener()),
-                        new SecondaryDrawerItem().withName(R.string.color_dialog).withIcon(GoogleMaterial.Icon.gmd_format_color_fill)
+                        new SwitchDrawerItem().withName(R.string.swich).withIcon(Octicons.Icon.oct_tools).withChecked(user.isShow).withOnCheckedChangeListener(new SwitchListener())
                 )// add the items we want to use with our Drawer
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
                 .withSavedInstance(savedInstance)
@@ -216,9 +183,9 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
-        context = this;
 
-        primaryPreselect = DialogUtils.resolveColor(this, R.attr.colorPrimary);
+        ColorRandom colorRandom = ColorRandom_.getInstance_(this);
+        context = this;
         FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {

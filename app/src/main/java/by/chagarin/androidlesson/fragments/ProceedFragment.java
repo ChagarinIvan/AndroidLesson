@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.MainActivity;
@@ -50,7 +51,9 @@ import by.chagarin.androidlesson.objects.Proceed;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.ProceedViewHolder;
 
+import static by.chagarin.androidlesson.DataLoader.ACTIONS;
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
+import static by.chagarin.androidlesson.DataLoader.PLACES;
 import static by.chagarin.androidlesson.DataLoader.PROCEEDS;
 import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
@@ -89,11 +92,15 @@ public class ProceedFragment extends Fragment {
     private Spinner spinnerPlace;
     private ValueEventListener valueEventListener;
 
+    @Bean
+    ColorRandom colorRandom;
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.add);
+        this.getView().setBackgroundColor(colorRandom.getRandomColor());
         super.onPrepareOptionsMenu(menu);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
@@ -103,7 +110,7 @@ public class ProceedFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        final Query postsQuery = loader.getQuery(PROCEEDS);
+        final Query postsQuery = loader.getQuery(ACTIONS + PROCEEDS);
         //адаптер БД
         mAdapter = new FirebaseRecyclerAdapter<Proceed, ProceedViewHolder>(Proceed.class, R.layout.list_item,
                 ProceedViewHolder.class, postsQuery) {
@@ -116,8 +123,8 @@ public class ProceedFragment extends Fragment {
                         loader.mDatabase.child(CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                String proceedName = dataSnapshot.child(model.categoryProceedesKey).child("name").getValue(String.class);
-                                String placeName = dataSnapshot.child(model.categoryPlaceKey).child("name").getValue(String.class);
+                                String proceedName = dataSnapshot.child(PROCEEDS).child(model.categoryProceedesKey).child("name").getValue(String.class);
+                                String placeName = dataSnapshot.child(PLACES).child(model.categoryPlaceKey).child("name").getValue(String.class);
                                 new MaterialDialog.Builder(getActivity())
                                         .items(getListForViewInfoDialog(model, proceedName, placeName))
                                         .autoDismiss(true)
@@ -361,35 +368,15 @@ public class ProceedFragment extends Fragment {
     }
 
     private void loadCategories(final Callable func) {
-        loader.mDatabase.child(DataLoader.CATEGORIES).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Is better to use a List, because you don't know the size
-                // of the iterator returned by dataSnapshot.getChildren() to
-                // initialize the array
-                final List<Category> categoryNames = new ArrayList<>();
-
-                for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
-                    Category categoryName = areaSnapshot.getValue(Category.class);
-                    categoryName.key = areaSnapshot.getKey();
-                    categoryNames.add(categoryName);
-                }
-                listCategoriesProceedes = KindOfCategories.sortData(categoryNames, KindOfCategories.getProceed(), true);
-                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
-                adapterProceedes = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
-                adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-                try {
-                    func.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        listCategoriesProceedes = DataLoader.proceedesCategoryList;
+        listCategoriesPlaces = DataLoader.placesCategoryList;
+        adapterProceedes = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesProceedes));
+        adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+        try {
+            func.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Click
@@ -423,7 +410,7 @@ public class ProceedFragment extends Fragment {
                                                     Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                                 } else {
                                                     // Write new post
-                                                    String key = loader.mDatabase.child(PROCEEDS).push().getKey();
+                                                    String key = loader.mDatabase.child(ACTIONS + PROCEEDS).push().getKey();
                                                     String priceValue = price.getText().toString();
                                                     String dateValue = dateText.getText().toString();
                                                     String commentValue = comment.getText().toString();

@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import by.chagarin.androidlesson.ColorRandom;
+import by.chagarin.androidlesson.ColorRandom_;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.DataLoader_;
 import by.chagarin.androidlesson.R;
@@ -55,6 +57,8 @@ public class ChildFragmentOne extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_category_child, container, false);
+        ColorRandom colorRandom = ColorRandom_.getInstance_(getActivity());
+        view.setBackgroundColor(colorRandom.getRandomColor());
         loader = DataLoader_.getInstance_(getActivity());
         mRecycler = (RecyclerView) view.findViewById(R.id.categories_list_view);
         // [END create_database_reference]

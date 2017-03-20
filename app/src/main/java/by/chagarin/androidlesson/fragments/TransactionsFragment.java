@@ -43,6 +43,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.MainActivity;
@@ -52,9 +53,9 @@ import by.chagarin.androidlesson.objects.Transaction;
 import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.TransactionViewHolder;
 
+import static by.chagarin.androidlesson.DataLoader.ACTIONS;
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
-import static by.chagarin.androidlesson.DataLoader.CATEGORIES_PLACES;
-import static by.chagarin.androidlesson.DataLoader.CATEGORIES_TRANSACTIONS;
+import static by.chagarin.androidlesson.DataLoader.PLACES;
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
 import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
@@ -95,11 +96,16 @@ public class TransactionsFragment extends Fragment {
     private ArrayAdapter<String> adapterPlaces;
     private ValueEventListener valueEventListener;
 
+    @Bean
+    ColorRandom colorRandom;
+
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.transactions);
+        this.getView().setBackgroundColor(colorRandom.getRandomColor());
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         //делаем хинт из хмл
@@ -114,7 +120,7 @@ public class TransactionsFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
         // Set up FirebaseRecyclerAdapter with the Query
-        final Query postsQuery = loader.getQuery(TRANSACTIONS);
+        final Query postsQuery = loader.getQuery(ACTIONS + TRANSACTIONS);
         //адаптер fireBase
         mAdapter = new FirebaseRecyclerAdapter<Transaction, TransactionViewHolder>(Transaction.class, R.layout.list_item,
                 TransactionViewHolder.class, postsQuery) {
@@ -127,8 +133,8 @@ public class TransactionsFragment extends Fragment {
                         loader.mDatabase.child(CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                String transactionName = dataSnapshot.child("transactions").child(model.categoryTransactionKey).child("name").getValue(String.class);
-                                String placeName = dataSnapshot.child("places").child(model.categoryPlaceKey).child("name").getValue(String.class);
+                                String transactionName = dataSnapshot.child(TRANSACTIONS).child(model.categoryTransactionKey).child("name").getValue(String.class);
+                                String placeName = dataSnapshot.child(PLACES).child(model.categoryPlaceKey).child("name").getValue(String.class);
                                 new MaterialDialog.Builder(getActivity())
                                         .items(getListForViewInfoDialog(model, transactionName, placeName))
                                         .autoDismiss(true)
@@ -301,51 +307,15 @@ public class TransactionsFragment extends Fragment {
     }
 
     private void loadCategories(final Callable func) {
-        listCategoriesTransactions = new ArrayList<>();
-        listCategoriesPlaces = new ArrayList<>();
-        loader.mDatabase.child(CATEGORIES_TRANSACTIONS).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Is better to use a List, because you don't know the size
-                // of the iterator returned by dataSnapshot.getChildren() to
-                // initialize the array
-                for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
-                    Category categoryName = areaSnapshot.getValue(Category.class);
-                    categoryName.key = areaSnapshot.getKey();
-                    listCategoriesTransactions.add(categoryName);
-                }
-                loader.mDatabase.child(CATEGORIES_PLACES).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        // Is better to use a List, because you don't know the size
-                        // of the iterator returned by dataSnapshot.getChildren() to
-                        // initialize the array
-                        for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
-                            Category categoryName = areaSnapshot.getValue(Category.class);
-                            categoryName.key = areaSnapshot.getKey();
-                            listCategoriesPlaces.add(categoryName);
-                        }
-                        adapterTransaction = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
-                        adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-                        try {
-                            func.call();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        listCategoriesTransactions = DataLoader.transactionsCategoryList;
+        listCategoriesPlaces = DataLoader.placesCategoryList;
+        adapterTransaction = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+        adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+        try {
+            func.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void getMaterialDialog(Transaction model, MaterialDialog.SingleButtonCallback singleButtonCallback, int dialogTitle) {
@@ -431,7 +401,7 @@ public class TransactionsFragment extends Fragment {
                                                     Toast.makeText(getActivity(), "Error: could not fetch user.", Toast.LENGTH_SHORT).show();
                                                 } else {
                                                     // Write new post
-                                                    String key = loader.mDatabase.child(TRANSACTIONS).push().getKey();
+                                                    String key = loader.mDatabase.child(ACTIONS + TRANSACTIONS).push().getKey();
                                                     String priceValue = price.getText().toString();
                                                     String dateValue = dateText.getText().toString();
                                                     String commentValue = comment.getText().toString();
