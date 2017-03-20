@@ -79,7 +79,7 @@ public class CashStatisticsFragment extends Fragment {
     private final DataLoader.AllDataLoaderListener singleValueListener = new AllDataLoaderListener(new Callable() {
         @Override
         public Object call() throws Exception {
-            createPierChart(DataLoader.categoryList, DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
+            createPierChart(DataLoader.getAllCategoryList(), DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
             return null;
         }
     });

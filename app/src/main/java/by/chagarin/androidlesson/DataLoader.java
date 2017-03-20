@@ -33,6 +33,9 @@ import by.chagarin.androidlesson.objects.User;
 public class DataLoader {
     public static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
     public static final String CATEGORIES = "categories";
+    public static final String CATEGORIES_TRANSACTIONS = "categories/transactions";
+    public static final String CATEGORIES_PROCEED = "categories/proceed";
+    public static final String CATEGORIES_PLACES = "categories/places";
     public static final String ACTIONS = "actions";
     public static final String TRANSACTIONS = ACTIONS + "/transactions";
     public static final String PROCEEDS = ACTIONS + "/proceeds";
@@ -44,7 +47,9 @@ public class DataLoader {
     public static List<Transaction> transactionList;
     public static List<Proceed> proceedList;
     public static List<Transfer> transferList;
-    public static List<Category> categoryList;
+    public static List<Category> transactionsCategoryList;
+    public static List<Category> proceedesCategoryList;
+    public static List<Category> placesCategoryList;
 
     public void writeNewUser(User person) {
         Map<String, Object> postValues = person.toMap();
@@ -95,12 +100,19 @@ public class DataLoader {
         mDatabase.addListenerForSingleValueEvent(new AllDataLoaderListener(new Callable() {
             @Override
             public Object call() throws Exception {
-                float cashCount = calcCashCount(categoryList, transactionList, proceedList, transferList, user.isShow);
+                float cashCount = calcCashCount(getAllCategoryList(), transactionList, proceedList, transferList, user.isShow);
                 setCash(cashCount, cash, variant);
                 return null;
             }
                 })
         );
+    }
+
+    public static List<Category> getAllCategoryList() {
+        List<Category> result = new ArrayList<>(transactionsCategoryList);
+        result.addAll(proceedesCategoryList);
+        result.addAll(placesCategoryList);
+        return result;
     }
 
     private float calcCashCount(List<Category> categoryList, List<Transaction> transactionList, List<Proceed> proceedList, List<Transfer> transferList, boolean isShow) {
@@ -166,7 +178,9 @@ public class DataLoader {
             user = dataSnapshot.child(USERS).child(getUid()).getValue(User.class);
             transactionList = new ArrayList<>();
             transferList = new ArrayList<>();
-            categoryList = new ArrayList<>();
+            transactionsCategoryList = new ArrayList<>();
+            proceedesCategoryList = new ArrayList<>();
+            placesCategoryList = new ArrayList<>();
             proceedList = new ArrayList<>();
 
             for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSACTIONS).getChildren()) {
@@ -178,8 +192,14 @@ public class DataLoader {
             for (DataSnapshot areaSnapshot : dataSnapshot.child(TRANSFERS).getChildren()) {
                 transferList.add(areaSnapshot.getValue(Transfer.class));
             }
-            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES).getChildren()) {
-                categoryList.add(areaSnapshot.getValue(Category.class));
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES_TRANSACTIONS).getChildren()) {
+                transactionsCategoryList.add(areaSnapshot.getValue(Category.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES_PROCEED).getChildren()) {
+                proceedesCategoryList.add(areaSnapshot.getValue(Category.class));
+            }
+            for (DataSnapshot areaSnapshot : dataSnapshot.child(CATEGORIES_PLACES).getChildren()) {
+                placesCategoryList.add(areaSnapshot.getValue(Category.class));
             }
             try {
                 func.call();

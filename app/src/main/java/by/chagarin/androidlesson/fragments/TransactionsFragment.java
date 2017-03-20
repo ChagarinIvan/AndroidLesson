@@ -53,6 +53,8 @@ import by.chagarin.androidlesson.objects.User;
 import by.chagarin.androidlesson.viewholders.TransactionViewHolder;
 
 import static by.chagarin.androidlesson.DataLoader.CATEGORIES;
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES_PLACES;
+import static by.chagarin.androidlesson.DataLoader.CATEGORIES_TRANSACTIONS;
 import static by.chagarin.androidlesson.DataLoader.TRANSACTIONS;
 import static by.chagarin.androidlesson.DataLoader.USERS;
 import static by.chagarin.androidlesson.DataLoader.df;
@@ -125,8 +127,8 @@ public class TransactionsFragment extends Fragment {
                         loader.mDatabase.child(CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                String transactionName = dataSnapshot.child(model.categoryTransactionKey).child("name").getValue(String.class);
-                                String placeName = dataSnapshot.child(model.categoryPlaceKey).child("name").getValue(String.class);
+                                String transactionName = dataSnapshot.child("transactions").child(model.categoryTransactionKey).child("name").getValue(String.class);
+                                String placeName = dataSnapshot.child("places").child(model.categoryPlaceKey).child("name").getValue(String.class);
                                 new MaterialDialog.Builder(getActivity())
                                         .items(getListForViewInfoDialog(model, transactionName, placeName))
                                         .autoDismiss(true)
@@ -299,28 +301,44 @@ public class TransactionsFragment extends Fragment {
     }
 
     private void loadCategories(final Callable func) {
-        loader.mDatabase.child(DataLoader.CATEGORIES).addListenerForSingleValueEvent(new ValueEventListener() {
+        listCategoriesTransactions = new ArrayList<>();
+        listCategoriesPlaces = new ArrayList<>();
+        loader.mDatabase.child(CATEGORIES_TRANSACTIONS).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Is better to use a List, because you don't know the size
                 // of the iterator returned by dataSnapshot.getChildren() to
                 // initialize the array
-                final List<Category> categoryNames = new ArrayList<>();
-
                 for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
                     Category categoryName = areaSnapshot.getValue(Category.class);
                     categoryName.key = areaSnapshot.getKey();
-                    categoryNames.add(categoryName);
+                    listCategoriesTransactions.add(categoryName);
                 }
-                listCategoriesTransactions = KindOfCategories.sortData(categoryNames, KindOfCategories.getTransaction(), true);
-                listCategoriesPlaces = KindOfCategories.sortData(categoryNames, KindOfCategories.getPlace(), true);
-                adapterTransaction = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
-                adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
-                try {
-                    func.call();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                loader.mDatabase.child(CATEGORIES_PLACES).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Is better to use a List, because you don't know the size
+                        // of the iterator returned by dataSnapshot.getChildren() to
+                        // initialize the array
+                        for (DataSnapshot areaSnapshot : dataSnapshot.getChildren()) {
+                            Category categoryName = areaSnapshot.getValue(Category.class);
+                            categoryName.key = areaSnapshot.getKey();
+                            listCategoriesPlaces.add(categoryName);
+                        }
+                        adapterTransaction = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesTransactions));
+                        adapterPlaces = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, getStringArray(listCategoriesPlaces));
+                        try {
+                            func.call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override

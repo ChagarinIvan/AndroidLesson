@@ -88,18 +88,18 @@ public class StatisticsFragment extends Fragment {
 //
 //    private List<PieEntry> sortData(List<Transaction> data) {
 //        //создаем мап где для каждой категории указано сколько товаров куплено
-//        HashMap<Category, Float> categoryList = new HashMap<Category, Float>();
+//        HashMap<Category, Float> allCategoryList = new HashMap<Category, Float>();
 //        for (Transaction tr : data) {
 //            Category category = tr.getCategoryTransaction();
 //            float summ = Float.parseFloat(tr.getPrice());
-//            if (categoryList.containsKey(category)) {
-//                summ += categoryList.get(category);
+//            if (allCategoryList.containsKey(category)) {
+//                summ += allCategoryList.get(category);
 //            }
-//            categoryList.put(category, summ);
+//            allCategoryList.put(category, summ);
 //        }
 //        //переводим всё в пие ентри
 //        List<PieEntry> entries = new ArrayList<>();
-//        for (Map.Entry<Category, Float> mapEntry : categoryList.entrySet()) {
+//        for (Map.Entry<Category, Float> mapEntry : allCategoryList.entrySet()) {
 //            entries.add(new PieEntry(mapEntry.getValue(), mapEntry.getKey().getName()));
 //        }
 //        return entries;

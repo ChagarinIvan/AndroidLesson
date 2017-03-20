@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson.categories.fragments;
+package by.chagarin.androidlesson.fragments.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -196,7 +196,7 @@ public class ChildFragmentOne extends Fragment {
                                                     @Override
                                                     public Object call() throws Exception {
                                                         List<String> allUsedCategoresKeys = getAllCategoryKeys(DataLoader.transactionList, DataLoader.proceedList, DataLoader.transferList);
-                                                        if (checkCategory(allUsedCategoresKeys, DataLoader.categoryList.get(position).key)) {
+                                                        if (checkCategory(allUsedCategoresKeys, getCategoryList().get(position).key)) {
                                                             DatabaseReference ref = mAdapter.getRef(position);
                                                             ref.removeValue();
                                                         } else {
@@ -228,6 +228,10 @@ public class ChildFragmentOne extends Fragment {
         mRecycler.setAdapter(mAdapter);
         // Inflate the layout for this fragment
         return view;
+    }
+
+    public List<Category> getCategoryList() {
+        return null;
     }
 
     public String getQuery() {
