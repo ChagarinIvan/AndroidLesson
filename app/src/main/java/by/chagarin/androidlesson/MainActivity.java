@@ -90,13 +90,17 @@ public class MainActivity extends AppCompatActivity {
                     result.setSelection(3);
                     setFragment(CategoresFragment_.builder().build());
                     return true;
-                case 4:
-                    result.setSelection(4);
-                    setFragment(StatisticsFragment_.builder().build());
-                    return true;
                 case 5:
                     result.setSelection(5);
+                    setFragment(StatisticsFragment_.builder().build());
+                    return true;
+                case 6:
+                    result.setSelection(6);
                     setFragment(Chat_.builder().build());
+                    return true;
+                case 4:
+                    result.setSelection(4);
+                    setFragment(TransferFragment_.builder().build());
                     return true;
             }
             return false;
@@ -156,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
                         new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
                         new PrimaryDrawerItem().withName(R.string.categores).withIcon(FontAwesome.Icon.faw_tags),
+                        new PrimaryDrawerItem().withName(R.string.transfer).withIcon(FontAwesome.Icon.faw_adn),
                         new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart),
                         new PrimaryDrawerItem().withName(R.string.chat).withIcon(FontAwesome.Icon.faw_chain_broken),
                         new DividerDrawerItem(),

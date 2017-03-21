@@ -1,19 +1,18 @@
-package by.chagarin.androidlesson.fragments.fragments;
+package by.chagarin.androidlesson.fragments.categorys_fragments;
 
 import java.util.List;
 
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.objects.Category;
 
-public class TransactionsCategores extends ChildFragmentOne {
-
+public class PlacesCategores extends ChildFragmentOne {
     @Override
     public String getQuery() {
-        return DataLoader.CATEGORIES + "/transactions";
+        return DataLoader.CATEGORIES + "/places";
     }
 
     @Override
     public List<Category> getCategoryList() {
-        return DataLoader.transactionsCategoryList;
+        return DataLoader.placesCategoryList;
     }
 }

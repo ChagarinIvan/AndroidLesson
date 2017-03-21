@@ -22,6 +22,19 @@ public class ColorRandom {
         final int green = (baseGreen + random.nextInt(256)) / 2;
         final int blue = (baseBlue + random.nextInt(256)) / 2;
 
-        return Color.rgb(red, green, blue);
+        int[] colorParam = new int[]{red, green, blue};
+        int flag = random.nextInt(1);
+        if (flag == 0) {
+            int number = random.nextInt(2);
+            colorParam[number] = colorParam[number] / 10;
+        } else {
+            int number = random.nextInt(2);
+            for (int n = 0; n < 3; n++) {
+                if (n != number) {
+                    colorParam[number] = colorParam[number] / 10;
+                }
+            }
+        }
+        return Color.rgb(colorParam[0], colorParam[1], colorParam[2]);
     }
 }

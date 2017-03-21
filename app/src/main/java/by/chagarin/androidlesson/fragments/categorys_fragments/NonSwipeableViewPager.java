@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson.fragments.fragments;
+package by.chagarin.androidlesson.fragments.categorys_fragments;
 
 
 import android.content.Context;
