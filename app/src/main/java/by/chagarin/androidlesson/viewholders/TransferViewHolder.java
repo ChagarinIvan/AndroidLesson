@@ -5,6 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Transfer;
 
@@ -16,12 +23,12 @@ public class TransferViewHolder extends RecyclerView.ViewHolder {
     private TextView date;
     private TextView fromCategoryKey;
     private TextView toCategoryKey;
-
+    public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     public CardView cardView;
 
     public TransferViewHolder(View itemView) {
         super(itemView);
-        name = (TextView) itemView.findViewById(R.id.title);
+        name = (TextView) itemView.findViewById(R.id.name);
         sum = (TextView) itemView.findViewById(R.id.price);
         date = (TextView) itemView.findViewById(R.id.date);
         fromCategoryKey = (TextView) itemView.findViewById(R.id.from_category);
@@ -29,11 +36,44 @@ public class TransferViewHolder extends RecyclerView.ViewHolder {
         cardView = (CardView) itemView.findViewById(R.id.card_id);
     }
 
-    public void bindToTransfer(Transfer transfer) {
-        name.setText(transfer.title);
-        sum.setText(transfer.price);
-        date.setText(transfer.date);
-        fromCategoryKey.setText(transfer.categoryPlaceFromKey);
-        toCategoryKey.setText(transfer.categoryPlaceToKey);
+    public void bindToTransfer(final Transfer transfer) {
+        mDatabase.child(DataLoader.CATEGORIES).child(DataLoader.PLACES).child(transfer.categoryPlaceFromKey).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final String fromCategory = dataSnapshot.getValue(String.class);
+                mDatabase.child(DataLoader.CATEGORIES).child(DataLoader.PLACES).child(transfer.categoryPlaceToKey).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final String toCategory = dataSnapshot.getValue(String.class);
+                        mDatabase.child(DataLoader.USERS).child(transfer.userKey).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String userName = dataSnapshot.getValue(String.class);
+                                name.setText(userName);
+                                sum.setText(transfer.price);
+                                date.setText(transfer.date);
+                                fromCategoryKey.setText(fromCategory);
+                                toCategoryKey.setText(toCategory);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

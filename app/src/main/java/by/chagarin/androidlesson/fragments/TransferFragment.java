@@ -62,7 +62,7 @@ public class TransferFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
-        mainActivity.setTitle(R.string.transactions);
+        mainActivity.setTitle(R.string.transfer);
         this.getView().setBackgroundColor(colorRandom.getRandomColor());
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();

@@ -8,84 +8,83 @@
     <android.support.v7.widget.CardView
         android:id="@+id/card_id"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:layout_marginBottom="7dp"
         card_view:cardBackgroundColor="@color/background"
         card_view:cardCornerRadius="3dp">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/from_category"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_alignParentLeft="true"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:text="Марина кашелек"
-                android:textColor="#7F7F7F"
-                android:textSize="16dp" />
-
-            <TextView
-                android:id="@+id/price"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_centerHorizontal="true"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:text="50"
-                android:textColor="#7F7F7F"
-                android:textSize="16dp" />
-
-            <TextView
-                android:id="@+id/to_category"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:text="Ваня наличные"
-                android:textColor="#7F7F7F"
-                android:textSize="16dp" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/date"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom||center"
-                android:text="Дата"
-                android:textColor="#7F7F7F"
-                android:textSize="16dp" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Чагарин Иван"
+                    android:textColor="#7F7F7F"
+                    android:textSize="16dp" />
+            </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/name"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:gravity="center||top"
-                android:layout_height="match_parent"
-                android:text="Дата"
-                android:textColor="#7F7F7F"
-                android:textSize="16dp" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/from_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Марина кашелек"
+                    android:textColor="#7F7F7F"
+                    android:textSize="16dp" />
 
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="50"
+                    android:textColor="#7F7F7F"
+                    android:textSize="16dp" />
 
+                <TextView
+                    android:id="@+id/to_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="Ваня наличные"
+                    android:textColor="#7F7F7F"
+                    android:textSize="16dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Дата"
+                    android:textColor="#7F7F7F"
+                    android:textSize="16dp" />
+
+            </LinearLayout>
+        </LinearLayout>
     </android.support.v7.widget.CardView>
 </RelativeLayout>

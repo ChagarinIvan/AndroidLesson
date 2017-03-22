@@ -37,6 +37,7 @@ import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
 import by.chagarin.androidlesson.fragments.StatisticsFragment_;
 import by.chagarin.androidlesson.fragments.TransactionsFragment_;
+import by.chagarin.androidlesson.fragments.TransferFragment_;
 import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.USERS;
