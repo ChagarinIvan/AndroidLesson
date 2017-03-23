@@ -1,40 +1,35 @@
 package by.chagarin.androidlesson;
 
 
-import android.graphics.Color;
-
 import org.androidannotations.annotations.EBean;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class ColorRandom {
     private Random random = new Random();
+    private ArrayList<Integer> colorList = new ArrayList<Integer>() {
+        {
+            add(R.color.color1);
+            add(R.color.color2);
+            add(R.color.color3);
+            add(R.color.color4);
+            add(R.color.color5);
+            add(R.color.color6);
+            add(R.color.color7);
+            add(R.color.color8);
+            add(R.color.color9);
+            add(R.color.color10);
+            add(R.color.color11);
+            add(R.color.color12);
+            add(R.color.color13);
+            add(R.color.color14);
+            add(R.color.color15);
+        }
+    };
 
     public int getRandomColor() {
-        final int baseColor = Color.WHITE;
-
-        final int baseRed = Color.red(baseColor);
-        final int baseGreen = Color.green(baseColor);
-        final int baseBlue = Color.blue(baseColor);
-
-        final int red = (baseRed + random.nextInt(256)) / 2;
-        final int green = (baseGreen + random.nextInt(256)) / 2;
-        final int blue = (baseBlue + random.nextInt(256)) / 2;
-
-        int[] colorParam = new int[]{red, green, blue};
-        int flag = random.nextInt(1);
-        if (flag == 0) {
-            int number = random.nextInt(2);
-            colorParam[number] = colorParam[number] / 10;
-        } else {
-            int number = random.nextInt(2);
-            for (int n = 0; n < 3; n++) {
-                if (n != number) {
-                    colorParam[number] = colorParam[number] / 10;
-                }
-            }
-        }
-        return Color.rgb(colorParam[0], colorParam[1], colorParam[2]);
+        return colorList.get(random.nextInt(14));
     }
 }

@@ -2,6 +2,7 @@ package by.chagarin.androidlesson.fragments;
 
 import android.app.Fragment;
 
+import com.github.androidprogresslayout.ProgressLayout;
 import com.github.mikephil.charting.charts.PieChart;
 
 import org.androidannotations.annotations.AfterViews;
@@ -26,12 +27,16 @@ public class StatisticsFragment extends Fragment {
     @Bean
     ColorRandom colorRandom;
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
+
     @AfterViews
     void ready() {
-        getView().setBackgroundColor(colorRandom.getRandomColor());
+        getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.statistics);
+        progressLayout.showContent();
     }
 
 

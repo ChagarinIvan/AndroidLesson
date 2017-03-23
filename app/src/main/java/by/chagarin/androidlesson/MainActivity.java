@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private MainActivity context;
     public Fragment actualFragment;
     public Fragment parentFragment;
+    public ProgressLayout progressLayout;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -72,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
         parentFragment = actualFragment;
         result.closeDrawer();
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+    }
+
+    public void showContent() {
+        progressLayout.showContent();
     }
 
     //
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         actualFragment = TransactionsFragment_.builder().build();
         setFragment(actualFragment);
+        progressLayout.showContent();
     }
 
     private void someMethod(String uri) {
@@ -189,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
-
+        progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
         ColorRandom colorRandom = ColorRandom_.getInstance_(this);
         context = this;
         FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();

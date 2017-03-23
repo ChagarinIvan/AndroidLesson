@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -95,13 +96,15 @@ public class TransactionsFragment extends Fragment {
     @Bean
     ColorRandom colorRandom;
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.transactions);
-        this.getView().setBackgroundColor(colorRandom.getRandomColor());
+        this.getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         //делаем хинт из хмл
@@ -220,6 +223,7 @@ public class TransactionsFragment extends Fragment {
                         return true;
                     }
                 });
+                progressLayout.showContent();
             }
         };
         //слушатель нажатий на остаток кэша

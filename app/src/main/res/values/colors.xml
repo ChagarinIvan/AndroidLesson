@@ -13,4 +13,19 @@
     <color name="button_color">#7E7E7E</color>
     <color name="orange">#FF4500</color>
     <color name="blue">#0000FF</color>
+    <color name="color1">#32B92D</color>
+    <color name="color2">#FF6EB0</color>
+    <color name="color3">#FFCB00</color>
+    <color name="color4">#93228D</color>
+    <color name="color5">#B84B9E</color>
+    <color name="color6">#F20075</color>
+    <color name="color7">#FF7A5A</color>
+    <color name="color8">#00AAA0</color>
+    <color name="color9">#8ED2C9</color>
+    <color name="color10">#FF4C3B</color>
+    <color name="color11">#C6C8CA</color>
+    <color name="color12">#006495</color>
+    <color name="color13">#E0A025</color>
+    <color name="color14">#FF0000</color>
+    <color name="color15">#00FF00</color>
 </resources>

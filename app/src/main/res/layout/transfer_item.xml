@@ -45,6 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Марина кашелек"
+                    android:layout_marginLeft="10dp"
                     android:textColor="#7F7F7F"
                     android:textSize="16dp" />
 
@@ -64,6 +65,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="end"
+                    android:layout_marginRight="10dp"
                     android:text="Ваня наличные"
                     android:textColor="#7F7F7F"
                     android:textSize="16dp" />

@@ -92,7 +92,7 @@ dependencies {
     compile 'com.mikepenz:octicons-typeface:3.0.0.1@aar'
     //tabs
     compile 'it.neokree:MaterialTabs:0.11'
-    compile 'com.github.nguyenhoanglam:ProgressLayout:1.0.1'
+    compile 'com.github.androidprogresslayout:library:2.0.2@aar'
 }
 
 apt {

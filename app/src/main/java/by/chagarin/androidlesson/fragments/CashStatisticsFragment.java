@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -70,7 +71,6 @@ import static by.chagarin.androidlesson.DataLoader.isShow;
 public class CashStatisticsFragment extends Fragment {
     private Map<Category, Float> categoryFloatMap;
 
-
     @ViewById
     PieChart pieChart;
 
@@ -87,14 +87,17 @@ public class CashStatisticsFragment extends Fragment {
         }
     });
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
+
     @Bean
     ColorRandom colorRandom;
 
     @AfterViews
     public void ready() {
-        MainActivity mainActivity = (MainActivity) getActivity();
+        final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
-        getView().setBackgroundColor(colorRandom.getRandomColor());
+        getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         startLoad();
         mainActivity.setTitle("Где же Ваши денежки?");
     }
@@ -199,6 +202,7 @@ public class CashStatisticsFragment extends Fragment {
         });
         pieChart.setDrawEntryLabels(true);
         pieChart.invalidate();
+        progressLayout.showContent();
     }
 
     /**

@@ -14,6 +14,7 @@ import android.widget.SearchView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,6 +53,9 @@ public class TransferFragment extends Fragment {
     @Bean
     DataLoader loader;
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
+
     @Bean
     ColorRandom colorRandom;
     private FirebaseRecyclerAdapter<Transfer, TransferViewHolder> mAdapter;
@@ -63,7 +67,7 @@ public class TransferFragment extends Fragment {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.transfer);
-        this.getView().setBackgroundColor(colorRandom.getRandomColor());
+        this.getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         //делаем хинт из хмл
@@ -85,6 +89,7 @@ public class TransferFragment extends Fragment {
             @Override
             protected void populateViewHolder(TransferViewHolder viewHolder, Transfer model, int position) {
                 viewHolder.bindToTransfer(model);
+                progressLayout.showContent();
             }
         };
         //слушатель нажатий на остаток кэша
