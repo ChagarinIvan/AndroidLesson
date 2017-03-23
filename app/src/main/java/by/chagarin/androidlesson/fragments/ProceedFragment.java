@@ -3,7 +3,6 @@ package by.chagarin.androidlesson.fragments;
 
 import android.app.Fragment;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -77,9 +76,6 @@ public class ProceedFragment extends Fragment {
 
     @Bean
     DataLoader loader;
-
-    @ViewById
-    SwipeRefreshLayout swipeLayout;
 
     private FirebaseRecyclerAdapter<Proceed, ProceedViewHolder> mAdapter;
     private List<Category> listCategoriesProceedes;

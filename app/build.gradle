@@ -6,7 +6,7 @@ android {
     buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "by.chagarin.androidlesson"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -92,7 +92,7 @@ dependencies {
     compile 'com.mikepenz:octicons-typeface:3.0.0.1@aar'
     //tabs
     compile 'it.neokree:MaterialTabs:0.11'
-    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile 'com.github.nguyenhoanglam:ProgressLayout:1.0.1'
 }
 
 apt {

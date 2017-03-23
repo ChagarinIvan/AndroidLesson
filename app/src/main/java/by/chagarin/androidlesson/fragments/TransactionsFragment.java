@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -78,9 +77,6 @@ public class TransactionsFragment extends Fragment {
 
     @ViewById(R.id.fab)
     FloatingActionButton fab;
-
-    @ViewById
-    SwipeRefreshLayout swipeLayout;
 
     @Bean
     DataLoader loader;
