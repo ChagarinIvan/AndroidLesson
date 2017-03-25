@@ -163,7 +163,7 @@ public class CategoresFragment extends android.app.Fragment {
                                                                     userId,
                                                                     isShow,
                                                                     key);
-                                                            loader.writeNewCategory(category, DataLoader.CATEGORIES + "/" + KindOfCategories.getLatinKinds()[kind] + "/" + key);
+                                                            loader.writeNewCategory(category, DataLoader.CATEGORIES + "/" + KindOfCategories.getLatinKinds()[kind]);
                                                         }
                                                     }
 
