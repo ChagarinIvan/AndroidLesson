@@ -31,10 +31,10 @@ import by.chagarin.androidlesson.DataLoader_;
 import by.chagarin.androidlesson.KindOfCategories;
 import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
-import by.chagarin.androidlesson.fragments.fragments.NonSwipeableViewPager;
-import by.chagarin.androidlesson.fragments.fragments.PlacesCategores;
-import by.chagarin.androidlesson.fragments.fragments.ProceedCategores;
-import by.chagarin.androidlesson.fragments.fragments.TransactionsCategores;
+import by.chagarin.androidlesson.fragments.categorys_fragments.NonSwipeableViewPager;
+import by.chagarin.androidlesson.fragments.categorys_fragments.PlacesCategores;
+import by.chagarin.androidlesson.fragments.categorys_fragments.ProceedCategores;
+import by.chagarin.androidlesson.fragments.categorys_fragments.TransactionsCategores;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.User;
 
@@ -163,7 +163,7 @@ public class CategoresFragment extends android.app.Fragment {
                                                                     userId,
                                                                     isShow,
                                                                     key);
-                                                            loader.writeNewCategory(category, DataLoader.CATEGORIES + "/" + KindOfCategories.getLatinKinds()[kind] + "/" + key);
+                                                            loader.writeNewCategory(category, DataLoader.CATEGORIES + "/" + KindOfCategories.getLatinKinds()[kind]);
                                                         }
                                                     }
 

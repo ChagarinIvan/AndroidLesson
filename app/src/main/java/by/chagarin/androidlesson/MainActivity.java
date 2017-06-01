@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +38,7 @@ import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
 import by.chagarin.androidlesson.fragments.StatisticsFragment_;
 import by.chagarin.androidlesson.fragments.TransactionsFragment_;
+import by.chagarin.androidlesson.fragments.TransferFragment_;
 import by.chagarin.androidlesson.objects.User;
 
 import static by.chagarin.androidlesson.DataLoader.USERS;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private MainActivity context;
     public Fragment actualFragment;
     public Fragment parentFragment;
+    public ProgressLayout progressLayout;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -73,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
+    public void showContent() {
+        progressLayout.showContent();
+    }
+
     //
     private class DrawerItemClickListener implements Drawer.OnDrawerItemClickListener {
         @Override
@@ -90,13 +97,17 @@ public class MainActivity extends AppCompatActivity {
                     result.setSelection(3);
                     setFragment(CategoresFragment_.builder().build());
                     return true;
-                case 4:
-                    result.setSelection(4);
-                    setFragment(StatisticsFragment_.builder().build());
-                    return true;
                 case 5:
                     result.setSelection(5);
+                    setFragment(StatisticsFragment_.builder().build());
+                    return true;
+                case 6:
+                    result.setSelection(6);
                     setFragment(Chat_.builder().build());
+                    return true;
+                case 4:
+                    result.setSelection(4);
+                    setFragment(TransferFragment_.builder().build());
                     return true;
             }
             return false;
@@ -156,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.transactions).withIcon(FontAwesome.Icon.faw_shopping_cart),
                         new PrimaryDrawerItem().withName(R.string.add).withIcon(FontAwesome.Icon.faw_download),
                         new PrimaryDrawerItem().withName(R.string.categores).withIcon(FontAwesome.Icon.faw_tags),
+                        new PrimaryDrawerItem().withName(R.string.transfer).withIcon(FontAwesome.Icon.faw_adn),
                         new PrimaryDrawerItem().withName(R.string.statistics).withIcon(FontAwesome.Icon.faw_area_chart),
                         new PrimaryDrawerItem().withName(R.string.chat).withIcon(FontAwesome.Icon.faw_chain_broken),
                         new DividerDrawerItem(),
@@ -166,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         actualFragment = TransactionsFragment_.builder().build();
         setFragment(actualFragment);
+        progressLayout.showContent();
     }
 
     private void someMethod(String uri) {
@@ -183,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
-
+        progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
         ColorRandom colorRandom = ColorRandom_.getInstance_(this);
         context = this;
         FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();

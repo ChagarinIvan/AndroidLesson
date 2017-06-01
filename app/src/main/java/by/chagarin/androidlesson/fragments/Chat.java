@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -65,13 +66,16 @@ public class Chat extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
-        view.setBackgroundColor(colorRandom.getRandomColor());
+        view.setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         return view;
     }
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
+
     @AfterViews
     void ready() {
-        MainActivity mainActivity = (MainActivity) getActivity();
+        final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.chat);
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -91,6 +95,7 @@ public class Chat extends Fragment {
 
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToPost(model);
+                progressLayout.showContent();
             }
         };
         mRecycler.setAdapter(mAdapter);

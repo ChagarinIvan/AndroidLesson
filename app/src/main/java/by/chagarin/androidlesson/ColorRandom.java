@@ -1,27 +1,35 @@
 package by.chagarin.androidlesson;
 
 
-import android.graphics.Color;
-
 import org.androidannotations.annotations.EBean;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class ColorRandom {
     private Random random = new Random();
+    private ArrayList<Integer> colorList = new ArrayList<Integer>() {
+        {
+            add(R.color.color1);
+            add(R.color.color2);
+            add(R.color.color3);
+            add(R.color.color4);
+            add(R.color.color5);
+            add(R.color.color6);
+            add(R.color.color7);
+            add(R.color.color8);
+            add(R.color.color9);
+            add(R.color.color10);
+            add(R.color.color11);
+            add(R.color.color12);
+            add(R.color.color13);
+            add(R.color.color14);
+            add(R.color.color15);
+        }
+    };
 
     public int getRandomColor() {
-        final int baseColor = Color.WHITE;
-
-        final int baseRed = Color.red(baseColor);
-        final int baseGreen = Color.green(baseColor);
-        final int baseBlue = Color.blue(baseColor);
-
-        final int red = (baseRed + random.nextInt(256)) / 2;
-        final int green = (baseGreen + random.nextInt(256)) / 2;
-        final int blue = (baseBlue + random.nextInt(256)) / 2;
-
-        return Color.rgb(red, green, blue);
+        return colorList.get(random.nextInt(14));
     }
 }

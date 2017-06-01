@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -22,6 +21,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -79,9 +79,6 @@ public class TransactionsFragment extends Fragment {
     @ViewById(R.id.fab)
     FloatingActionButton fab;
 
-    @ViewById
-    SwipeRefreshLayout swipeLayout;
-
     @Bean
     DataLoader loader;
 
@@ -99,13 +96,15 @@ public class TransactionsFragment extends Fragment {
     @Bean
     ColorRandom colorRandom;
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.transactions);
-        this.getView().setBackgroundColor(colorRandom.getRandomColor());
+        this.getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
         super.onPrepareOptionsMenu(menu);
         final SearchView searchView = (SearchView) menuSearch.getActionView();
         //делаем хинт из хмл
@@ -224,6 +223,7 @@ public class TransactionsFragment extends Fragment {
                         return true;
                     }
                 });
+                progressLayout.showContent();
             }
         };
         //слушатель нажатий на остаток кэша

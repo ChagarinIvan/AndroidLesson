@@ -3,7 +3,6 @@ package by.chagarin.androidlesson.fragments;
 
 import android.app.Fragment;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -78,9 +78,6 @@ public class ProceedFragment extends Fragment {
     @Bean
     DataLoader loader;
 
-    @ViewById
-    SwipeRefreshLayout swipeLayout;
-
     private FirebaseRecyclerAdapter<Proceed, ProceedViewHolder> mAdapter;
     private List<Category> listCategoriesProceedes;
     private List<Category> listCategoriesPlaces;
@@ -95,12 +92,16 @@ public class ProceedFragment extends Fragment {
     @Bean
     ColorRandom colorRandom;
 
+    @ViewById(R.id.progress_layout)
+    ProgressLayout progressLayout;
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         final MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.actualFragment = this;
         mainActivity.setTitle(R.string.add);
-        this.getView().setBackgroundColor(colorRandom.getRandomColor());
+        this.getView().setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
+        //progressLayout.showProgress();
         super.onPrepareOptionsMenu(menu);
         // [END create_database_reference]
         mRecycler.setHasFixedSize(true);
@@ -212,6 +213,7 @@ public class ProceedFragment extends Fragment {
                         return true;
                     }
                 });
+                progressLayout.showContent();
             }
         };
 

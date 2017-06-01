@@ -1,4 +1,4 @@
-package by.chagarin.androidlesson.fragments.fragments;
+package by.chagarin.androidlesson.fragments.categorys_fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,6 +32,7 @@ import by.chagarin.androidlesson.ColorRandom;
 import by.chagarin.androidlesson.ColorRandom_;
 import by.chagarin.androidlesson.DataLoader;
 import by.chagarin.androidlesson.DataLoader_;
+import by.chagarin.androidlesson.MainActivity;
 import by.chagarin.androidlesson.R;
 import by.chagarin.androidlesson.objects.Category;
 import by.chagarin.androidlesson.objects.Proceed;
@@ -44,6 +46,7 @@ public class ChildFragmentOne extends Fragment {
     private RecyclerView mRecycler;
     private FirebaseRecyclerAdapter<Category, CategoryViewHolder> mAdapter;
     private boolean isCheck;
+    ProgressLayout progressLayout;
 
     public ChildFragmentOne() {
     }
@@ -56,9 +59,11 @@ public class ChildFragmentOne extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        final MainActivity mainActivity = (MainActivity) getActivity();
         View view = inflater.inflate(R.layout.fragment_category_child, container, false);
         ColorRandom colorRandom = ColorRandom_.getInstance_(getActivity());
-        view.setBackgroundColor(colorRandom.getRandomColor());
+        view.setBackgroundColor(getResources().getColor(colorRandom.getRandomColor()));
+        progressLayout = (ProgressLayout) view.findViewById(R.id.progress_layout);
         loader = DataLoader_.getInstance_(getActivity());
         mRecycler = (RecyclerView) view.findViewById(R.id.categories_list_view);
         // [END create_database_reference]
@@ -171,7 +176,7 @@ public class ChildFragmentOne extends Fragment {
                         return true;
                     }
                 });
-
+                progressLayout.showContent();
             }
         };
         //реакция на свайп
