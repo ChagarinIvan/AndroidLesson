@@ -1,5 +1,7 @@
 package by.chagarin.androidlesson.objects;
 
+import android.graphics.Bitmap;
+
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.HashMap;
@@ -12,7 +14,7 @@ public class User {
     public String userKey;
     public String photoURL;
     public boolean isShow;
-
+    public Bitmap bitmap;
 
     /**
      * @param name     of user
@@ -34,6 +36,7 @@ public class User {
         HashMap<String, Object> result = new HashMap<>();
         result.put("name", name);
         result.put("email", email);
+        result.put("userKey", userKey);
         result.put("photoURL", photoURL);
         result.put("isShow", isShow);
         return result;

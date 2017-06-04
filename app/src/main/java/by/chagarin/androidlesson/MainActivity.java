@@ -33,6 +33,9 @@ import com.mikepenz.octicons_typeface_library.Octicons;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import by.chagarin.androidlesson.fragments.CategoresFragment_;
 import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
@@ -45,12 +48,12 @@ import static by.chagarin.androidlesson.DataLoader.USERS;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseUser mFirebaseUser;
     private Bundle savedInstance;
     private MainActivity context;
     public Fragment actualFragment;
     public Fragment parentFragment;
     public ProgressLayout progressLayout;
+    public static List<User> userList;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -120,14 +123,40 @@ public class MainActivity extends AppCompatActivity {
     private User user;
     private DataLoader loader;
 
-    private IProfile profile;
+    public static IProfile profile;
 
     private Target target = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            user.bitmap = bitmap;
             profile = new ProfileDrawerItem().withName(user.name).withIcon(bitmap);
             DataLoader.isShow = user.isShow;
-            startMainActivity();
+
+        }
+
+        private void requrIconLoader() {
+            for (final User otherUser : userList) {
+                if (otherUser.bitmap == null) {
+                    Picasso.with(getApplicationContext()).load(otherUser.photoURL).into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            otherUser.bitmap = bitmap;
+                            requrIconLoader();
+                            startMainActivity();
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
+                }
+            }
         }
 
         @Override
@@ -193,14 +222,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        userList = new ArrayList<>();
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
         progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
         ColorRandom colorRandom = ColorRandom_.getInstance_(this);
         context = this;
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        final FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity_.class));
@@ -208,10 +238,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         loader = DataLoader_.getInstance_(this);
-        loader.mDatabase.child(USERS).child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        loader.mDatabase.child(USERS).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(User.class);
+                for (DataSnapshot dataUser : dataSnapshot.getChildren()) {
+                    User newUser = dataUser.getValue(User.class);
+                    userList.add(newUser);
+                    if (newUser.userKey.equals(mFirebaseUser.getUid())) {
+                        user = newUser;
+                    }
+                }
                 someMethod(user.photoURL);
             }
 

@@ -1,8 +1,12 @@
 package by.chagarin.androidlesson.objects;
 
 
+import android.graphics.Bitmap;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import by.chagarin.androidlesson.MainActivity;
 
 public class Transaction {
     public String title;
@@ -45,6 +49,15 @@ public class Transaction {
     public boolean equals(Object obj) {
         Transaction transaction = (Transaction) obj;
         return this.key.equals(transaction.key);
+    }
+
+    public Bitmap getUserIcon() {
+        for (User user : MainActivity.userList) {
+            if (user.userKey.equals(this.userKey)) {
+                return user.bitmap;
+            }
+        }
+        return null;
     }
 }
 

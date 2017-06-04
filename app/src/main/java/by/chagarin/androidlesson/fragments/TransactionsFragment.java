@@ -121,7 +121,7 @@ public class TransactionsFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         final Query postsQuery = loader.getQuery(ACTIONS + TRANSACTIONS);
         //адаптер fireBase
-        mAdapter = new FirebaseRecyclerAdapter<Transaction, TransactionViewHolder>(Transaction.class, R.layout.list_item,
+        mAdapter = new FirebaseRecyclerAdapter<Transaction, TransactionViewHolder>(Transaction.class, R.layout.transaction_item,
                 TransactionViewHolder.class, postsQuery) {
             @Override
             protected void populateViewHolder(final TransactionViewHolder viewHolder, final Transaction model, final int position) {
