@@ -1,10 +1,14 @@
 package by.chagarin.androidlesson.objects;
 
+import android.graphics.Bitmap;
+
 import com.activeandroid.Model;
 import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import by.chagarin.androidlesson.MainActivity;
 
 /**
  * делаем класс для БД
@@ -51,5 +55,14 @@ public class Category extends Model {
     public boolean equals(Object obj) {
         Category category = (Category) obj;
         return this.key.equals(category.key);
+    }
+
+    public Bitmap getUserIcon() {
+        for (User user : MainActivity.userList) {
+            if (user.userKey.equals(this.userKey)) {
+                return user.bitmap;
+            }
+        }
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package by.chagarin.androidlesson.viewholders;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -18,7 +19,7 @@ import by.chagarin.androidlesson.objects.Transfer;
 
 public class TransferViewHolder extends RecyclerView.ViewHolder {
 
-    protected TextView name;
+    private ImageView userIcon;
     private TextView sum;
     private TextView date;
     private TextView fromCategoryKey;
@@ -26,14 +27,15 @@ public class TransferViewHolder extends RecyclerView.ViewHolder {
     public DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     public CardView cardView;
 
+
     public TransferViewHolder(View itemView) {
         super(itemView);
-        name = (TextView) itemView.findViewById(R.id.name);
         sum = (TextView) itemView.findViewById(R.id.price);
         date = (TextView) itemView.findViewById(R.id.date);
         fromCategoryKey = (TextView) itemView.findViewById(R.id.from_category);
         toCategoryKey = (TextView) itemView.findViewById(R.id.to_category);
         cardView = (CardView) itemView.findViewById(R.id.card_id);
+        userIcon = (ImageView) itemView.findViewById(R.id.user_icon);
     }
 
     public void bindToTransfer(final Transfer transfer) {
@@ -45,22 +47,11 @@ public class TransferViewHolder extends RecyclerView.ViewHolder {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         final String toCategory = dataSnapshot.getValue(String.class);
-                        mDatabase.child(DataLoader.USERS).child(transfer.userKey).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                String userName = dataSnapshot.getValue(String.class);
-                                name.setText(userName);
-                                sum.setText(transfer.price);
-                                date.setText(transfer.date);
-                                fromCategoryKey.setText(fromCategory);
-                                toCategoryKey.setText(toCategory);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
+                        userIcon.setImageBitmap(transfer.getUserIcon());
+                        sum.setText(transfer.price);
+                        date.setText(transfer.date);
+                        fromCategoryKey.setText(fromCategory);
+                        toCategoryKey.setText(toCategory);
                     }
 
                     @Override

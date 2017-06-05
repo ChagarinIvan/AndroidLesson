@@ -54,6 +54,14 @@ public class MainActivity extends AppCompatActivity {
     public Fragment parentFragment;
     public ProgressLayout progressLayout;
     public static List<User> userList;
+    private int counter;
+    private Target target;
+    private AccountHeader headerResult = null;
+    private Drawer result = null;
+    private User user;
+    private DataLoader loader;
+
+    public static IProfile profile;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -77,10 +85,6 @@ public class MainActivity extends AppCompatActivity {
         parentFragment = actualFragment;
         result.closeDrawer();
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
-    }
-
-    public void showContent() {
-        progressLayout.showContent();
     }
 
     //
@@ -118,57 +122,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //save our header or result
-    private AccountHeader headerResult = null;
-    private Drawer result = null;
-    private User user;
-    private DataLoader loader;
 
-    public static IProfile profile;
-
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            user.bitmap = bitmap;
-            profile = new ProfileDrawerItem().withName(user.name).withIcon(bitmap);
-            DataLoader.isShow = user.isShow;
-
-        }
-
-        private void requrIconLoader() {
-            for (final User otherUser : userList) {
-                if (otherUser.bitmap == null) {
-                    Picasso.with(getApplicationContext()).load(otherUser.photoURL).into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            otherUser.bitmap = bitmap;
-                            requrIconLoader();
-                            startMainActivity();
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
-
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
+    private void loadAllIcon() {
+        closeTarget();
+        final User someUser=userList.get(counter);
+        final Target newTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                someUser.bitmap = bitmap;
+                counter++;
+                if (counter<userList.size()){
+                    loadAllIcon();
+                } else {
+                    startMainActivity();
                 }
+
             }
-        }
 
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-        }
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
 
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+
+        };
+        this.target = newTarget;
+        Picasso.with(context).load(someUser.photoURL).into(newTarget);
+    }
+
+    private void closeTarget(){
+        if (target!=null) {
+            Picasso.with(this).cancelRequest(target);
         }
-    };
+    }
 
     private void startMainActivity() {
+        closeTarget();
+        for (User user:userList){
+            if (user.userKey.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                profile = new ProfileDrawerItem().withName(user.name).withIcon(user.bitmap);
+                DataLoader.isShow = user.isShow;
+            }
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //set the back arrow in the toolbar
@@ -210,28 +209,16 @@ public class MainActivity extends AppCompatActivity {
         progressLayout.showContent();
     }
 
-    private void someMethod(String uri) {
-        Picasso.with(this).load(uri).into(target);
-    }
-
-    @Override
-    public void onDestroy() {  // could be in onPause or onStop
-        Picasso.with(this).cancelRequest(target);
-        super.onDestroy();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        counter = 0;
         userList = new ArrayList<>();
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
         progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
-        ColorRandom colorRandom = ColorRandom_.getInstance_(this);
         context = this;
-        final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        final FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity_.class));
             finish();
@@ -244,11 +231,11 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot dataUser : dataSnapshot.getChildren()) {
                     User newUser = dataUser.getValue(User.class);
                     userList.add(newUser);
-                    if (newUser.userKey.equals(mFirebaseUser.getUid())) {
+                    if (newUser.userKey.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         user = newUser;
                     }
                 }
-                someMethod(user.photoURL);
+                loadAllIcon();
             }
 
             @Override
