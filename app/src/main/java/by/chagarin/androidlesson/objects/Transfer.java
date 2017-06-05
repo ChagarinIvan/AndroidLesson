@@ -1,8 +1,12 @@
 package by.chagarin.androidlesson.objects;
 
 
+import android.graphics.Bitmap;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import by.chagarin.androidlesson.MainActivity;
 
 public class Transfer {
     public String title;
@@ -46,5 +50,14 @@ public class Transfer {
     public boolean equals(Object obj) {
         Transfer transfer = (Transfer) obj;
         return this.key.equals(transfer.key);
+    }
+
+    public Bitmap getUserIcon() {
+        for (User user : MainActivity.userList) {
+            if (user.userKey.equals(this.userKey)) {
+                return user.bitmap;
+            }
+        }
+        return null;
     }
 }

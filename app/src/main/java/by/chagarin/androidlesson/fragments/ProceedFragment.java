@@ -113,7 +113,7 @@ public class ProceedFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         final Query postsQuery = loader.getQuery(ACTIONS + PROCEEDS);
         //адаптер БД
-        mAdapter = new FirebaseRecyclerAdapter<Proceed, ProceedViewHolder>(Proceed.class, R.layout.list_item,
+        mAdapter = new FirebaseRecyclerAdapter<Proceed, ProceedViewHolder>(Proceed.class, R.layout.transaction_item,
                 ProceedViewHolder.class, postsQuery) {
             @Override
             protected void populateViewHolder(final ProceedViewHolder viewHolder, final Proceed model, final int position) {

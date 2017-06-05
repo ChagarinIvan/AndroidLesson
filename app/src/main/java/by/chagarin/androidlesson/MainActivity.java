@@ -33,6 +33,9 @@ import com.mikepenz.octicons_typeface_library.Octicons;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import by.chagarin.androidlesson.fragments.CategoresFragment_;
 import by.chagarin.androidlesson.fragments.Chat_;
 import by.chagarin.androidlesson.fragments.ProceedFragment_;
@@ -45,12 +48,20 @@ import static by.chagarin.androidlesson.DataLoader.USERS;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseUser mFirebaseUser;
     private Bundle savedInstance;
     private MainActivity context;
     public Fragment actualFragment;
     public Fragment parentFragment;
     public ProgressLayout progressLayout;
+    public static List<User> userList;
+    private int counter;
+    private Target target;
+    private AccountHeader headerResult = null;
+    private Drawer result = null;
+    private User user;
+    private DataLoader loader;
+
+    public static IProfile profile;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -74,10 +85,6 @@ public class MainActivity extends AppCompatActivity {
         parentFragment = actualFragment;
         result.closeDrawer();
         getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
-    }
-
-    public void showContent() {
-        progressLayout.showContent();
     }
 
     //
@@ -115,31 +122,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //save our header or result
-    private AccountHeader headerResult = null;
-    private Drawer result = null;
-    private User user;
-    private DataLoader loader;
 
-    private IProfile profile;
+    private void loadAllIcon() {
+        closeTarget();
+        final User someUser=userList.get(counter);
+        final Target newTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                someUser.bitmap = bitmap;
+                counter++;
+                if (counter<userList.size()){
+                    loadAllIcon();
+                } else {
+                    startMainActivity();
+                }
 
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            profile = new ProfileDrawerItem().withName(user.name).withIcon(bitmap);
-            DataLoader.isShow = user.isShow;
-            startMainActivity();
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+
+        };
+        this.target = newTarget;
+        Picasso.with(context).load(someUser.photoURL).into(newTarget);
+    }
+
+    private void closeTarget(){
+        if (target!=null) {
+            Picasso.with(this).cancelRequest(target);
         }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
-    };
+    }
 
     private void startMainActivity() {
+        closeTarget();
+        for (User user:userList){
+            if (user.userKey.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                profile = new ProfileDrawerItem().withName(user.name).withIcon(user.bitmap);
+                DataLoader.isShow = user.isShow;
+            }
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //set the back arrow in the toolbar
@@ -181,38 +209,33 @@ public class MainActivity extends AppCompatActivity {
         progressLayout.showContent();
     }
 
-    private void someMethod(String uri) {
-        Picasso.with(this).load(uri).into(target);
-    }
-
-    @Override
-    public void onDestroy() {  // could be in onPause or onStop
-        Picasso.with(this).cancelRequest(target);
-        super.onDestroy();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        counter = 0;
+        userList = new ArrayList<>();
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_persistent_drawer);
         progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
-        ColorRandom colorRandom = ColorRandom_.getInstance_(this);
         context = this;
-        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity_.class));
             finish();
             return;
         }
         loader = DataLoader_.getInstance_(this);
-        loader.mDatabase.child(USERS).child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        loader.mDatabase.child(USERS).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(User.class);
-                someMethod(user.photoURL);
+                for (DataSnapshot dataUser : dataSnapshot.getChildren()) {
+                    User newUser = dataUser.getValue(User.class);
+                    userList.add(newUser);
+                    if (newUser.userKey.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        user = newUser;
+                    }
+                }
+                loadAllIcon();
             }
 
             @Override

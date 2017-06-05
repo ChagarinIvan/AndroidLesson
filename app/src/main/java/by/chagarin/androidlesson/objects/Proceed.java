@@ -1,7 +1,11 @@
 package by.chagarin.androidlesson.objects;
 
+import android.graphics.Bitmap;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import by.chagarin.androidlesson.MainActivity;
 
 public class Proceed {
     public String title;
@@ -44,6 +48,15 @@ public class Proceed {
     public boolean equals(Object obj) {
         Proceed proceed = (Proceed) obj;
         return this.key.equals(proceed.key);
+    }
+
+    public Bitmap getUserIcon() {
+        for (User user : MainActivity.userList) {
+            if (user.userKey.equals(this.userKey)) {
+                return user.bitmap;
+            }
+        }
+        return null;
     }
 }
 
