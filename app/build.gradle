@@ -93,6 +93,8 @@ dependencies {
     //tabs
     compile 'it.neokree:MaterialTabs:0.11'
     compile 'com.github.androidprogresslayout:library:2.0.2@aar'
+    compile 'com.roger.catloadinglibrary:catloadinglibrary:1.0.1'
+
 }
 
 apt {

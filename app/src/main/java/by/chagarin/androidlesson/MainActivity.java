@@ -13,7 +13,6 @@ import android.widget.CompoundButton;
 
 import com.github.androidprogresslayout.ProgressLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -30,6 +29,7 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.octicons_typeface_library.Octicons;
+import com.roger.catloadinglibrary.CatLoadingView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Drawer result = null;
     private User user;
     private DataLoader loader;
+    private CatLoadingView mView;
 
     public static IProfile profile;
 
@@ -207,14 +208,19 @@ public class MainActivity extends AppCompatActivity {
         actualFragment = TransactionsFragment_.builder().build();
         setFragment(actualFragment);
         progressLayout.showContent();
+        mView.dismiss();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        counter = 0;
-        userList = new ArrayList<>();
         this.savedInstance = savedInstanceState;
         super.onCreate(savedInstanceState);
+
+        counter = 0;
+        userList = new ArrayList<>();
+        mView = new CatLoadingView();
+
+        mView.show(getSupportFragmentManager(), "ПАЧАКАЙ");
         setContentView(R.layout.activity_persistent_drawer);
         progressLayout = (ProgressLayout) findViewById(R.id.progress_layout);
         context = this;
