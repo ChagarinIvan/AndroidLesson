@@ -293,6 +293,7 @@ public class TransactionsFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(mRecycler);
         mRecycler.setAdapter(mAdapter);
         fab.attachToRecyclerView(mRecycler);
+        mainActivity.mView.dismiss();
     }
 
     private List<String> getListForViewInfoDialog(Transaction model, String transactionName, String placeName) {

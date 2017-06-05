@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Drawer result = null;
     private User user;
     private DataLoader loader;
-    private CatLoadingView mView;
+    public CatLoadingView mView;
 
     public static IProfile profile;
 
@@ -208,7 +208,6 @@ public class MainActivity extends AppCompatActivity {
         actualFragment = TransactionsFragment_.builder().build();
         setFragment(actualFragment);
         progressLayout.showContent();
-        mView.dismiss();
     }
 
     @Override

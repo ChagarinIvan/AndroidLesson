@@ -59,7 +59,7 @@
                 android:id="@+id/comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|bottom"
+                android:layout_gravity="end|bottom"
                 android:text="Комментарий"
                 android:textColor="#63c947"
                 android:textSize="12dp" />
