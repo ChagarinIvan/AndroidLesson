@@ -79,6 +79,7 @@ public class CashStatisticsFragment extends Fragment {
 
     @ViewById
     LinearLayout childLayout;
+
     private final DataLoader.AllDataLoaderListener singleValueListener = new AllDataLoaderListener(new Callable() {
         @Override
         public Object call() throws Exception {
